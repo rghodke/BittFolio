@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,10 +20,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -150,7 +165,6 @@ public class LoginActivity extends AppCompatActivity{
     }
 
 
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -165,18 +179,84 @@ public class LoginActivity extends AppCompatActivity{
             mApiSecret = secret;
         }
 
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        //Used to create the apisign
+        public String calculateHash(String secret, String url, String encryption) {
+
+            Mac shaHmac = null;
+
+            try {
+
+                shaHmac = Mac.getInstance(encryption);
+
+            } catch (NoSuchAlgorithmException e) {
+
+                e.printStackTrace();
+            }
+
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
+
+            try {
+
+                shaHmac.init(secretKey);
+
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+
+            byte[] hash = shaHmac.doFinal(url.getBytes());
+            String check = bytesToHex(hash);
+
+            return check;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        private String bytesToHex(byte[] bytes) {
+
+            char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+            char[] hexChars = new char[bytes.length * 2];
+
+            for (int j = 0; j < bytes.length; j++) {
+
+                int v = bytes[j] & 0xFF;
+
+                hexChars[j * 2] = hexArray[v >>> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            }
+
+            return new String(hexChars);
+        }
+
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
+            String nonce = Long.toString(new Date().getTime());
+            URL url = null;
+            HttpURLConnection connection = null;
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+                String urlString = "https://bittrex.com/api/v1.1/account/getbalances?apikey=" + mApiKey + "&nonce=" + nonce;
+                url = new URL(urlString);
+                Log.d("URL", url.getPath());
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"));
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer resultBuffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null)
+                    resultBuffer.append(line);
+
+                System.out.println(resultBuffer.toString());
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            // TODO: register the new account here.
             return true;
         }
 
