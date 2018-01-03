@@ -1,8 +1,9 @@
-package crypto.manager.bittfolio;
+package crypto.manager.bittfolio.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -10,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,12 +19,15 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -33,11 +36,14 @@ import java.util.Date;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import crypto.manager.bittfolio.R;
+
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -250,14 +256,36 @@ public class LoginActivity extends AppCompatActivity {
                 while ((line = reader.readLine()) != null)
                     resultBuffer.append(line);
 
-                System.out.println(resultBuffer.toString());
 
+                int requestCode = connection.getResponseCode();
+                if(requestCode == 200) {
 
-            } catch (Exception e) {
+                    /*
+                    Bittrex will return 200 even if login info is incorrect. Look for success
+                    variable
+                     */
+                    String success = null;
+                    try {
+                        JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
+                        success = coinBalancesJson.getString("success");
+                    } catch (JSONException e) {
+                        success = "false";
+                    }
+                    if(success.equals("false")){
+                        return false;
+                    }
+
+                    startPortfolioActivity(resultBuffer.toString());
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             }
 
-            return true;
         }
 
         @Override
@@ -268,6 +296,7 @@ public class LoginActivity extends AppCompatActivity {
             if (success) {
                 finish();
             } else {
+                Toast.makeText(getBaseContext(), R.string.signin_error_message, Toast.LENGTH_SHORT).show();
                 mApiSecretView.setError(getString(R.string.error_incorrect_password));
                 mApiSecretView.requestFocus();
             }
@@ -278,6 +307,12 @@ public class LoginActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    private void startPortfolioActivity(String s) {
+        Intent intent = new Intent(this, PortfolioActivity.class);
+        intent.putExtra(EXTRA_COIN_BALANCE_STRING, s);
+        startActivity(intent);
     }
 }
 
