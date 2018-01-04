@@ -12,6 +12,13 @@
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
+        android:id="@+id/text_view_holding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+    <TextView
         android:id="@+id/text_view_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

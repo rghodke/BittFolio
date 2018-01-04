@@ -245,7 +245,6 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 String urlString = "https://bittrex.com/api/v1.1/account/getbalances?apikey=" + mApiKey + "&nonce=" + nonce;
                 url = new URL(urlString);
-                Log.d("URL", url.getPath());
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"));

@@ -1,10 +1,5 @@
 package crypto.manager.bittfolio.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * CoinData model to encapsulate all the different coin fields
  * <p>
@@ -13,10 +8,17 @@ import java.util.Map;
 public class CoinData {
 
     private String mCurrency;
-    private String mBalance;
+    private double mHolding;
+    private double mBalance;
 
-    public CoinData(String currency, String balance){
+    public CoinData(String currency, double holding){
         this.mCurrency = currency;
+        this.mHolding = holding;
+    }
+
+    public CoinData(String currency, double holding, double balance){
+        this.mCurrency = currency;
+        this.mHolding = holding;
         this.mBalance = balance;
     }
 
@@ -24,7 +26,16 @@ public class CoinData {
         return mCurrency;
     }
 
-    public String getBalance() {
+    public double getHolding() {
+        return mHolding;
+    }
+
+
+    public double getBalance() {
         return mBalance;
+    }
+
+    public void setBalance(double balance) {
+        this.mBalance = balance;
     }
 }

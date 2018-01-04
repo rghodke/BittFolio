@@ -20,7 +20,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.PortfolioActivity"></activity>
+        <activity android:name=".activity.PortfolioActivity" />
+
+        <service
+            android:name=".service.LiveCoinValueService"
+            android:exported="false">
+        </service>
+
     </application>
+
+
 
 </manifest>

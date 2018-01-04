@@ -10,6 +10,7 @@ import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.PortfolioFragment.OnListFragmentInteractionListener;
 import crypto.manager.bittfolio.model.CoinData;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -39,7 +40,8 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mCoins.get(position);
         holder.mTicketView.setText(mCoins.get(position).getCurrency());
-        holder.mBalanceView.setText(mCoins.get(position).getBalance());
+        holder.mHoldingView.setText(new DecimalFormat("#.#######").format(mCoins.get(position).getHolding()));
+        holder.mBalanceView.setText(new DecimalFormat("#.#######").format(mCoins.get(position).getBalance()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,6 +63,7 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mTicketView;
+        public final TextView mHoldingView;
         public final TextView mBalanceView;
         public CoinData mItem;
 
@@ -68,6 +71,7 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
             super(view);
             mView = view;
             mTicketView = (TextView) view.findViewById(R.id.text_view_ticker);
+            mHoldingView = (TextView) view.findViewById(R.id.text_view_holding);
             mBalanceView = (TextView) view.findViewById(R.id.text_view_balance);
         }
     }

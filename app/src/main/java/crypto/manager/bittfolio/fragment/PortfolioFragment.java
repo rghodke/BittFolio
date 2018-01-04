@@ -3,20 +3,20 @@ package crypto.manager.bittfolio.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import crypto.manager.bittfolio.adapter.MyCoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.R;
@@ -35,6 +35,8 @@ public class PortfolioFragment extends Fragment {
     // TODO: Customize parameters
     private String mCoinBalanceString;
     private OnListFragmentInteractionListener mListener;
+    private List<CoinData> coinDataList;
+    private MyCoinRecyclerViewAdapter recyclerViewAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -67,7 +69,7 @@ public class PortfolioFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_portfolio_list, container, false);
 
-        List<CoinData> coinDataList = new ArrayList<>();
+        coinDataList = new ArrayList<>();
         try {
             coinDataList = parseCoinData(mCoinBalanceString);
         } catch (JSONException e) {
@@ -80,7 +82,8 @@ public class PortfolioFragment extends Fragment {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(new MyCoinRecyclerViewAdapter(coinDataList, mListener));
+            recyclerViewAdapter = new MyCoinRecyclerViewAdapter(coinDataList, mListener);
+            recyclerView.setAdapter(recyclerViewAdapter);
         }
         return view;
     }
@@ -93,10 +96,13 @@ public class PortfolioFragment extends Fragment {
 
         JSONArray coins = coinBalancesJson.getJSONArray("result");
 
-        for(int i = 0; i<coins.length(); i++){
+        for (int i = 0; i < coins.length(); i++) {
             JSONObject coin = coins.getJSONObject(i);
-            CoinData coinObj = new CoinData(coin.getString("Currency"), coin.getString("Balance"));
-            coinDataList.add(coinObj);
+            //Only add coins you posses
+            if (coin.getDouble("Balance") != 0.0) {
+                CoinData coinObj = new CoinData(coin.getString("Currency"), coin.getDouble("Balance"));
+                coinDataList.add(coinObj);
+            }
         }
 
         return coinDataList;
@@ -119,6 +125,39 @@ public class PortfolioFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    /**
+     * Update the coin data with the updated balances
+     *
+     * @param coinDataString
+     */
+    public void updateCoinData(String coinDataString) {
+        Map<String, Double> currencyValue = new HashMap<>();
+        try {
+            JSONObject jsonObject = new JSONObject(coinDataString);
+            JSONArray currenciesData = jsonObject.getJSONArray("result");
+            for (int i = 0; i < currenciesData.length(); i++) {
+                JSONObject currencyData = currenciesData.getJSONObject(i);
+                currencyValue.put(currencyData.getString("MarketName"), currencyData.getDouble("Last"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        for (CoinData coinData : coinDataList) {
+            String currencyKey = "BTC-" + coinData.getCurrency();
+            if (currencyValue.containsKey(currencyKey)) {
+                double coinValue = currencyValue.get(currencyKey);
+                double holding = (coinData.getHolding());
+                double balance = coinValue * holding;
+                coinData.setBalance((balance));
+            }
+        }
+
+        //Update the list with the second to second update on balances
+        recyclerViewAdapter.notifyDataSetChanged();
     }
 
     /**
