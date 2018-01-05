@@ -53,6 +53,7 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
                 }
             }
         });
+
     }
 
     @Override

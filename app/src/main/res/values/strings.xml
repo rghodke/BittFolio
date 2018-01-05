@@ -14,4 +14,7 @@
         completions."
     </string>
     <string name="signin_error_message">Couldn\'t connect to Bittrex</string>
+    <string name="coin">Coin</string>
+    <string name="holdings">Holdings</string>
+    <string name="balance">Balance</string>
 </resources>

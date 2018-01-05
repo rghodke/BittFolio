@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:weightSum="100">
 
     <TextView
         android:id="@+id/text_view_ticker"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:layout_weight="20"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
         android:id="@+id/text_view_holding"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:layout_weight="40"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
         android:id="@+id/text_view_balance"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:layout_weight="40"
         android:textAppearance="?attr/textAppearanceListItem" />
 </LinearLayout>

@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 
 import android.os.Bundle;
+import android.view.View;
 
 
 import crypto.manager.bittfolio.R;
@@ -50,6 +51,7 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         //persist the fragment through rotation
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, mProfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
 
+        //TODO: Fix the 0.0 displayed to the user as Bittrex is reached for the first time
         //Broadcast the new data to the portfolio fragment
         broadCastNewMessage = new BroadcastReceiver() {
             @Override
@@ -128,4 +130,9 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         }, delay);
     }
 
+    public void changeUnit(View view) {
+        if (mProfolioFragment != null) {
+            mProfolioFragment.changeUnits();
+        }
+    }
 }

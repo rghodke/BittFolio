@@ -1,13 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
     android:name="crypto.manager.bittfolio.PortfolioFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    app:layoutManager="LinearLayoutManager"
-    tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment"
-    tools:listitem="@layout/fragment_coin" />
+    tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_portfolio_header">
+
+        <RelativeLayout
+            android:id="@+id/portfolio_totals"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <TextView
+                android:id="@+id/text_view_portfolio_total_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="changeUnit"
+                android:textSize="40sp"
+                />
+            <ImageView
+                android:layout_alignParentRight="true"
+                android:id="@+id/image_view_happiness_indicator"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/portfolio_header_text"
+            android:layout_below="@+id/portfolio_totals"
+            android:background="@android:color/darker_gray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/text_view_ticker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="20"
+                android:text="@string/coin"
+                android:textColor="@android:color/white"
+                />
+
+            <TextView
+                android:id="@+id/text_view_holding"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="40"
+                android:text="@string/holdings"
+                android:textColor="@android:color/white"
+                />
+
+            <TextView
+                android:id="@+id/text_view_balance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="40"
+                android:text="@string/balance"
+                android:textColor="@android:color/white"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout_portfolio_header"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/fragment_coin" />
+
+</RelativeLayout>

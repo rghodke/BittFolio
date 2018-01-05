@@ -1,6 +1,7 @@
 package crypto.manager.bittfolio.fragment;
 
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,11 +9,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +43,12 @@ public class PortfolioFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     private List<CoinData> coinDataList;
     private MyCoinRecyclerViewAdapter recyclerViewAdapter;
+    private TextView mTotalBalance;
+    private ImageView mHappinessIndicator;
+    private double totalBalance;
+    private double prevBalance = 0.0;
+    private boolean isDollars;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -69,6 +81,8 @@ public class PortfolioFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_portfolio_list, container, false);
 
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
+
         coinDataList = new ArrayList<>();
         try {
             coinDataList = parseCoinData(mCoinBalanceString);
@@ -76,15 +90,16 @@ public class PortfolioFragment extends Fragment {
             e.printStackTrace();
         }
 
+        mTotalBalance = (TextView) view.findViewById(R.id.text_view_portfolio_total_balance);
+        mHappinessIndicator = (ImageView) view.findViewById(R.id.image_view_happiness_indicator);
+
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerViewAdapter = new MyCoinRecyclerViewAdapter(coinDataList, mListener);
-            recyclerView.setAdapter(recyclerViewAdapter);
-        }
+        Context context = view.getContext();
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerViewAdapter = new MyCoinRecyclerViewAdapter(coinDataList, mListener);
+        recyclerView.setAdapter(recyclerViewAdapter);
+
         return view;
     }
 
@@ -145,6 +160,7 @@ public class PortfolioFragment extends Fragment {
             e.printStackTrace();
         }
 
+        totalBalance = 0.0;
 
         for (CoinData coinData : coinDataList) {
             String currencyKey = "BTC-" + coinData.getCurrency();
@@ -152,12 +168,46 @@ public class PortfolioFragment extends Fragment {
                 double coinValue = currencyValue.get(currencyKey);
                 double holding = (coinData.getHolding());
                 double balance = coinValue * holding;
+                totalBalance += balance;
                 coinData.setBalance((balance));
             }
         }
 
+        if (isDollars) {
+            String USDBTC = "USDT-BTC";
+            double coinValue = currencyValue.get(USDBTC);
+            for (CoinData coinData : coinDataList) {
+                coinData.setBalance(coinData.getBalance() * coinValue);
+            }
+            totalBalance *= coinValue;
+        }
+
         //Update the list with the second to second update on balances
+        refreshPortfolioData(totalBalance);
+
+    }
+
+    private void refreshPortfolioData(double totalBalance) {
+        if(isDollars){
+            mTotalBalance.setText(new DecimalFormat("#.##").format(totalBalance));
+        }else{
+            mTotalBalance.setText(new DecimalFormat("#.#######").format(totalBalance));
+        }
         recyclerViewAdapter.notifyDataSetChanged();
+        if (prevBalance == 0.0) {
+        }
+        //Negative change in portfolio balance
+        else if (totalBalance < prevBalance) {
+            Picasso.with(getContext()).load(R.drawable.sad_face).fit().into(mHappinessIndicator);
+        } else if (totalBalance >= prevBalance) { //Positive change in portfolio
+            Picasso.with(getContext()).load(R.drawable.happy_face).fit().into(mHappinessIndicator);
+        }
+        //Keep track of the totalBalance in prevBalance to monitor change
+        prevBalance = totalBalance;
+    }
+
+    public void changeUnits() {
+        isDollars = !isDollars;
     }
 
     /**
