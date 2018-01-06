@@ -51,20 +51,6 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         //persist the fragment through rotation
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, mProfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
 
-        //TODO: Fix the 0.0 displayed to the user as Bittrex is reached for the first time
-        //Broadcast the new data to the portfolio fragment
-        broadCastNewMessage = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (mProfolioFragment != null) {
-                    mProfolioFragment.updateCoinData(intent.getStringExtra(LIVE_COIN_INTENT_EXTRA));
-                }
-            }
-        };
-        registerReceiver(broadCastNewMessage, new IntentFilter(LIVE_COIN_INTENT_ACTION));
-
-        //Update the price on a second basis
-        updateCoinPrice();
     }
 
     @Override
@@ -95,13 +81,33 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         //Bind to the LiveCoinValueService
         Intent intent = new Intent(this, LiveCoinValueService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        //TODO: Fix the 0.0 displayed to the user as Bittrex is reached for the first time
+        //Broadcast the new data to the portfolio fragment
+        broadCastNewMessage = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (mProfolioFragment != null) {
+                    mProfolioFragment.updateCoinData(intent.getStringExtra(LIVE_COIN_INTENT_EXTRA));
+                }
+            }
+        };
+        registerReceiver(broadCastNewMessage, new IntentFilter(LIVE_COIN_INTENT_ACTION));
+
+        //Update the price on a second basis
+        updateCoinPrice();
     }
 
 
     @Override
     public void onStart() {
-        startLiveCoinValueService();
         super.onStart();
+    }
+
+    @Override
+    public void onResume(){
+        startLiveCoinValueService();
+        super.onResume();
     }
 
     @Override

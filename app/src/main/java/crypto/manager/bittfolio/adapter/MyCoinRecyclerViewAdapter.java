@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.PortfolioFragment.OnListFragmentInteractionListener;
 import crypto.manager.bittfolio.model.CoinData;
@@ -40,8 +42,9 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mCoins.get(position);
         holder.mTicketView.setText(mCoins.get(position).getCurrency());
-        holder.mHoldingView.setText(new DecimalFormat("#.#######").format(mCoins.get(position).getHolding()));
-        holder.mBalanceView.setText(new DecimalFormat("#.#######").format(mCoins.get(position).getBalance()));
+        holder.mHoldingView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getHolding()));
+        holder.mPriceView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getPrice()));
+        holder.mBalanceView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getBalance()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +68,7 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
         public final View mView;
         public final TextView mTicketView;
         public final TextView mHoldingView;
+        public final TextView mPriceView;
         public final TextView mBalanceView;
         public CoinData mItem;
 
@@ -73,6 +77,7 @@ public class MyCoinRecyclerViewAdapter extends RecyclerView.Adapter<MyCoinRecycl
             mView = view;
             mTicketView = (TextView) view.findViewById(R.id.text_view_ticker);
             mHoldingView = (TextView) view.findViewById(R.id.text_view_holding);
+            mPriceView = (TextView) view.findViewById(R.id.text_view_price);
             mBalanceView = (TextView) view.findViewById(R.id.text_view_balance);
         }
     }

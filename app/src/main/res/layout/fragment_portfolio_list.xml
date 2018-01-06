@@ -54,17 +54,28 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
-                android:layout_weight="40"
+                android:layout_weight="26"
                 android:text="@string/holdings"
                 android:textColor="@android:color/white"
                 />
+
+            <TextView
+                android:id="@+id/text_view_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="26"
+                android:text="@string/price"
+                android:textColor="@android:color/white"
+                />
+
 
             <TextView
                 android:id="@+id/text_view_balance"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
-                android:layout_weight="40"
+                android:layout_weight="26"
                 android:text="@string/balance"
                 android:textColor="@android:color/white"
                 />

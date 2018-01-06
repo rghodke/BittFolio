@@ -170,6 +170,7 @@ public class PortfolioFragment extends Fragment {
                 double balance = coinValue * holding;
                 totalBalance += balance;
                 coinData.setBalance((balance));
+                coinData.setPrice(coinValue);
             }
         }
 
@@ -178,6 +179,7 @@ public class PortfolioFragment extends Fragment {
             double coinValue = currencyValue.get(USDBTC);
             for (CoinData coinData : coinDataList) {
                 coinData.setBalance(coinData.getBalance() * coinValue);
+                coinData.setPrice(coinData.getPrice() * coinValue);
             }
             totalBalance *= coinValue;
         }

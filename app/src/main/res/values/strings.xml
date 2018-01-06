@@ -17,4 +17,5 @@
     <string name="coin">Coin</string>
     <string name="holdings">Holdings</string>
     <string name="balance">Balance</string>
+    <string name="price">Price</string>
 </resources>
