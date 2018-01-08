@@ -28,4 +28,6 @@
     <string name="quantity">Quantity</string>
     <string name="quantity_remaining">Quantity Remaining</string>
     <string name="price">Price</string>
+    <string name="buy_order">Buy Order</string>
+    <string name="sell_order">Sell Order</string>
 </resources>

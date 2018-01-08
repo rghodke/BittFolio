@@ -6,11 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.PortfolioFragment.OnPortfolioListFragmentInteractionListener;
+import crypto.manager.bittfolio.model.OrderBookEntry;
 import crypto.manager.bittfolio.model.OrderHistoryEntry;
 
 /**
@@ -18,50 +18,44 @@ import crypto.manager.bittfolio.model.OrderHistoryEntry;
  * specified {@link OnPortfolioListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderHistoryRecyclerViewAdapter.ViewHolder> {
+public class OrderBookRecyclerViewAdapter extends RecyclerView.Adapter<OrderBookRecyclerViewAdapter.ViewHolder> {
 
-    private final List<OrderHistoryEntry> mOrderHistoryEntries;
+    private final List<OrderBookEntry> mOrderBookEntries;
 
 
-    public OrderHistoryRecyclerViewAdapter(List<OrderHistoryEntry> coins) {
-        mOrderHistoryEntries = coins;
+    public OrderBookRecyclerViewAdapter(List<OrderBookEntry> coins) {
+        mOrderBookEntries = coins;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_order_history_entry, parent, false);
+                .inflate(R.layout.fragment_order_book_entry, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mOrderHistoryEntries.get(position);
-        holder.mTypeView.setText(mOrderHistoryEntries.get(position).getType());
-        holder.mQuantityView.setText(mOrderHistoryEntries.get(position).getQuantity());
-        holder.mQuantityRemainingView.setText(mOrderHistoryEntries.get(position).getQuantityRemaining());
-        holder.mPriceView.setText(mOrderHistoryEntries.get(position).getPrice());
+        holder.mItem = mOrderBookEntries.get(position);
+        holder.mQuantityView.setText(mOrderBookEntries.get(position).getQuantity());
+        holder.mPriceView.setText(mOrderBookEntries.get(position).getPrice());
     }
 
     @Override
     public int getItemCount() {
-        return mOrderHistoryEntries.size();
+        return mOrderBookEntries.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mTypeView;
         public final TextView mQuantityView;
-        public final TextView mQuantityRemainingView;
         public final TextView mPriceView;
-        public OrderHistoryEntry mItem;
+        public OrderBookEntry mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mTypeView = (TextView) view.findViewById(R.id.text_view_type);
             mQuantityView = (TextView) view.findViewById(R.id.text_view_quantity);
-            mQuantityRemainingView = (TextView) view.findViewById(R.id.text_view_quantity_remaining);
             mPriceView = (TextView) view.findViewById(R.id.text_view_price);
         }
     }

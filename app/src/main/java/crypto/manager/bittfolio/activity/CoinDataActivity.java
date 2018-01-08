@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
+import crypto.manager.bittfolio.fragment.OrderBookFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.service.LiveOrderHistoryService;
@@ -61,6 +62,7 @@ public class CoinDataActivity extends AppCompatActivity {
     private boolean mBound = false;
     private BroadcastReceiver mBroadCastNewMessage;
     private OrderHistoryFragment mOrderHistoryFragment;
+    private OrderBookFragment mOrderBookFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,12 +142,16 @@ public class CoinDataActivity extends AppCompatActivity {
                 int mViewPagerCurrentFragment = mViewPager.getCurrentItem();
                 if (mViewPagerCurrentFragment == 1) {
                     //Get the fragment from the pager
-                    if (mOrderHistoryFragment == null) {
-                        mOrderHistoryFragment = (OrderHistoryFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
-                    }
+                    Fragment curFrag = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
                     //Update it with the new data
-                    if (mOrderHistoryFragment != null)
-                        mOrderHistoryFragment.updateOrderHistory(intent.getStringExtra(LIVE_ORDER_HISTORY_EXTRA));
+                    if (curFrag != null)
+                    {
+                        if(curFrag instanceof OrderHistoryFragment){
+                            mOrderHistoryFragment = (OrderHistoryFragment) curFrag;
+                            mOrderHistoryFragment.updateOrderHistory(intent.getStringExtra(LIVE_ORDER_HISTORY_EXTRA));
+                        }
+
+                    }
                 }
             }
         };
@@ -246,12 +252,20 @@ public class CoinDataActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if (position != 1) return PlaceholderFragment.newInstance(position + 1);
-            else {
+            if (position == 1) {
                 if (mOrderHistoryFragment == null) {
                     mOrderHistoryFragment = OrderHistoryFragment.newInstance();
                 }
                 return mOrderHistoryFragment;
+            } else if (position == 2){
+                if (mOrderBookFragment == null){
+                    mOrderBookFragment = OrderBookFragment.newInstance();
+                }
+                return mOrderBookFragment;
+            }
+            
+            else {
+                return PlaceholderFragment.newInstance(position + 1);
             }
         }
 

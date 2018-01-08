@@ -6,11 +6,27 @@
     android:weightSum="100">
 
     <TextView
+        android:id="@+id/text_view_type"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:layout_weight="20"
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+    <TextView
         android:id="@+id/text_view_quantity"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:layout_weight="50"
+        android:layout_weight="26"
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+    <TextView
+        android:id="@+id/text_view_quantity_remaining"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:layout_weight="26"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
@@ -18,6 +34,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:layout_weight="50"
+        android:layout_weight="26"
         android:textAppearance="?attr/textAppearanceListItem" />
 </LinearLayout>

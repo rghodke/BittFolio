@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name="crypto.manager.bittfolio.PortfolioFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_order_book_header">
+
+        <LinearLayout
+            android:id="@+id/order_history_header_text"
+            android:background="@android:color/darker_gray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/text_view_buy_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="50"
+                android:text="@string/buy_order"
+                android:textColor="@android:color/white"
+                />
+
+
+            <TextView
+                android:id="@+id/text_view_sell_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="50"
+                android:text="@string/sell_order"
+                android:textColor="@android:color/white"  />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout_order_book_header"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="50">
+
+            <LinearLayout
+                android:id="@+id/order_list_header"
+                android:background="@android:color/darker_gray"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:layout_weight="50"
+                    android:text="@string/quantity"
+                    />
+
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:layout_weight="50"
+                    android:text="@string/price"
+                    />
+
+            </LinearLayout>
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/buy_list"
+                android:layout_below="@+id/order_list_header"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/fragment_order_book_entry" />
+
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="50">
+
+            <LinearLayout
+                android:id="@+id/order_list_header"
+                android:background="@android:color/darker_gray"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:layout_weight="50"
+                    android:text="@string/quantity"
+                    />
+
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:layout_weight="50"
+                    android:text="@string/price"
+                    />
+
+            </LinearLayout>
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/sell_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/order_list_header"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/fragment_order_book_entry" />
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
