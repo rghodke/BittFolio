@@ -1,11 +1,14 @@
 package crypto.manager.bittfolio.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * CoinData model to encapsulate all the different coin fields
  * <p>
  * TODO: Replace all uses of this class before publishing your app.
  */
-public class CoinData {
+public class CoinData implements Parcelable{
 
     private String mCurrency;
     private double mHolding;
@@ -53,5 +56,38 @@ public class CoinData {
 
     public void setPrice(double mPrice) {
         this.mPrice = mPrice;
+    }
+
+    public static final Parcelable.Creator CREATOR =
+            new Parcelable.Creator() {
+                public CoinData createFromParcel(Parcel in) {
+                    return new CoinData(in);
+                }
+
+                public CoinData[] newArray(int size) {
+                    return new CoinData[size];
+                }
+    };
+
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mCurrency);
+        parcel.writeDouble(mHolding);
+        parcel.writeDouble(mPrice);
+        parcel.writeDouble(mBalance);
+    }
+
+    private CoinData(Parcel in) {
+        mCurrency = in.readString();
+        mHolding = in.readDouble();
+        mPrice = in.readDouble();
+        mBalance = in.readDouble();
     }
 }

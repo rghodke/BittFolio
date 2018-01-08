@@ -19,17 +19,19 @@ import crypto.manager.bittfolio.fragment.PortfolioFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.service.LiveCoinValueService;
 
-public class PortfolioActivity extends FragmentActivity implements PortfolioFragment.OnListFragmentInteractionListener {
+public class PortfolioActivity extends FragmentActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener {
 
-    private PortfolioFragment mProfolioFragment;
-    private static final String TAG_PORTFOLIO_FRAGMENT = "PORTFOLIO-FRAGMENT";
+    private static final String ARG_COIN_DATA = "COIN_DATA";
+    private PortfolioFragment mPortfolioFragment;
+    private static final String TAG_PORTFOLIO_FRAGMENT = "PORTFOLIO_FRAGMENT";
     private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
     private final String LIVE_COIN_INTENT_EXTRA = "COIN_LAST_VALUES";
     private final String LIVE_COIN_INTENT_ACTION = "COIN_RETRIEVE_ACTION";
+    private static final String TAG_COIN_DATA_FRAGMENT = "COIN_DATA_FRAGMENT";
     private LiveCoinValueService mService;
     private ServiceConnection mConnection;
     private boolean mBound = false;
-    private BroadcastReceiver broadCastNewMessage;
+    private BroadcastReceiver mBroadCastNewMessage;
 
 
     @Override
@@ -42,20 +44,23 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
             coinBalanceString = getIntent().getStringExtra(EXTRA_COIN_BALANCE_STRING);
         }
 
+        //persist the fragment through rotation
         if (savedInstanceState != null) {
-            mProfolioFragment = (PortfolioFragment) getSupportFragmentManager().findFragmentByTag(TAG_PORTFOLIO_FRAGMENT);
+            mPortfolioFragment = (PortfolioFragment) getSupportFragmentManager().findFragmentByTag(TAG_PORTFOLIO_FRAGMENT);
         } else {
-            mProfolioFragment = PortfolioFragment.newInstance(coinBalanceString);
+            mPortfolioFragment = PortfolioFragment.newInstance(coinBalanceString);
         }
 
-        //persist the fragment through rotation
-        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, mProfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
+
+        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, mPortfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
 
     }
 
     @Override
-    public void onListFragmentInteraction(CoinData item) {
-        System.out.println(item.getCurrency());
+    public void onPortfolioListFragmentInteraction(CoinData item) {
+        Intent intent = new Intent(this, CoinDataActivity.class);
+        intent.putExtra(ARG_COIN_DATA, item);
+        startActivity(intent);
     }
 
     /**
@@ -79,20 +84,20 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         };
 
         //Bind to the LiveCoinValueService
-        Intent intent = new Intent(this, LiveCoinValueService.class);
+        Intent intent = new Intent(this, LiveCoinValueService.class);;
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         //TODO: Fix the 0.0 displayed to the user as Bittrex is reached for the first time
         //Broadcast the new data to the portfolio fragment
-        broadCastNewMessage = new BroadcastReceiver() {
+        mBroadCastNewMessage = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (mProfolioFragment != null) {
-                    mProfolioFragment.updateCoinData(intent.getStringExtra(LIVE_COIN_INTENT_EXTRA));
+                if (mPortfolioFragment != null) {
+                    mPortfolioFragment.updateCoinData(intent.getStringExtra(LIVE_COIN_INTENT_EXTRA));
                 }
             }
         };
-        registerReceiver(broadCastNewMessage, new IntentFilter(LIVE_COIN_INTENT_ACTION));
+        registerReceiver(mBroadCastNewMessage, new IntentFilter(LIVE_COIN_INTENT_ACTION));
 
         //Update the price on a second basis
         updateCoinPrice();
@@ -114,7 +119,7 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
     protected void onStop() {
         super.onStop();
         unbindService(mConnection);
-        unregisterReceiver(broadCastNewMessage);
+        unregisterReceiver(mBroadCastNewMessage);
         mBound = false;
     }
 
@@ -137,8 +142,8 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
     }
 
     public void changeUnit(View view) {
-        if (mProfolioFragment != null) {
-            mProfolioFragment.changeUnits();
+        if (mPortfolioFragment != null) {
+            mPortfolioFragment.changeUnits();
         }
     }
 }

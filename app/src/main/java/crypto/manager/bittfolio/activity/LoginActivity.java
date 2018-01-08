@@ -36,6 +36,7 @@ import java.util.Date;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
 
 /**
@@ -273,6 +274,10 @@ public class LoginActivity extends AppCompatActivity {
                     if(success.equals("false")){
                         return false;
                     }
+                    //Store for other activities
+                    Globals globals = (Globals)getApplication();
+                    globals.setApiKey(mApiKey);
+                    globals.setApiSecret(mApiSecret);
 
                     startPortfolioActivity(resultBuffer.toString());
                     return true;

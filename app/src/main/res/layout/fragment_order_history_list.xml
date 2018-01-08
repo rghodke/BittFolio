@@ -10,29 +10,10 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/layout_portfolio_header">
-
-        <RelativeLayout
-            android:id="@+id/portfolio_totals"
-            android:layout_width="match_parent"
-            android:layout_height="50dp">
-            <TextView
-                android:id="@+id/text_view_portfolio_total_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="changeUnit"
-                android:textSize="40sp"
-                />
-            <ImageView
-                android:layout_alignParentRight="true"
-                android:id="@+id/image_view_happiness_indicator"
-                android:layout_width="50dp"
-                android:layout_height="50dp" />
-        </RelativeLayout>
+        android:id="@+id/layout_order_history_header">
 
         <LinearLayout
-            android:id="@+id/portfolio_header_text"
-            android:layout_below="@+id/portfolio_totals"
+            android:id="@+id/order_history_header_text"
             android:background="@android:color/darker_gray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,24 +21,34 @@
             android:weightSum="100">
 
             <TextView
-                android:id="@+id/text_view_ticker"
+                android:id="@+id/text_view_type"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="20"
-                android:text="@string/coin"
+                android:text="@string/type"
                 android:textColor="@android:color/white"
                 />
 
             <TextView
-                android:id="@+id/text_view_holding"
+                android:id="@+id/text_view_quantity"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
-                android:text="@string/holdings"
+                android:text="@string/quantity"
                 android:textColor="@android:color/white"
                 />
+
+            <TextView
+                android:id="@+id/text_view_quantity_remaining"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="26"
+                android:text="@string/quantity_remaining"
+                android:textColor="@android:color/white" />
+
 
             <TextView
                 android:id="@+id/text_view_price"
@@ -66,19 +57,8 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
                 android:text="@string/price"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white"  />
 
-
-            <TextView
-                android:id="@+id/text_view_price"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/text_margin"
-                android:layout_weight="26"
-                android:text="@string/balance"
-                android:textColor="@android:color/white"
-                />
         </LinearLayout>
 
     </RelativeLayout>
@@ -87,8 +67,8 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/layout_portfolio_header"
+        android:layout_below="@+id/layout_order_history_header"
         app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/fragment_coin" />
+        tools:listitem="@layout/fragment_order_book_entry" />
 
 </RelativeLayout>

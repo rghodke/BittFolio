@@ -1,7 +1,6 @@
 package crypto.manager.bittfolio.fragment;
 
 import android.content.Context;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,25 +23,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import crypto.manager.bittfolio.adapter.MyCoinRecyclerViewAdapter;
+import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.model.CoinData;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnPortfolioListFragmentInteractionListener}
  * interface.
  */
 public class PortfolioFragment extends Fragment {
 
     // TODO: Customize parameter argument names
-    private static final String ARG_BALANCES_JSON_STRING = "coin_balances";
+    private static final String ARG_BALANCES_JSON_STRING = "COIN_BALANCES";
     // TODO: Customize parameters
     private String mCoinBalanceString;
-    private OnListFragmentInteractionListener mListener;
+    private OnPortfolioListFragmentInteractionListener mListener;
     private List<CoinData> coinDataList;
-    private MyCoinRecyclerViewAdapter recyclerViewAdapter;
+    private CoinRecyclerViewAdapter recyclerViewAdapter;
     private TextView mTotalBalance;
     private ImageView mHappinessIndicator;
     private double totalBalance;
@@ -57,7 +56,6 @@ public class PortfolioFragment extends Fragment {
     public PortfolioFragment() {
     }
 
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
     public static PortfolioFragment newInstance(String balanceString) {
         PortfolioFragment fragment = new PortfolioFragment();
@@ -93,11 +91,10 @@ public class PortfolioFragment extends Fragment {
         mTotalBalance = (TextView) view.findViewById(R.id.text_view_portfolio_total_balance);
         mHappinessIndicator = (ImageView) view.findViewById(R.id.image_view_happiness_indicator);
 
-
         // Set the adapter
         Context context = view.getContext();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerViewAdapter = new MyCoinRecyclerViewAdapter(coinDataList, mListener);
+        recyclerViewAdapter = new CoinRecyclerViewAdapter(coinDataList, mListener);
         recyclerView.setAdapter(recyclerViewAdapter);
 
         return view;
@@ -128,11 +125,11 @@ public class PortfolioFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnPortfolioListFragmentInteractionListener) {
+            mListener = (OnPortfolioListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+                    + " must implement OnPortfolioListFragmentInteractionListener");
         }
     }
 
@@ -222,8 +219,8 @@ public class PortfolioFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnPortfolioListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(CoinData item);
+        void onPortfolioListFragmentInteraction(CoinData item);
     }
 }
