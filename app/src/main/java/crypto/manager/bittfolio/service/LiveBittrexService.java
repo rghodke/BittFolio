@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,8 +23,6 @@ import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import crypto.manager.bittfolio.Globals;
-import crypto.manager.bittfolio.R;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -33,83 +30,82 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-public class LiveOrderHistoryService extends Service {
+public class LiveBittrexService extends Service {
+    // Random number generator
+    private static final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
+    private static final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
+    private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
+    private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
+    private static final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
     private static final String CURRENCY = "CURRENCY";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
+    // Binder given to clients
     // Random number generator
     private final Random mGenerator = new Random();
     private final Context context = this;
-    private final String LIVE_ORDER_HISTORY_EXTRA = "LIVE_ORDER_HISTORY_EXTRA";
-    private final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
+
     private String mApiKey, mApiSecret, mCurrency;
+    private OkHttpClient client;
 
     @Override
     public IBinder onBind(Intent intent) {
+        client = new OkHttpClient();
         mApiKey = intent.getExtras().getString(API_KEY);
         mApiSecret = intent.getExtras().getString(API_SECRET);
         mCurrency = intent.getExtras().getString(CURRENCY);
         return mBinder;
     }
 
-    //Method imported from
-    //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
-    //Used to create the apisign
-    public String calculateHash(String secret, String url, String encryption) {
-
-        Mac shaHmac = null;
-
-        try {
-
-            shaHmac = Mac.getInstance(encryption);
-
-        } catch (NoSuchAlgorithmException e) {
-
-            e.printStackTrace();
-        }
-
-        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
-
-        try {
-
-            shaHmac.init(secretKey);
-
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-
-        byte[] hash = shaHmac.doFinal(url.getBytes());
-        String check = bytesToHex(hash);
-
-        return check;
-    }
-
-    //Method imported from
-    //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
-    private String bytesToHex(byte[] bytes) {
-
-        char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-        char[] hexChars = new char[bytes.length * 2];
-
-        for (int j = 0; j < bytes.length; j++) {
-
-            int v = bytes[j] & 0xFF;
-
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-
-        return new String(hexChars);
-    }
-
     /**
-     * method for clients
+     * methods for clients
      */
+    public void getLiveCoinValues() {
+        connectBittrexPublicApi("getmarketsummaries", LIVE_COIN_INTENT_EXTRA, LIVE_COIN_INTENT_ACTION);
+    }
+
     public void getOrderHistory() {
+        System.out.println("getOrderHistory");
         new OrderHistoryTask().execute();
+    }
+
+    public void getOrderBook() {
+        System.out.println("getOrderBook");
+        connectBittrexPublicApi("getorderbook?market=BTC-" + mCurrency + "&type=both", LIVE_ORDER_BOOK_INTENT_EXTRA, LIVE_ORDER_BOOK_INTENT_ACTION);
+    }
+
+    private void connectBittrexPublicApi(String publicParameter, final String intentExtra, final String intentAction) {
+        Request request = new Request.Builder()
+                .url("https://bittrex.com/api/v1.1/public/" + publicParameter)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String currenciesJSONString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(intentExtra, currenciesJSONString);
+                            intent.setAction(intentAction);
+                            context.sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -117,9 +113,9 @@ public class LiveOrderHistoryService extends Service {
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     public class LocalBinder extends Binder {
-        public LiveOrderHistoryService getService() {
-            // Return this instance of LiveCoinValueService so clients can call public methods
-            return LiveOrderHistoryService.this;
+        public LiveBittrexService getService() {
+            // Return this instance of LiveBittrexService so clients can call public methods
+            return LiveBittrexService.this;
         }
     }
 
@@ -211,13 +207,12 @@ public class LiveOrderHistoryService extends Service {
                     } catch (JSONException e) {
                         success = "false";
                     }
-                    if(success.equals("false")){
+                    if (success.equals("false")) {
                         return "";
                     }
 
                     return resultBuffer.toString();
-                }
-                else{
+                } else {
                     return "";
                 }
             } catch (IOException e) {
@@ -231,7 +226,7 @@ public class LiveOrderHistoryService extends Service {
         protected void onPostExecute(final String success) {
             if (!success.isEmpty()) {
                 Intent intent = new Intent();
-                intent.putExtra(LIVE_ORDER_HISTORY_EXTRA, success);
+                intent.putExtra(LIVE_ORDER_HISTORY_INTENT_EXTRA, success);
                 intent.setAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
                 context.sendBroadcast(intent);
             } else {
@@ -239,8 +234,4 @@ public class LiveOrderHistoryService extends Service {
         }
 
     }
-
 }
-
-
-

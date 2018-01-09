@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 import crypto.manager.bittfolio.R;
@@ -46,6 +45,12 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
     @Override
     public int getItemCount() {
         return mOrderHistoryEntries.size();
+    }
+
+    public void updateData(List<OrderHistoryEntry> freshData) {
+        mOrderHistoryEntries.clear();
+        mOrderHistoryEntries.addAll(freshData);
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

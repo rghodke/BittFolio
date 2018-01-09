@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.R;
+import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.CoinData;
 
 /**
@@ -187,9 +187,9 @@ public class PortfolioFragment extends Fragment {
     }
 
     private void refreshPortfolioData(double totalBalance) {
-        if(isDollars){
+        if (isDollars) {
             mTotalBalance.setText(new DecimalFormat("#.##").format(totalBalance));
-        }else{
+        } else {
             mTotalBalance.setText(new DecimalFormat("#.#######").format(totalBalance));
         }
         recyclerViewAdapter.notifyDataSetChanged();

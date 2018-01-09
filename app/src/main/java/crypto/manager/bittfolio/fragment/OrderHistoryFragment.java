@@ -9,18 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.squareup.picasso.Picasso;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import crypto.manager.bittfolio.R;
-import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.adapter.OrderHistoryRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.OrderHistoryEntry;
 
@@ -115,8 +111,8 @@ public class OrderHistoryFragment extends Fragment {
             for (int i = 0; i < orderHistoryJSON.length(); i++) {
                 JSONObject orderHistoryEntry = orderHistoryJSON.getJSONObject(i);
                 String orderType = (orderHistoryEntry.getString("OrderType"));
-                if(orderType.equals("LIMIT_SELL")) orderType = "Sell";
-                if(orderType.equals("LIMIT_BUY")) orderType = "Buy";
+                if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
+                if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
                 orderHistoryEntries.add(new OrderHistoryEntry(orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
             }
         } catch (JSONException e) {
@@ -127,9 +123,6 @@ public class OrderHistoryFragment extends Fragment {
 
 
     private void refreshOrderHistoryData() {
-        recyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(orderHistoryEntries);
-        recyclerView.setAdapter(recyclerViewAdapter);
-        //Cannot use notify dataset change since we re-create the list every refresh
-//        recyclerViewAdapter.notifyDataSetChanged();
+        recyclerViewAdapter.updateData(orderHistoryEntries);
     }
 }

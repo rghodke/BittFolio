@@ -24,11 +24,7 @@
         <activity android:name=".activity.PortfolioActivity" />
 
         <service
-            android:name=".service.LiveCoinValueService"
-            android:exported="false" />
-
-        <service
-            android:name=".service.LiveOrderHistoryService"
+            android:name=".service.LiveBittrexService"
             android:exported="false" />
 
         <activity

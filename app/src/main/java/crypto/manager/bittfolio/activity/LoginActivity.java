@@ -4,14 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -171,6 +168,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void startPortfolioActivity(String s) {
+        Intent intent = new Intent(this, PortfolioActivity.class);
+        intent.putExtra(EXTRA_COIN_BALANCE_STRING, s);
+        startActivity(intent);
+    }
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
@@ -258,7 +260,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 int requestCode = connection.getResponseCode();
-                if(requestCode == 200) {
+                if (requestCode == 200) {
 
                     /*
                     Bittrex will return 200 even if login info is incorrect. Look for success
@@ -271,18 +273,17 @@ public class LoginActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         success = "false";
                     }
-                    if(success.equals("false")){
+                    if (success.equals("false")) {
                         return false;
                     }
                     //Store for other activities
-                    Globals globals = (Globals)getApplication();
+                    Globals globals = (Globals) getApplication();
                     globals.setApiKey(mApiKey);
                     globals.setApiSecret(mApiSecret);
 
                     startPortfolioActivity(resultBuffer.toString());
                     return true;
-                }
-                else{
+                } else {
                     return false;
                 }
             } catch (IOException e) {
@@ -311,12 +312,6 @@ public class LoginActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
         }
-    }
-
-    private void startPortfolioActivity(String s) {
-        Intent intent = new Intent(this, PortfolioActivity.class);
-        intent.putExtra(EXTRA_COIN_BALANCE_STRING, s);
-        startActivity(intent);
     }
 }
 

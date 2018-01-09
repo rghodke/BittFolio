@@ -6,23 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
-import android.support.v7.app.AppCompatActivity;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
 
 import crypto.manager.bittfolio.Globals;
@@ -30,7 +28,7 @@ import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.OrderBookFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
 import crypto.manager.bittfolio.model.CoinData;
-import crypto.manager.bittfolio.service.LiveOrderHistoryService;
+import crypto.manager.bittfolio.service.LiveBittrexService;
 
 public class CoinDataActivity extends AppCompatActivity {
 
@@ -39,7 +37,9 @@ public class CoinDataActivity extends AppCompatActivity {
     private static final String CURRENCY = "CURRENCY";
     private static final String ARG_COIN_DATA = "COIN_DATA";
     private static final String TAG_ORDER_HISTORY_DATA_FRAGMENT = "ORDER_HISTORY_FRAGMENT";
-    private final String LIVE_ORDER_HISTORY_EXTRA = "LIVE_ORDER_HISTORY_EXTRA";
+    private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
+    private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
+    private final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
     private final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
     private CoinData mCoinData;
     /**
@@ -57,12 +57,14 @@ public class CoinDataActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
-    private LiveOrderHistoryService mService;
+    private LiveBittrexService mService;
     private ServiceConnection mConnection;
     private boolean mBound = false;
     private BroadcastReceiver mBroadCastNewMessage;
     private OrderHistoryFragment mOrderHistoryFragment;
     private OrderBookFragment mOrderBookFragment;
+    private Handler mOrderBookHandler;
+    private Handler mOrderHistoryHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,29 @@ public class CoinDataActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        //Start the appropriate handler for the appropriate fragment
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                endAllHandlers();
+                if (position == 1) {
+                    updateOrderHistory();
+                } else if (position == 2) {
+                    updateOrderBook();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         //Set up the different tabs
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -94,28 +119,33 @@ public class CoinDataActivity extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        startLiveOrderHistoryService();
+        startBittrexService();
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        unbindService(mConnection);
+        unregisterReceiver(mBroadCastNewMessage);
+        mBound = false;
+        super.onPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(mConnection);
-        unregisterReceiver(mBroadCastNewMessage);
-        mBound = false;
     }
 
     /**
      * Start the service to retrieve market data from Bittrex
      */
-    public void startLiveOrderHistoryService() {
+    public void startBittrexService() {
         mConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName className,
                                            IBinder service) {
                 // We've bound to LiveCoinService, cast the IBinder and get LiveCoinService instance
-                LiveOrderHistoryService.LocalBinder binder = (LiveOrderHistoryService.LocalBinder) service;
+                LiveBittrexService.LocalBinder binder = (LiveBittrexService.LocalBinder) service;
                 mService = binder.getService();
                 mBound = true;
             }
@@ -126,9 +156,9 @@ public class CoinDataActivity extends AppCompatActivity {
             }
         };
 
-        //Bind to the LiveCoinValueService
+        //Bind to the LiveBittrexService
         Globals globals = (Globals) getApplication();
-        Intent intent = new Intent(this, LiveOrderHistoryService.class);
+        Intent intent = new Intent(this, LiveBittrexService.class);
         intent.putExtra(API_KEY, globals.getApiKey());
         intent.putExtra(API_SECRET, globals.getApiSecret());
         intent.putExtra(CURRENCY, mCoinData.getCurrency());
@@ -139,41 +169,67 @@ public class CoinDataActivity extends AppCompatActivity {
         mBroadCastNewMessage = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int mViewPagerCurrentFragment = mViewPager.getCurrentItem();
-                if (mViewPagerCurrentFragment == 1) {
-                    //Get the fragment from the pager
-                    Fragment curFrag = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
-                    //Update it with the new data
-                    if (curFrag != null)
-                    {
-                        if(curFrag instanceof OrderHistoryFragment){
-                            mOrderHistoryFragment = (OrderHistoryFragment) curFrag;
-                            mOrderHistoryFragment.updateOrderHistory(intent.getStringExtra(LIVE_ORDER_HISTORY_EXTRA));
+                //Get the fragment from the pager
+                Fragment curFrag = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
+                //Update it with the new data
+                if (curFrag != null) {
+                    if (curFrag instanceof OrderHistoryFragment) {
+                        mOrderHistoryFragment = (OrderHistoryFragment) curFrag;
+                        String orderHistory = intent.getStringExtra(LIVE_ORDER_HISTORY_INTENT_EXTRA);
+                        if (orderHistory != null && !orderHistory.isEmpty()) {
+                            mOrderHistoryFragment.updateOrderHistory(orderHistory);
                         }
-
+                        return;
                     }
+                    if (curFrag instanceof OrderBookFragment) {
+                        mOrderBookFragment = (OrderBookFragment) curFrag;
+                        String orderBook = intent.getStringExtra(LIVE_ORDER_BOOK_INTENT_EXTRA);
+                        if (orderBook != null && !orderBook.isEmpty()) {
+                            mOrderBookFragment.updateOrderBookHistory(orderBook);
+                        }
+                        return;
+                    }
+
                 }
+//                }
             }
         };
-        registerReceiver(mBroadCastNewMessage, new IntentFilter(LIVE_ORDER_HISTORY_INTENT_ACTION));
-
-        //Update the price on a second basis
-        updateOrderHistory();
+        IntentFilter bittrexServiceFilter = new IntentFilter();
+        //The possible data intent actions
+        bittrexServiceFilter.addAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
+        registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
+
 
     /**
      * Get the latest market data by the second
      */
     public void updateOrderHistory() {
         //Every second get the newest info about the coin you want
-        final Handler handler = new Handler();
+        mOrderHistoryHandler = new Handler();
         final int delay = 1000; //milliseconds
 
-        handler.postDelayed(new Runnable() {
+        mOrderHistoryHandler.postDelayed(new Runnable() {
             public void run() {
                 //do something
                 mService.getOrderHistory();
-                handler.postDelayed(this, delay);
+                mOrderHistoryHandler.postDelayed(this, delay);
+
+            }
+        }, delay);
+    }
+
+    public void updateOrderBook() {
+        //Every second get the newest info about the coin you want
+        mOrderBookHandler = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mOrderBookHandler.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                mService.getOrderBook();
+                mOrderBookHandler.postDelayed(this, delay);
 
             }
         }, delay);
@@ -198,6 +254,11 @@ public class CoinDataActivity extends AppCompatActivity {
 //        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void endAllHandlers() {
+        if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
+        if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
     }
 
     /**
@@ -257,14 +318,12 @@ public class CoinDataActivity extends AppCompatActivity {
                     mOrderHistoryFragment = OrderHistoryFragment.newInstance();
                 }
                 return mOrderHistoryFragment;
-            } else if (position == 2){
-                if (mOrderBookFragment == null){
+            } else if (position == 2) {
+                if (mOrderBookFragment == null) {
                     mOrderBookFragment = OrderBookFragment.newInstance();
                 }
                 return mOrderBookFragment;
-            }
-            
-            else {
+            } else {
                 return PlaceholderFragment.newInstance(position + 1);
             }
         }

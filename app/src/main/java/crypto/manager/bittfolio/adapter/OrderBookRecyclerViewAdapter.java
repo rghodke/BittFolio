@@ -11,7 +11,6 @@ import java.util.List;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.PortfolioFragment.OnPortfolioListFragmentInteractionListener;
 import crypto.manager.bittfolio.model.OrderBookEntry;
-import crypto.manager.bittfolio.model.OrderHistoryEntry;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
@@ -25,6 +24,12 @@ public class OrderBookRecyclerViewAdapter extends RecyclerView.Adapter<OrderBook
 
     public OrderBookRecyclerViewAdapter(List<OrderBookEntry> coins) {
         mOrderBookEntries = coins;
+    }
+
+    public void updateData(List<OrderBookEntry> freshData) {
+        mOrderBookEntries.clear();
+        mOrderBookEntries.addAll(freshData);
+        notifyDataSetChanged();
     }
 
     @Override

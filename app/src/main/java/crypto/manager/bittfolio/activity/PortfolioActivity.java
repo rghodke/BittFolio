@@ -6,33 +6,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
-
-import android.os.Bundle;
 import android.view.View;
 
-
+import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.PortfolioFragment;
 import crypto.manager.bittfolio.model.CoinData;
-import crypto.manager.bittfolio.service.LiveCoinValueService;
+import crypto.manager.bittfolio.service.LiveBittrexService;
 
 public class PortfolioActivity extends FragmentActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener {
 
     private static final String ARG_COIN_DATA = "COIN_DATA";
-    private PortfolioFragment mPortfolioFragment;
     private static final String TAG_PORTFOLIO_FRAGMENT = "PORTFOLIO_FRAGMENT";
     private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
-    private final String LIVE_COIN_INTENT_EXTRA = "COIN_LAST_VALUES";
-    private final String LIVE_COIN_INTENT_ACTION = "COIN_RETRIEVE_ACTION";
     private static final String TAG_COIN_DATA_FRAGMENT = "COIN_DATA_FRAGMENT";
-    private LiveCoinValueService mService;
+    private static final String API_KEY = "API_KEY";
+    private static final String API_SECRET = "API_SECRET";
+    private final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
+    private final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
+    private PortfolioFragment mPortfolioFragment;
+    private LiveBittrexService mService;
     private ServiceConnection mConnection;
     private boolean mBound = false;
     private BroadcastReceiver mBroadCastNewMessage;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +66,13 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
     /**
      * Start the service to retrieve market data from Bittrex
      */
-    public void startLiveCoinValueService() {
+    public void startBittrexService() {
         mConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName className,
                                            IBinder service) {
                 // We've bound to LiveCoinService, cast the IBinder and get LiveCoinService instance
-                LiveCoinValueService.LocalBinder binder = (LiveCoinValueService.LocalBinder) service;
+                LiveBittrexService.LocalBinder binder = (LiveBittrexService.LocalBinder) service;
                 mService = binder.getService();
                 mBound = true;
             }
@@ -83,8 +83,11 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
             }
         };
 
-        //Bind to the LiveCoinValueService
-        Intent intent = new Intent(this, LiveCoinValueService.class);;
+        //Bind to the LiveBittrexService
+        Globals globals = (Globals) getApplication();
+        Intent intent = new Intent(this, LiveBittrexService.class);
+        intent.putExtra(API_KEY, globals.getApiKey());
+        intent.putExtra(API_SECRET, globals.getApiSecret());
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         //TODO: Fix the 0.0 displayed to the user as Bittrex is reached for the first time
@@ -110,17 +113,22 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
     }
 
     @Override
-    public void onResume(){
-        startLiveCoinValueService();
+    public void onResume() {
+        startBittrexService();
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        unbindService(mConnection);
+        unregisterReceiver(mBroadCastNewMessage);
+        mBound = false;
+        super.onPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(mConnection);
-        unregisterReceiver(mBroadCastNewMessage);
-        mBound = false;
     }
 
     /**

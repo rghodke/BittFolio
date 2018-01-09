@@ -111,13 +111,16 @@ public class OrderBookFragment extends Fragment {
         orderBookSellEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);
-            JSONArray orderHistoryJSON = jsonObject.getJSONArray("result");
-            for (int i = 0; i < orderHistoryJSON.length(); i++) {
-                JSONObject orderHistoryEntry = orderHistoryJSON.getJSONObject(i);
-                String orderType = (orderHistoryEntry.getString("OrderType"));
-                if(orderType.equals("LIMIT_SELL")) orderType = "Sell";
-                if(orderType.equals("LIMIT_BUY")) orderType = "Buy";
-                orderBookBuyEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Price")));
+            JSONObject orderHistoryJSON = jsonObject.getJSONObject("result");
+            JSONArray orderHistoryBuyJSON = orderHistoryJSON.getJSONArray("buy");
+            JSONArray orderHistorySellJSON = orderHistoryJSON.getJSONArray("sell");
+            for (int i = 0; i < orderHistoryBuyJSON.length(); i++) {
+                JSONObject orderHistoryEntry = orderHistoryBuyJSON.getJSONObject(i);
+                orderBookBuyEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Rate")));
+            }
+            for (int i = 0; i < orderHistorySellJSON.length(); i++) {
+                JSONObject orderHistoryEntry = orderHistorySellJSON.getJSONObject(i);
+                orderBookSellEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Rate")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -127,11 +130,7 @@ public class OrderBookFragment extends Fragment {
 
 
     private void refreshOrderBookData() {
-        recyclerViewBuyAdapter = new OrderBookRecyclerViewAdapter(orderBookBuyEntries);
-        recyclerViewBuyList.setAdapter(recyclerViewBuyAdapter);
-        recyclerViewSellAdapter = new OrderBookRecyclerViewAdapter(orderBookSellEntries);
-        recyclerViewBuyList.setAdapter(recyclerViewSellAdapter);
-        //Cannot use notify dataset change since we re-create the list every refresh
-//        recyclerViewBuyAdapter.notifyDataSetChanged();
+        recyclerViewBuyAdapter.updateData(orderBookBuyEntries);
+        recyclerViewSellAdapter.updateData(orderBookSellEntries);
     }
 }
