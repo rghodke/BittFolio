@@ -19,6 +19,8 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,10 @@ public class PortfolioFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_BALANCES_JSON_STRING = "COIN_BALANCES";
+    private static final String TICKER = "TICKER";
+    private static final String HOLDING = "HOLDING";
+    private static final String PRICE = "PRICE";
+    private static final String BALANCE = "BALANCE";
     // TODO: Customize parameters
     private String mCoinBalanceString;
     private OnPortfolioListFragmentInteractionListener mListener;
@@ -47,7 +53,6 @@ public class PortfolioFragment extends Fragment {
     private double totalBalance;
     private double prevBalance = 0.0;
     private boolean isDollars;
-
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -120,7 +125,6 @@ public class PortfolioFragment extends Fragment {
         return coinDataList;
 
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -207,6 +211,46 @@ public class PortfolioFragment extends Fragment {
 
     public void changeUnits() {
         isDollars = !isDollars;
+    }
+
+    public void sortBy(String sortingMethod) {
+        if (sortingMethod.equals(TICKER)) {
+            Collections.sort(coinDataList, new Comparator<CoinData>() {
+                @Override
+                public int compare(CoinData coinData, CoinData t1) {
+                    return coinData.getCurrency().compareTo(t1.getCurrency());
+                }
+            });
+        }
+
+        if (sortingMethod.equals(HOLDING)) {
+            Collections.sort(coinDataList, new Comparator<CoinData>() {
+                @Override
+                public int compare(CoinData coinData, CoinData t1) {
+                    return Double.compare(t1.getHolding(), coinData.getHolding());
+                }
+            });
+        }
+
+        if (sortingMethod.equals(BALANCE)) {
+            Collections.sort(coinDataList, new Comparator<CoinData>() {
+                @Override
+                public int compare(CoinData coinData, CoinData t1) {
+                    return Double.compare(t1.getBalance(), coinData.getBalance());
+                }
+            });
+        }
+
+        if (sortingMethod.equals(PRICE)) {
+            Collections.sort(coinDataList, new Comparator<CoinData>() {
+                @Override
+                public int compare(CoinData coinData, CoinData t1) {
+                    return Double.compare(t1.getPrice(), coinData.getPrice());
+                }
+            });
+        }
+
+        recyclerViewAdapter.notifyDataSetChanged();
     }
 
     /**

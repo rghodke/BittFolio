@@ -8,15 +8,15 @@
     tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment">
 
     <RelativeLayout
+        android:id="@+id/layout_order_book_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layout_order_book_header">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/order_history_header_text"
-            android:background="@android:color/darker_gray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
             android:orientation="horizontal"
             android:weightSum="100">
 
@@ -27,8 +27,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="50"
                 android:text="@string/buy_order"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
 
 
             <TextView
@@ -38,7 +37,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="50"
                 android:text="@string/sell_order"
-                android:textColor="@android:color/white"  />
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
 
@@ -58,9 +57,9 @@
 
             <LinearLayout
                 android:id="@+id/order_list_header"
-                android:background="@android:color/darker_gray"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@android:color/darker_gray"
                 android:orientation="horizontal"
                 android:weightSum="100">
 
@@ -69,8 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/text_margin"
                     android:layout_weight="50"
-                    android:text="@string/quantity"
-                    />
+                    android:text="@string/quantity" />
 
 
                 <TextView
@@ -78,17 +76,16 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/text_margin"
                     android:layout_weight="50"
-                    android:text="@string/price"
-                    />
+                    android:text="@string/price" />
 
             </LinearLayout>
 
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/buy_list"
-                android:layout_below="@+id/order_list_header"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_below="@+id/order_list_header"
                 app:layoutManager="LinearLayoutManager"
                 tools:listitem="@layout/fragment_order_book_entry" />
 
@@ -103,9 +100,9 @@
 
             <LinearLayout
                 android:id="@+id/order_list_header"
-                android:background="@android:color/darker_gray"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@android:color/darker_gray"
                 android:orientation="horizontal"
                 android:weightSum="100">
 
@@ -114,8 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/text_margin"
                     android:layout_weight="50"
-                    android:text="@string/quantity"
-                    />
+                    android:text="@string/quantity" />
 
 
                 <TextView
@@ -123,8 +119,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/text_margin"
                     android:layout_weight="50"
-                    android:text="@string/price"
-                    />
+                    android:text="@string/price" />
 
             </LinearLayout>
 
@@ -141,8 +136,6 @@
         </RelativeLayout>
 
     </LinearLayout>
-
-
 
 
 </RelativeLayout>

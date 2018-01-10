@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,10 +24,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.OrderBookFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
+import crypto.manager.bittfolio.fragment.TransferFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 
@@ -65,6 +82,7 @@ public class CoinDataActivity extends AppCompatActivity {
     private OrderBookFragment mOrderBookFragment;
     private Handler mOrderBookHandler;
     private Handler mOrderHistoryHandler;
+    private TransferFragment mTransferFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +116,8 @@ public class CoinDataActivity extends AppCompatActivity {
                     updateOrderHistory();
                 } else if (position == 2) {
                     updateOrderBook();
+                } else if (position == 3) {
+                    updateDepositAddress();
                 }
             }
 
@@ -110,6 +130,11 @@ public class CoinDataActivity extends AppCompatActivity {
         //Set up the different tabs
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
+    }
+
+    private void updateDepositAddress() {
+        Globals globals = (Globals) getApplication();
+        new GetDepositTask(globals.getApiKey(), globals.getApiSecret()).execute();
     }
 
     @Override
@@ -189,7 +214,6 @@ public class CoinDataActivity extends AppCompatActivity {
                         }
                         return;
                     }
-
                 }
 //                }
             }
@@ -323,6 +347,11 @@ public class CoinDataActivity extends AppCompatActivity {
                     mOrderBookFragment = OrderBookFragment.newInstance();
                 }
                 return mOrderBookFragment;
+            } else if (position == 3) {
+                if (mTransferFragment == null) {
+                    mTransferFragment = TransferFragment.newInstance();
+                }
+                return mTransferFragment;
             } else {
                 return PlaceholderFragment.newInstance(position + 1);
             }
@@ -337,6 +366,133 @@ public class CoinDataActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return title[position];
+        }
+    }
+
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class GetDepositTask extends AsyncTask<Void, Void, Boolean> {
+
+
+        private final String mApiKey;
+        private final String mApiSecret;
+        private String mResult;
+
+        public GetDepositTask(String apiKey, String apiSecret) {
+            mApiKey = apiKey;
+            mApiSecret = apiSecret;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        //Used to create the apisign
+        public String calculateHash(String secret, String url, String encryption) {
+
+            Mac shaHmac = null;
+
+            try {
+
+                shaHmac = Mac.getInstance(encryption);
+
+            } catch (NoSuchAlgorithmException e) {
+
+                e.printStackTrace();
+            }
+
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
+
+            try {
+
+                shaHmac.init(secretKey);
+
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+
+            byte[] hash = shaHmac.doFinal(url.getBytes());
+            String check = bytesToHex(hash);
+
+            return check;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        private String bytesToHex(byte[] bytes) {
+
+            char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+            char[] hexChars = new char[bytes.length * 2];
+
+            for (int j = 0; j < bytes.length; j++) {
+
+                int v = bytes[j] & 0xFF;
+
+                hexChars[j * 2] = hexArray[v >>> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            }
+
+            return new String(hexChars);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: attempt authentication against a network service.
+            String nonce = Long.toString(new Date().getTime());
+            URL url = null;
+            HttpURLConnection connection = null;
+            try {
+                String urlString = "https://bittrex.com/api/v1.1/account/getdepositaddress?apikey=" + mApiKey + "&nonce=" + nonce + "&currency=" + mCoinData.getCurrency();
+                url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"));
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer resultBuffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null)
+                    resultBuffer.append(line);
+
+
+                int requestCode = connection.getResponseCode();
+                if (requestCode == 200) {
+                    /*
+                    Bittrex will return 200 even if login info is incorrect. Look for success
+                    variable
+                     */
+                    System.out.println(resultBuffer.toString());
+                    String success = null;
+                    try {
+                        JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
+                        success = coinBalancesJson.getString("success");
+                    } catch (JSONException e) {
+                        success = "false";
+                    }
+                    if (success.equals("false")) {
+                        return false;
+                    }
+                    mResult = resultBuffer.toString();
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                if (mTransferFragment != null) {
+                    mTransferFragment.updateDepositAddress(mResult);
+                }
+            } else {
+            }
         }
     }
 }

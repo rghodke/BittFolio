@@ -8,34 +8,35 @@
     tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment">
 
     <RelativeLayout
+        android:id="@+id/layout_portfolio_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layout_portfolio_header">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
             android:id="@+id/portfolio_totals"
             android:layout_width="match_parent"
             android:layout_height="50dp">
+
             <TextView
                 android:id="@+id/text_view_portfolio_total_balance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="changeUnit"
-                android:textSize="40sp"
-                />
+                android:textSize="40sp" />
+
             <ImageView
-                android:layout_alignParentRight="true"
                 android:id="@+id/image_view_happiness_indicator"
                 android:layout_width="50dp"
-                android:layout_height="50dp" />
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true" />
         </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/portfolio_header_text"
-            android:layout_below="@+id/portfolio_totals"
-            android:background="@android:color/darker_gray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/portfolio_totals"
+            android:background="@android:color/darker_gray"
             android:orientation="horizontal"
             android:weightSum="100">
 
@@ -45,9 +46,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="20"
+                android:onClick="sortByTicker"
                 android:text="@string/coin"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
 
             <TextView
                 android:id="@+id/text_view_holding"
@@ -55,9 +56,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
+                android:onClick="sortByHolding"
                 android:text="@string/holdings"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
 
             <TextView
                 android:id="@+id/text_view_price"
@@ -65,20 +66,20 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
+                android:onClick="sortByPrice"
                 android:text="@string/price"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
 
 
             <TextView
-                android:id="@+id/text_view_price"
+                android:id="@+id/text_view_balance"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
+                android:onClick="sortByBalance"
                 android:text="@string/balance"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
     </RelativeLayout>

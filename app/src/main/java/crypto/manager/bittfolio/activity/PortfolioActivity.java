@@ -26,6 +26,10 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
     private static final String TAG_COIN_DATA_FRAGMENT = "COIN_DATA_FRAGMENT";
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
+    private static final String TICKER = "TICKER";
+    private static final String HOLDING = "HOLDING";
+    private static final String PRICE = "PRICE";
+    private static final String BALANCE = "BALANCE";
     private final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
     private final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
     private PortfolioFragment mPortfolioFragment;
@@ -153,5 +157,29 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         if (mPortfolioFragment != null) {
             mPortfolioFragment.changeUnits();
         }
+    }
+
+    public void sortByTicker(View view) {
+        System.out.println("SORTING");
+        if (mPortfolioFragment != null)
+            mPortfolioFragment.sortBy(TICKER);
+    }
+
+    public void sortByHolding(View view) {
+        System.out.println("SORTING");
+        if (mPortfolioFragment != null)
+            mPortfolioFragment.sortBy(HOLDING);
+    }
+
+    public void sortByPrice(View view) {
+        System.out.println("SORTING");
+        if (mPortfolioFragment != null)
+            mPortfolioFragment.sortBy(PRICE);
+    }
+
+    public void sortByBalance(View view) {
+        System.out.println("SORTING");
+        if (mPortfolioFragment != null)
+            mPortfolioFragment.sortBy(BALANCE);
     }
 }

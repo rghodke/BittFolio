@@ -8,15 +8,15 @@
     tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment">
 
     <RelativeLayout
+        android:id="@+id/layout_order_history_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layout_order_history_header">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/order_history_header_text"
-            android:background="@android:color/darker_gray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
             android:orientation="horizontal"
             android:weightSum="100">
 
@@ -27,8 +27,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="20"
                 android:text="@string/type"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
 
             <TextView
                 android:id="@+id/text_view_quantity"
@@ -37,8 +36,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
                 android:text="@string/quantity"
-                android:textColor="@android:color/white"
-                />
+                android:textColor="@android:color/white" />
 
             <TextView
                 android:id="@+id/text_view_quantity_remaining"
@@ -57,7 +55,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
                 android:text="@string/price"
-                android:textColor="@android:color/white"  />
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
 

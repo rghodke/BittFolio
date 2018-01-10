@@ -8,39 +8,55 @@ import android.os.Parcelable;
  * <p>
  * TODO: Replace all uses of this class before publishing your app.
  */
-public class CoinData implements Parcelable{
+public class CoinData implements Parcelable {
 
+    public static final Parcelable.Creator CREATOR =
+            new Parcelable.Creator() {
+                public CoinData createFromParcel(Parcel in) {
+                    return new CoinData(in);
+                }
+
+                public CoinData[] newArray(int size) {
+                    return new CoinData[size];
+                }
+            };
     private String mCurrency;
     private double mHolding;
     private double mPrice;
     private double mBalance;
 
-    public CoinData(String currency, double holding){
+    public CoinData(String currency, double holding) {
         this.mCurrency = currency;
         this.mHolding = holding;
     }
 
-    public CoinData(String currency, double holding, double balance){
+    public CoinData(String currency, double holding, double balance) {
         this.mCurrency = currency;
         this.mHolding = holding;
         this.mBalance = balance;
     }
 
-    public CoinData(String currency, double holding, double balance, double price){
+    public CoinData(String currency, double holding, double balance, double price) {
         this.mCurrency = currency;
         this.mHolding = holding;
         this.mBalance = balance;
         this.mPrice = price;
     }
 
-    public String getCurrency(){
+    private CoinData(Parcel in) {
+        mCurrency = in.readString();
+        mHolding = in.readDouble();
+        mPrice = in.readDouble();
+        mBalance = in.readDouble();
+    }
+
+    public String getCurrency() {
         return mCurrency;
     }
 
     public double getHolding() {
         return mHolding;
     }
-
 
     public double getBalance() {
         return mBalance;
@@ -58,19 +74,6 @@ public class CoinData implements Parcelable{
         this.mPrice = mPrice;
     }
 
-    public static final Parcelable.Creator CREATOR =
-            new Parcelable.Creator() {
-                public CoinData createFromParcel(Parcel in) {
-                    return new CoinData(in);
-                }
-
-                public CoinData[] newArray(int size) {
-                    return new CoinData[size];
-                }
-    };
-
-
-
     @Override
     public int describeContents() {
         return 0;
@@ -82,12 +85,5 @@ public class CoinData implements Parcelable{
         parcel.writeDouble(mHolding);
         parcel.writeDouble(mPrice);
         parcel.writeDouble(mBalance);
-    }
-
-    private CoinData(Parcel in) {
-        mCurrency = in.readString();
-        mHolding = in.readDouble();
-        mPrice = in.readDouble();
-        mBalance = in.readDouble();
     }
 }
