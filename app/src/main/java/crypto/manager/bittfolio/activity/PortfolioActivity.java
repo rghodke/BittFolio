@@ -160,25 +160,21 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
     }
 
     public void sortByTicker(View view) {
-        System.out.println("SORTING");
         if (mPortfolioFragment != null)
             mPortfolioFragment.sortBy(TICKER);
     }
 
     public void sortByHolding(View view) {
-        System.out.println("SORTING");
         if (mPortfolioFragment != null)
             mPortfolioFragment.sortBy(HOLDING);
     }
 
     public void sortByPrice(View view) {
-        System.out.println("SORTING");
         if (mPortfolioFragment != null)
             mPortfolioFragment.sortBy(PRICE);
     }
 
     public void sortByBalance(View view) {
-        System.out.println("SORTING");
         if (mPortfolioFragment != null)
             mPortfolioFragment.sortBy(BALANCE);
     }

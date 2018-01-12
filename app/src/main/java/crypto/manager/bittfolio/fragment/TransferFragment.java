@@ -22,7 +22,6 @@ import org.json.JSONObject;
 
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.activity.CoinDataActivity;
-import crypto.manager.bittfolio.model.CoinData;
 
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
@@ -82,21 +81,18 @@ public class TransferFragment extends Fragment {
         mWalletId = view.findViewById(R.id.withdraw_wallet_id);
         mSendButton = view.findViewById(R.id.button_send);
         mQuantityEditText = view.findViewById(R.id.edit_text_quantity);
-        
+
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mQuantityEditText != null && mWalletId != null){
+                if (mQuantityEditText != null && mWalletId != null) {
                     String quantity = mQuantityEditText.getText().toString();
                     String walletId = mWalletId.getText().toString();
-                    if(!quantity.isEmpty() && !walletId.isEmpty())
-                    ((CoinDataActivity)getActivity()).startSendTransaction(quantity, walletId);
+                    if (!quantity.isEmpty() && !walletId.isEmpty())
+                        ((CoinDataActivity) getActivity()).startSendTransaction(quantity, walletId);
                 }
             }
         });
-
-        // Set the adapter
-        Context context = view.getContext();
 
         return view;
 
@@ -116,6 +112,7 @@ public class TransferFragment extends Fragment {
     /**
      * Parses the json string and retrieves the deposit id. It then creates a qrcode with the id
      * as well.
+     *
      * @param s
      */
     public void updateDepositAddress(String s) {

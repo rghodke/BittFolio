@@ -25,9 +25,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -41,7 +38,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -49,6 +48,7 @@ import javax.crypto.spec.SecretKeySpec;
 import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.OrderBookFragment;
+import crypto.manager.bittfolio.fragment.OrderFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
 import crypto.manager.bittfolio.fragment.TransferFragment;
 import crypto.manager.bittfolio.model.CoinData;
@@ -60,7 +60,6 @@ public class CoinDataActivity extends AppCompatActivity {
     private static final String API_SECRET = "API_SECRET";
     private static final String CURRENCY = "CURRENCY";
     private static final String ARG_COIN_DATA = "COIN_DATA";
-    private static final String TAG_ORDER_HISTORY_DATA_FRAGMENT = "ORDER_HISTORY_FRAGMENT";
     private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
     private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
     private final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
@@ -86,6 +85,7 @@ public class CoinDataActivity extends AppCompatActivity {
     private boolean mBound = false;
     private BroadcastReceiver mBroadCastNewMessage;
     private OrderHistoryFragment mOrderHistoryFragment;
+    private OrderFragment mOrderFragment;
     private OrderBookFragment mOrderBookFragment;
     private Handler mOrderBookHandler;
     private Handler mOrderHistoryHandler;
@@ -139,7 +139,7 @@ public class CoinDataActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
-    public void startSendTransaction(String quantity, String address){
+    public void startSendTransaction(String quantity, String address) {
         Globals globals = (Globals) getApplication();
         new SendTransaction(globals.getApiKey(), globals.getApiSecret(), quantity, address).execute();
     }
@@ -317,12 +317,22 @@ public class CoinDataActivity extends AppCompatActivity {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
             // handle scan result
-            if(mTransferFragment != null){
+            if (mTransferFragment != null) {
                 System.out.println(scanResult.getContents());
                 mTransferFragment.updateWalletID(scanResult.getContents());
             }
         }
         // else continue with any other code you need in the method
+    }
+
+    public void startBuyTransaction(String quantity, String price) {
+        Globals globals = (Globals) getApplication();
+        new LimitBuyTask(globals.getApiKey(), globals.getApiSecret(), "BTC-" + mCoinData.getCurrency(), quantity, price).execute();
+    }
+
+    public void startSellTransaction(String quantity, String price) {
+        Globals globals = (Globals) getApplication();
+        new LimitSellTask(globals.getApiKey(), globals.getApiSecret(), "BTC-" + mCoinData.getCurrency(), quantity, price).execute();
     }
 
     /**
@@ -355,7 +365,6 @@ public class CoinDataActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_coin_data, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
     }
@@ -366,6 +375,7 @@ public class CoinDataActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        private final List<Fragment> mFragmentList = new ArrayList<>();
         private String title[] = {"Orders", "Order History", "Book", "Transfer"};
 
 
@@ -377,7 +387,12 @@ public class CoinDataActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if (position == 1) {
+            if (position == 0) {
+                if (mOrderFragment == null) {
+                    mOrderFragment = OrderFragment.newInstance();
+                }
+                return mOrderFragment;
+            } else if (position == 1) {
                 if (mOrderHistoryFragment == null) {
                     mOrderHistoryFragment = OrderHistoryFragment.newInstance();
                 }
@@ -410,8 +425,7 @@ public class CoinDataActivity extends AppCompatActivity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous task used to retrieve deposit info
      */
     public class GetDepositTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -528,17 +542,292 @@ public class CoinDataActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
-                if (mTransferFragment != null) {
-                    mTransferFragment.updateDepositAddress(mResult);
+
+                //Needed to persist across rotation
+                if (mTransferFragment == null) {
+                    Fragment curFrag = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
+                    //Update it with the new data
+                    if (curFrag instanceof TransferFragment) {
+                        mTransferFragment = (TransferFragment) curFrag;
+                    }
                 }
+                mTransferFragment.updateDepositAddress(mResult);
+
+            } else {
+            }
+        }
+    }
+
+
+    /**
+     * Represents an asynchronous task used to make a buy limit order
+     */
+    public class LimitBuyTask extends AsyncTask<Void, Void, Boolean> {
+
+
+        private final String mApiKey;
+        private final String mApiSecret;
+        private final String mQuantity;
+        private final String mPrice;
+        private String mResult;
+        private String mCurrency;
+
+        public LimitBuyTask(String apiKey, String apiSecret, String currency, String quantity, String price) {
+            mApiKey = apiKey;
+            mApiSecret = apiSecret;
+            mCurrency = currency;
+            mQuantity = quantity;
+            mPrice = price;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        //Used to create the apisign
+        public String calculateHash(String secret, String url, String encryption) {
+
+            Mac shaHmac = null;
+
+            try {
+
+                shaHmac = Mac.getInstance(encryption);
+
+            } catch (NoSuchAlgorithmException e) {
+
+                e.printStackTrace();
+            }
+
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
+
+            try {
+
+                shaHmac.init(secretKey);
+
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+
+            byte[] hash = shaHmac.doFinal(url.getBytes());
+            String check = bytesToHex(hash);
+
+            return check;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        private String bytesToHex(byte[] bytes) {
+
+            char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+            char[] hexChars = new char[bytes.length * 2];
+
+            for (int j = 0; j < bytes.length; j++) {
+
+                int v = bytes[j] & 0xFF;
+
+                hexChars[j * 2] = hexArray[v >>> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            }
+
+            return new String(hexChars);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: attempt authentication against a network service.
+            String nonce = Long.toString(new Date().getTime());
+            URL url = null;
+            HttpURLConnection connection = null;
+            try {
+                //TODO: Remove typo from buy order logic. It is in place to prevent any accidental buys
+                String urlString = "https://bittrex.com/api/v1.1/market/_REMOVETHISTYPO_buylimit?apikey=" + mApiKey + "&nonce=" + nonce + "&market=" + mCurrency + "&quantity=" + mQuantity + "&rate=" + mPrice;
+                url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"));
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer resultBuffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null)
+                    resultBuffer.append(line);
+
+
+                int requestCode = connection.getResponseCode();
+                if (requestCode == 200) {
+                    /*
+                    Bittrex will return 200 even if login info is incorrect. Look for success
+                    variable
+                     */
+                    System.out.println(resultBuffer.toString());
+                    String success = null;
+                    try {
+                        JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
+                        success = coinBalancesJson.getString("success");
+                        JSONObject result = coinBalancesJson.getJSONObject("result");
+                        mResult = result.getString("uuid");
+                    } catch (JSONException e) {
+                        success = "false";
+                    }
+                    if (success.equals("false")) {
+                        return false;
+                    }
+                    mResult = resultBuffer.toString();
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                Toast.makeText(CoinDataActivity.this, "Transaction Successful with UUID " + mResult, Toast.LENGTH_SHORT).show();
             } else {
             }
         }
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous task used to make a sell limit order
+     */
+    public class LimitSellTask extends AsyncTask<Void, Void, Boolean> {
+
+
+        private final String mApiKey;
+        private final String mApiSecret;
+        private final String mQuantity;
+        private final String mPrice;
+        private String mResult;
+        private String mCurrency;
+
+        public LimitSellTask(String apiKey, String apiSecret, String currency, String quantity, String price) {
+            mApiKey = apiKey;
+            mApiSecret = apiSecret;
+            mCurrency = currency;
+            mQuantity = quantity;
+            mPrice = price;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        //Used to create the apisign
+        public String calculateHash(String secret, String url, String encryption) {
+
+            Mac shaHmac = null;
+
+            try {
+
+                shaHmac = Mac.getInstance(encryption);
+
+            } catch (NoSuchAlgorithmException e) {
+
+                e.printStackTrace();
+            }
+
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
+
+            try {
+
+                shaHmac.init(secretKey);
+
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+
+            byte[] hash = shaHmac.doFinal(url.getBytes());
+            String check = bytesToHex(hash);
+
+            return check;
+        }
+
+        //Method imported from
+        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+        private String bytesToHex(byte[] bytes) {
+
+            char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+            char[] hexChars = new char[bytes.length * 2];
+
+            for (int j = 0; j < bytes.length; j++) {
+
+                int v = bytes[j] & 0xFF;
+
+                hexChars[j * 2] = hexArray[v >>> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            }
+
+            return new String(hexChars);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: attempt authentication against a network service.
+            String nonce = Long.toString(new Date().getTime());
+            URL url = null;
+            HttpURLConnection connection = null;
+            try {
+                //TODO: Remove typo from sell order logic. It is in place to prevent any accidental buys
+                String urlString = "https://bittrex.com/api/v1.1/market/_REMOVETHISTYPO_selllimit?apikey=" + mApiKey + "&nonce=" + nonce + "&market=" + mCurrency + "&quantity=" + mQuantity + "&rate=" + mPrice;
+                url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"));
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer resultBuffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null)
+                    resultBuffer.append(line);
+
+
+                int requestCode = connection.getResponseCode();
+                if (requestCode == 200) {
+                    /*
+                    Bittrex will return 200 even if login info is incorrect. Look for success
+                    variable
+                     */
+                    System.out.println(resultBuffer.toString());
+                    String success = null;
+                    try {
+                        JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
+                        success = coinBalancesJson.getString("success");
+                        JSONObject result = coinBalancesJson.getJSONObject("result");
+                        mResult = result.getString("uuid");
+                    } catch (JSONException e) {
+                        success = "false";
+                    }
+                    if (success.equals("false")) {
+                        return false;
+                    }
+                    mResult = resultBuffer.toString();
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                Toast.makeText(CoinDataActivity.this, "Transaction Successful with UUID " + mResult, Toast.LENGTH_SHORT).show();
+            } else {
+            }
+        }
+    }
+
+
+    /**
+     * Represents an asynchronous task used to send currency to another wallet
      */
     public class SendTransaction extends AsyncTask<Void, Void, Boolean> {
 
@@ -615,7 +904,7 @@ public class CoinDataActivity extends AppCompatActivity {
             HttpURLConnection connection = null;
             try {
                 //TODO: Remove typo from withdraw. In place to avoid commiting any transactions
-                String urlString = "https://bittrex.com/api/v1.1/account/_REMOVETHISTYPO_withdraw?apikey=" + mApiKey + "&nonce=" + nonce + "&currency=" + mCoinData.getCurrency()+"&quantity="+mQuantity+"&address="+mAddress;
+                String urlString = "https://bittrex.com/api/v1.1/account/_REMOVETHISTYPO_withdraw?apikey=" + mApiKey + "&nonce=" + nonce + "&currency=" + mCoinData.getCurrency() + "&quantity=" + mQuantity + "&address=" + mAddress;
                 url = new URL(urlString);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
