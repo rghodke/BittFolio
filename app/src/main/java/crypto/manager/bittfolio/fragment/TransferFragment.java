@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import crypto.manager.bittfolio.R;
+import crypto.manager.bittfolio.activity.CoinDataActivity;
+import crypto.manager.bittfolio.model.CoinData;
 
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
@@ -35,6 +39,9 @@ public class TransferFragment extends Fragment {
 
     private TextView mDepositTextView;
     private ImageView mWalletQRCode;
+    private EditText mWalletId;
+    private Button mSendButton;
+    private EditText mQuantityEditText;
 
     public TransferFragment() {
         // Required empty public constructor
@@ -72,6 +79,21 @@ public class TransferFragment extends Fragment {
 
         mDepositTextView = view.findViewById(R.id.text_view_wallet_id);
         mWalletQRCode = view.findViewById(R.id.qrcode_wallet);
+        mWalletId = view.findViewById(R.id.withdraw_wallet_id);
+        mSendButton = view.findViewById(R.id.button_send);
+        mQuantityEditText = view.findViewById(R.id.edit_text_quantity);
+        
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mQuantityEditText != null && mWalletId != null){
+                    String quantity = mQuantityEditText.getText().toString();
+                    String walletId = mWalletId.getText().toString();
+                    if(!quantity.isEmpty() && !walletId.isEmpty())
+                    ((CoinDataActivity)getActivity()).startSendTransaction(quantity, walletId);
+                }
+            }
+        });
 
         // Set the adapter
         Context context = view.getContext();
@@ -137,4 +159,7 @@ public class TransferFragment extends Fragment {
         return bitmap;
     }
 
+    public void updateWalletID(String contents) {
+        mWalletId.setText(contents);
+    }
 }

@@ -31,4 +31,8 @@
     <string name="buy_order">Buy Order</string>
     <string name="sell_order">Sell Order</string>
     <string name="deposit">Deposit</string>
+    <string name="withdraw">Withdraw</string>
+    <string name="wallet_id">Wallet ID</string>
+    <string name="scan">Scan</string>
+    <string name="send">Send</string>
 </resources>
