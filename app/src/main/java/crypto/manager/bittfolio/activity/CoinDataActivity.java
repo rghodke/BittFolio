@@ -62,6 +62,8 @@ public class CoinDataActivity extends AppCompatActivity {
     private static final String ARG_COIN_DATA = "COIN_DATA";
     private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
     private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
+    private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
+    private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
     private final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
     private final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
     private CoinData mCoinData;
@@ -74,7 +76,6 @@ public class CoinDataActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -90,6 +91,7 @@ public class CoinDataActivity extends AppCompatActivity {
     private Handler mOrderBookHandler;
     private Handler mOrderHistoryHandler;
     private TransferFragment mTransferFragment;
+    private Handler mPriceHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +121,9 @@ public class CoinDataActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 endAllHandlers();
-                if (position == 1) {
+                if (position == 0) {
+                    updatePriceTicker();
+                } else if (position == 1) {
                     updateOrderHistory();
                 } else if (position == 2) {
                     updateOrderBook();
@@ -137,6 +141,24 @@ public class CoinDataActivity extends AppCompatActivity {
         //Set up the different tabs
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
+
+        updatePriceTicker(); //Have to call this method in onCreate since the view pager is
+        // not triggered until user interacts
+    }
+
+    private void updatePriceTicker() {
+        //Every second get the newest info about the coin you want
+        mPriceHandler = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mPriceHandler.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                mService.getLatestPrice();
+                mPriceHandler.postDelayed(this, delay);
+
+            }
+        }, delay);
     }
 
     public void startSendTransaction(String quantity, String address) {
@@ -162,6 +184,7 @@ public class CoinDataActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
+        endAllHandlers();
         unbindService(mConnection);
         unregisterReceiver(mBroadCastNewMessage);
         mBound = false;
@@ -226,6 +249,13 @@ public class CoinDataActivity extends AppCompatActivity {
                         }
                         return;
                     }
+                    if (curFrag instanceof OrderFragment) {
+                        mOrderFragment = (OrderFragment) curFrag;
+                        String currencyDetails = intent.getStringExtra(LATEST_PRICE_INTENT_EXTRA);
+                        if (currencyDetails != null && !currencyDetails.isEmpty()) {
+                            mOrderFragment.updatePrice(currencyDetails);
+                        }
+                    }
                 }
 //                }
             }
@@ -234,9 +264,9 @@ public class CoinDataActivity extends AppCompatActivity {
         //The possible data intent actions
         bittrexServiceFilter.addAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
         registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
-
 
     /**
      * Get the latest market data by the second
@@ -295,6 +325,7 @@ public class CoinDataActivity extends AppCompatActivity {
     private void endAllHandlers() {
         if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
         if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
+        if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
     }
 
     public void scanQRCode(View view) {

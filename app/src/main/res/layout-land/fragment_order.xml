@@ -1,121 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_weight="100"
-    android:orientation="horizontal">
+    android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="50">
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/buy_label"
+            android:id="@+id/current_bid_price_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/buy_order" />
+            android:text="@string/current_bid_price" />
 
 
         <TextView
-            android:id="@+id/buy_quantity_label"
+            android:id="@+id/text_view_current_bid_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/buy_label"
-            android:layout_margin="10dp"
-            android:text="@string/quantity" />
-
-        <EditText
-            android:id="@+id/edit_text_buy_quantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/buy_quantity_label"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:hint="@string/quantity" />
-
-        <TextView
-            android:id="@+id/buy_price_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/buy_quantity_label"
             android:layout_margin="10dp"
             android:text="@string/price" />
 
-        <EditText
-            android:id="@+id/edit_text_buy_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/buy_price_label"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:hint="@string/buy_price" />
-
-        <Button
-            android:id="@+id/buy_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/buy_price_label"
-            android:text="@string/buy" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="50">
-
         <TextView
-            android:id="@+id/sell_label"
+            android:id="@+id/current_ask_price_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/current_bid_price_label"
             android:layout_margin="10dp"
-            android:text="@string/sell_order" />
+            android:text="@string/current_ask_price" />
 
 
         <TextView
-            android:id="@+id/sell_quantity_label"
+            android:id="@+id/text_view_current_ask_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sell_label"
-            android:layout_margin="10dp"
-            android:text="@string/quantity" />
-
-        <EditText
-            android:id="@+id/edit_text_sell_quantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/sell_quantity_label"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:hint="@string/quantity" />
-
-        <TextView
-            android:id="@+id/sell_price_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/sell_quantity_label"
+            android:layout_below="@id/text_view_current_bid_price"
             android:layout_margin="10dp"
             android:text="@string/price" />
 
-        <EditText
-            android:id="@+id/edit_text_sell_price"
+        <TextView
+            android:id="@+id/current_last_price_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/sell_price_label"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:hint="@string/sell_price" />
+            android:layout_below="@id/current_ask_price_label"
+            android:layout_margin="10dp"
+            android:text="@string/current_last_price" />
 
-        <Button
-            android:id="@+id/sell_button"
+
+        <TextView
+            android:id="@+id/text_view_current_last_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sell_price_label"
-            android:text="@string/sell" />
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/text_view_current_ask_price"
+            android:layout_margin="10dp"
+            android:text="@string/price" />
+
 
     </RelativeLayout>
 
 
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/relativeLayout"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="50">
+
+            <TextView
+                android:id="@+id/buy_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/buy_order" />
+
+
+            <TextView
+                android:id="@+id/buy_quantity_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/buy_label"
+                android:layout_margin="10dp"
+                android:text="@string/quantity" />
+
+            <EditText
+                android:id="@+id/edit_text_buy_quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/buy_quantity_label"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:hint="@string/quantity" />
+
+            <TextView
+                android:id="@+id/buy_price_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/buy_quantity_label"
+                android:layout_margin="10dp"
+                android:text="@string/price" />
+
+            <EditText
+                android:id="@+id/edit_text_buy_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/buy_price_label"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:hint="@string/buy_price" />
+
+            <Button
+                android:id="@+id/buy_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/buy_price_label"
+                android:text="@string/buy" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="50">
+
+            <TextView
+                android:id="@+id/sell_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/sell_order" />
+
+
+            <TextView
+                android:id="@+id/sell_quantity_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sell_label"
+                android:layout_margin="10dp"
+                android:text="@string/quantity" />
+
+            <EditText
+                android:id="@+id/edit_text_sell_quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/sell_quantity_label"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:hint="@string/quantity" />
+
+            <TextView
+                android:id="@+id/sell_price_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sell_quantity_label"
+                android:layout_margin="10dp"
+                android:text="@string/price" />
+
+            <EditText
+                android:id="@+id/edit_text_sell_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/sell_price_label"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:hint="@string/sell_price" />
+
+            <Button
+                android:id="@+id/sell_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sell_price_label"
+                android:text="@string/sell" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+</RelativeLayout>
+
+

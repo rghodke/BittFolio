@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.activity.CoinDataActivity;
@@ -24,6 +28,9 @@ public class OrderFragment extends Fragment {
 
     private Button mBuyButton, mSellButton;
     private EditText mBuyQuantityEditText, mSellQuantityEditText, mBuyPriceEditText, mSellPriceEditText;
+
+    private TextView mBidPrice, mAskPrice, mLastPrice;
+
 
     public OrderFragment() {
         // Required empty public constructor
@@ -95,6 +102,10 @@ public class OrderFragment extends Fragment {
         });
 
 
+        mBidPrice = view.findViewById(R.id.text_view_current_bid_price);
+        mAskPrice = view.findViewById(R.id.text_view_current_ask_price);
+        mLastPrice = view.findViewById(R.id.text_view_current_last_price);
+
         // Set the adapter
         Context context = view.getContext();
 
@@ -111,5 +122,24 @@ public class OrderFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void updatePrice(String currencyDetails) {
+        try {
+            JSONObject jsonObject = new JSONObject(currencyDetails);
+            JSONObject innerObj = jsonObject.getJSONObject("result");
+            String bid = innerObj.getString("Bid");
+            String ask = innerObj.getString("Ask");
+            String last = innerObj.getString("Last");
+
+            mBidPrice.setText(bid);
+            mAskPrice.setText(ask);
+            mLastPrice.setText(last);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

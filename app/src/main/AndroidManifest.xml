@@ -30,6 +30,7 @@
         <activity
             android:name=".activity.CoinDataActivity"
             android:label="@string/title_activity_coin_data"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 

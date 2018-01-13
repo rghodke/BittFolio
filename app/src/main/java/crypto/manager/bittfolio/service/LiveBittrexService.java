@@ -41,6 +41,8 @@ public class LiveBittrexService extends Service {
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
     private static final String CURRENCY = "CURRENCY";
+    private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
+    private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
@@ -50,6 +52,7 @@ public class LiveBittrexService extends Service {
 
     private String mApiKey, mApiSecret, mCurrency;
     private OkHttpClient client;
+    private Object latestPrice;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -106,6 +109,11 @@ public class LiveBittrexService extends Service {
                 }
             }
         });
+    }
+
+    public void getLatestPrice() {
+        System.out.println("getLatestPrice");
+        connectBittrexPublicApi("getticker?market=BTC-" + mCurrency, LATEST_PRICE_INTENT_EXTRA, LATEST_PRICE_INTENT_ACTION);
     }
 
     /**

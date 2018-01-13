@@ -36,4 +36,8 @@
     <string name="buy_price">Buy Price</string>
     <string name="sell_price">Sell Price</string>
     <string name="sell">Sell</string>
+    <string name="current_price">Current Price</string>
+    <string name="current_bid_price">Current Bid Price</string>
+    <string name="current_ask_price">Current Ask Price</string>
+    <string name="current_last_price">Current Last Price</string>
 </resources>

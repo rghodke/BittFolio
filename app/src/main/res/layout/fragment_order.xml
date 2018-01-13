@@ -1,14 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="100"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="100">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="50">
+        android:layout_height="0dp"
+        android:layout_weight="25">
+
+        <TextView
+            android:id="@+id/current_bid_price_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/current_bid_price" />
+
+
+        <TextView
+            android:id="@+id/text_view_current_bid_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:text="@string/price" />
+
+        <TextView
+            android:id="@+id/current_ask_price_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/current_bid_price_label"
+            android:layout_margin="10dp"
+            android:text="@string/current_ask_price" />
+
+
+        <TextView
+            android:id="@+id/text_view_current_ask_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/text_view_current_bid_price"
+            android:layout_margin="10dp"
+            android:text="@string/price" />
+
+        <TextView
+            android:id="@+id/current_last_price_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/current_ask_price_label"
+            android:layout_margin="10dp"
+            android:text="@string/current_last_price" />
+
+
+        <TextView
+            android:id="@+id/text_view_current_last_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/text_view_current_ask_price"
+            android:layout_margin="10dp"
+            android:text="@string/price" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="30">
 
         <TextView
             android:id="@+id/buy_label"
@@ -63,8 +125,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="50">
+        android:layout_height="0dp"
+        android:layout_weight="30">
 
         <TextView
             android:id="@+id/sell_label"
@@ -119,3 +181,5 @@
 
 
 </LinearLayout>
+
+
