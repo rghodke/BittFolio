@@ -24,6 +24,7 @@ public class CoinData implements Parcelable {
     private double mHolding;
     private double mPrice;
     private double mBalance;
+    private String mImageUrl;
 
     public CoinData(String currency, double holding) {
         this.mCurrency = currency;
@@ -85,5 +86,13 @@ public class CoinData implements Parcelable {
         parcel.writeDouble(mHolding);
         parcel.writeDouble(mPrice);
         parcel.writeDouble(mBalance);
+    }
+
+    public String getImageUrl() {
+        return mImageUrl;
+    }
+
+    public void setImageUrl(String mImageUrl) {
+        this.mImageUrl = mImageUrl;
     }
 }

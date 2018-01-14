@@ -5,13 +5,31 @@
     android:orientation="horizontal"
     android:weightSum="100">
 
-    <TextView
-        android:id="@+id/text_view_ticker"
+    <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:layout_weight="20"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:layout_weight="20">
+
+        <ImageView
+            android:id="@+id/image_view_currency_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp" />
+
+        <TextView
+            android:id="@+id/text_view_ticker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/image_view_currency_icon"
+            android:layout_toRightOf="@id/image_view_currency_icon"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceListItem" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/text_view_holding"
@@ -19,6 +37,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
         android:layout_weight="26"
+        android:maxLength="7"
+        android:maxLines="1"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
@@ -26,7 +46,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:layout_weight="26"
+        android:layout_weight="30"
+        android:maxLength="10"
+        android:maxLines="1"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
@@ -34,6 +56,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:layout_weight="26"
+        android:layout_weight="22"
+        android:maxLength="7"
+        android:maxLines="1"
         android:textAppearance="?attr/textAppearanceListItem" />
 </LinearLayout>

@@ -4,7 +4,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -39,10 +42,18 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mCoins.get(position);
-        holder.mTicketView.setText(mCoins.get(position).getCurrency());
-        holder.mHoldingView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getHolding()));
-        holder.mPriceView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getPrice()));
-        holder.mBalanceView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getBalance()));
+        Picasso.with(holder.mCurrencyIcon.getContext()).load(mCoins.get(position).getImageUrl()).into(holder.mCurrencyIcon);
+        holder.mTickerView.setText(mCoins.get(position).getCurrency());
+
+        DecimalFormat df = new DecimalFormat("#.########");
+        holder.mHoldingView.setText(String.valueOf(mCoins.get(position).getHolding()));
+        holder.mPriceView.setText(df.format(mCoins.get(position).getPrice()));
+        holder.mBalanceView.setText(String.valueOf(mCoins.get(position).getBalance()));
+
+
+//        holder.mHoldingView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getHolding()));
+//        holder.mPriceView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getPrice()));
+//        holder.mBalanceView.setText(new DecimalFormat("#.####").format(mCoins.get(position).getBalance()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,7 +75,8 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mTicketView;
+        public final ImageView mCurrencyIcon;
+        public final TextView mTickerView;
         public final TextView mHoldingView;
         public final TextView mPriceView;
         public final TextView mBalanceView;
@@ -73,7 +85,8 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mTicketView = (TextView) view.findViewById(R.id.text_view_ticker);
+            mCurrencyIcon = (ImageView) view.findViewById(R.id.image_view_currency_icon);
+            mTickerView = (TextView) view.findViewById(R.id.text_view_ticker);
             mHoldingView = (TextView) view.findViewById(R.id.text_view_holding);
             mPriceView = (TextView) view.findViewById(R.id.text_view_price);
             mBalanceView = (TextView) view.findViewById(R.id.text_view_balance);

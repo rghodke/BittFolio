@@ -13,6 +13,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.activity.CoinDataActivity;
 
@@ -128,13 +130,15 @@ public class OrderFragment extends Fragment {
         try {
             JSONObject jsonObject = new JSONObject(currencyDetails);
             JSONObject innerObj = jsonObject.getJSONObject("result");
-            String bid = innerObj.getString("Bid");
-            String ask = innerObj.getString("Ask");
-            String last = innerObj.getString("Last");
+            double bid = innerObj.getDouble("Bid");
+            double ask = innerObj.getDouble("Ask");
+            double last = innerObj.getDouble("Last");
 
-            mBidPrice.setText(bid);
-            mAskPrice.setText(ask);
-            mLastPrice.setText(last);
+            DecimalFormat df = new DecimalFormat("#.########");
+
+            mBidPrice.setText(df.format(bid));
+            mAskPrice.setText(df.format(ask));
+            mLastPrice.setText(df.format(last));
 
         } catch (JSONException e) {
             e.printStackTrace();

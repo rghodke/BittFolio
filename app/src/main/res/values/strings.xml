@@ -40,4 +40,5 @@
     <string name="current_bid_price">Current Bid Price</string>
     <string name="current_ask_price">Current Ask Price</string>
     <string name="current_last_price">Current Last Price</string>
+    <string name="logo_for_the_bittfolio_app">Logo for the BittFolio App</string>
 </resources>

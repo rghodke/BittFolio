@@ -16,7 +16,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -100,9 +99,7 @@ public class CoinDataActivity extends AppCompatActivity {
 
         mCoinData = getIntent().getExtras().getParcelable(ARG_COIN_DATA);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(mCoinData.getCurrency());
-        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(mCoinData.getCurrency());
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -349,7 +346,6 @@ public class CoinDataActivity extends AppCompatActivity {
         if (scanResult != null) {
             // handle scan result
             if (mTransferFragment != null) {
-                System.out.println(scanResult.getContents());
                 mTransferFragment.updateWalletID(scanResult.getContents());
             }
         }
@@ -547,7 +543,6 @@ public class CoinDataActivity extends AppCompatActivity {
                     Bittrex will return 200 even if login info is incorrect. Look for success
                     variable
                      */
-                    System.out.println(resultBuffer.toString());
                     String success = null;
                     try {
                         JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
@@ -582,7 +577,7 @@ public class CoinDataActivity extends AppCompatActivity {
                         mTransferFragment = (TransferFragment) curFrag;
                     }
                 }
-                mTransferFragment.updateDepositAddress(mResult);
+                if (mTransferFragment != null) mTransferFragment.updateDepositAddress(mResult);
 
             } else {
             }
@@ -689,7 +684,6 @@ public class CoinDataActivity extends AppCompatActivity {
                     Bittrex will return 200 even if login info is incorrect. Look for success
                     variable
                      */
-                    System.out.println(resultBuffer.toString());
                     String success = null;
                     try {
                         JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
@@ -822,7 +816,6 @@ public class CoinDataActivity extends AppCompatActivity {
                     Bittrex will return 200 even if login info is incorrect. Look for success
                     variable
                      */
-                    System.out.println(resultBuffer.toString());
                     String success = null;
                     try {
                         JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
@@ -954,7 +947,6 @@ public class CoinDataActivity extends AppCompatActivity {
                     Bittrex will return 200 even if login info is incorrect. Look for success
                     variable
                      */
-                    System.out.println(resultBuffer.toString());
                     String success = null;
                     try {
                         JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());

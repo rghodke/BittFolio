@@ -1,8 +1,10 @@
 package crypto.manager.bittfolio.fragment;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,10 +19,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,8 +92,6 @@ public class PortfolioFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_portfolio_list, container, false);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
-
         coinDataList = new ArrayList<>();
         try {
             coinDataList = parseCoinData(mCoinBalanceString);
@@ -98,7 +104,12 @@ public class PortfolioFragment extends Fragment {
 
         // Set the adapter
         Context context = view.getContext();
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerViewAdapter = new CoinRecyclerViewAdapter(coinDataList, mListener);
         recyclerView.setAdapter(recyclerViewAdapter);
 
@@ -121,6 +132,8 @@ public class PortfolioFragment extends Fragment {
                 coinDataList.add(coinObj);
             }
         }
+
+        new RetrieveIconImage(coinDataList).execute();
 
         return coinDataList;
 
@@ -266,5 +279,69 @@ public class PortfolioFragment extends Fragment {
     public interface OnPortfolioListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onPortfolioListFragmentInteraction(CoinData item);
+    }
+
+    class RetrieveIconImage extends AsyncTask<Void, Void, Boolean> {
+
+        private List<CoinData> mCoinData;
+
+        public RetrieveIconImage(List<CoinData> cd) {
+            this.mCoinData = cd;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: attempt authentication against a network service.
+            String nonce = Long.toString(new Date().getTime());
+            URL url = null;
+            HttpURLConnection connection = null;
+            try {
+                String urlString = "https://www.cryptocompare.com/api/data/coinlist/";
+                url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer resultBuffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null)
+                    resultBuffer.append(line);
+
+
+                int requestCode = connection.getResponseCode();
+                if (requestCode == 200) {
+
+                    /*
+                    Bittrex will return 200 even if login info is incorrect. Look for success
+                    variable
+                     */
+                    String success = null;
+                    try {
+                        JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
+                        success = coinBalancesJson.getString("Response");
+                        JSONObject data = coinBalancesJson.getJSONObject("Data");
+
+                        for (CoinData coinData : mCoinData) {
+                            if (data.has(coinData.getCurrency())) {
+                                JSONObject currencyData = data.getJSONObject(coinData.getCurrency());
+                                coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        success = "false";
+                    }
+                    if (success.equals("false")) {
+                        return false;
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
     }
 }

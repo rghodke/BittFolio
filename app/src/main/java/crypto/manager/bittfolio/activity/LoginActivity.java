@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,11 +43,13 @@ import crypto.manager.bittfolio.R;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
+    private static final String PREFS_LOGIN = "LoginPref";
+    private static final String PREF_USERNAME = "username";
+    private static final String PREF_PASSWORD = "password";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-
     // UI references.
     private EditText mApiKeyView;
     private EditText mApiSecretView;
@@ -71,6 +74,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
+        retrieveLoginFromPref();
+
         Button mBittrexSignInButton = (Button) findViewById(R.id.bittrex_sign_in_button);
         mBittrexSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -80,7 +86,19 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void retrieveLoginFromPref() {
+        SharedPreferences pref = getSharedPreferences(PREFS_LOGIN, MODE_PRIVATE);
+        String username = pref.getString(PREF_USERNAME, null);
+        String password = pref.getString(PREF_PASSWORD, null);
+
+        if (username == null || password == null) {
+            //Prompt for username and password
+        } else {
+            mApiKeyView.setText(username);
+            mApiSecretView.setText(password);
+        }
     }
 
 
@@ -152,18 +170,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
@@ -172,6 +181,14 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PortfolioActivity.class);
         intent.putExtra(EXTRA_COIN_BALANCE_STRING, s);
         startActivity(intent);
+    }
+
+    private void persistLoginInPref(String mApiKey, String mApiSecret) {
+        getSharedPreferences(PREFS_LOGIN, MODE_PRIVATE)
+                .edit()
+                .putString(PREF_USERNAME, mApiKey)
+                .putString(PREF_PASSWORD, mApiSecret)
+                .apply();
     }
 
     /**
@@ -280,6 +297,8 @@ public class LoginActivity extends AppCompatActivity {
                     Globals globals = (Globals) getApplication();
                     globals.setApiKey(mApiKey);
                     globals.setApiSecret(mApiSecret);
+
+                    persistLoginInPref(mApiKey, mApiSecret);
 
                     startPortfolioActivity(resultBuffer.toString());
                     return true;

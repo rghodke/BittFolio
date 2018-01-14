@@ -71,12 +71,10 @@ public class LiveBittrexService extends Service {
     }
 
     public void getOrderHistory() {
-        System.out.println("getOrderHistory");
         new OrderHistoryTask().execute();
     }
 
     public void getOrderBook() {
-        System.out.println("getOrderBook");
         connectBittrexPublicApi("getorderbook?market=BTC-" + mCurrency + "&type=both", LIVE_ORDER_BOOK_INTENT_EXTRA, LIVE_ORDER_BOOK_INTENT_ACTION);
     }
 
@@ -112,7 +110,6 @@ public class LiveBittrexService extends Service {
     }
 
     public void getLatestPrice() {
-        System.out.println("getLatestPrice");
         connectBittrexPublicApi("getticker?market=BTC-" + mCurrency, LATEST_PRICE_INTENT_EXTRA, LATEST_PRICE_INTENT_ACTION);
     }
 
