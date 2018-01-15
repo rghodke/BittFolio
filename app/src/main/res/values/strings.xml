@@ -41,4 +41,7 @@
     <string name="current_ask_price">Current Ask Price</string>
     <string name="current_last_price">Current Last Price</string>
     <string name="logo_for_the_bittfolio_app">Logo for the BittFolio App</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

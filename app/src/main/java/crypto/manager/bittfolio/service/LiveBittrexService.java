@@ -43,6 +43,8 @@ public class LiveBittrexService extends Service {
     private static final String CURRENCY = "CURRENCY";
     private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION = "LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
@@ -76,6 +78,43 @@ public class LiveBittrexService extends Service {
 
     public void getOrderBook() {
         connectBittrexPublicApi("getorderbook?market=BTC-" + mCurrency + "&type=both", LIVE_ORDER_BOOK_INTENT_EXTRA, LIVE_ORDER_BOOK_INTENT_ACTION);
+    }
+
+    public void getHourlyDataForPast24Hours() {
+        connectCryptoComparePublicApi("histohour?fsym=" + mCurrency + "&tsym=BTC&limit=24&aggregate=1&e=Bittrex", LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA, LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION);
+    }
+
+    private void connectCryptoComparePublicApi(String publicParameter, final String intentExtra, final String intentAction) {
+        Request request = new Request.Builder()
+                .url("https://min-api.cryptocompare.com/data/" + publicParameter)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String currenciesJSONString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        if (jsonObject.getString("Response").equals("Success") && jsonObject.getInt("Type") >= 100) {
+                            Intent intent = new Intent();
+                            intent.putExtra(intentExtra, currenciesJSONString);
+                            intent.setAction(intentAction);
+                            context.sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+
     }
 
     private void connectBittrexPublicApi(String publicParameter, final String intentExtra, final String intentAction) {
@@ -237,6 +276,5 @@ public class LiveBittrexService extends Service {
             } else {
             }
         }
-
     }
 }

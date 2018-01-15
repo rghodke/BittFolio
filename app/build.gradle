@@ -31,13 +31,13 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    implementation 'com.koushikdutta.ion:ion:2.+'
-
-
+    //camera for in house qr code scanner
     implementation 'com.google.android.gms:play-services:7.8+'
 
     // https://mvnrepository.com/artifact/com.google.zxing/
     implementation group: 'com.google.zxing', name: 'core', version: '3.3.1'
     implementation group: 'com.google.zxing', name: 'android-integration', version: '3.3.0'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
 
 }

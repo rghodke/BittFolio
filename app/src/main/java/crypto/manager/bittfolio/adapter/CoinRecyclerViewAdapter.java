@@ -44,7 +44,6 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
         holder.mItem = mCoins.get(position);
         Picasso.with(holder.mCurrencyIcon.getContext()).load(mCoins.get(position).getImageUrl()).into(holder.mCurrencyIcon);
         holder.mTickerView.setText(mCoins.get(position).getCurrency());
-
         DecimalFormat df = new DecimalFormat("#.########");
         holder.mHoldingView.setText(String.valueOf(mCoins.get(position).getHolding()));
         holder.mPriceView.setText(df.format(mCoins.get(position).getPrice()));

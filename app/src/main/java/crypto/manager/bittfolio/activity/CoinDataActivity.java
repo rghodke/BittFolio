@@ -46,6 +46,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
+import crypto.manager.bittfolio.fragment.CoinGraphFragment;
 import crypto.manager.bittfolio.fragment.OrderBookFragment;
 import crypto.manager.bittfolio.fragment.OrderFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
@@ -63,8 +64,10 @@ public class CoinDataActivity extends AppCompatActivity {
     private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
-    private final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
-    private final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION = "LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION";
     private CoinData mCoinData;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -91,6 +94,8 @@ public class CoinDataActivity extends AppCompatActivity {
     private Handler mOrderHistoryHandler;
     private TransferFragment mTransferFragment;
     private Handler mPriceHandler;
+    private CoinGraphFragment mCoinGraphFragment;
+    private Handler mCoinGraph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,12 +124,14 @@ public class CoinDataActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 endAllHandlers();
                 if (position == 0) {
-                    updatePriceTicker();
+                    updateCoinGraph();
                 } else if (position == 1) {
-                    updateOrderHistory();
+                    updatePriceTicker();
                 } else if (position == 2) {
-                    updateOrderBook();
+                    updateOrderHistory();
                 } else if (position == 3) {
+                    updateOrderBook();
+                } else if (position == 4) {
                     updateDepositAddress();
                 }
             }
@@ -139,8 +146,23 @@ public class CoinDataActivity extends AppCompatActivity {
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        updatePriceTicker(); //Have to call this method in onCreate since the view pager is
+        updateCoinGraph(); //Have to call this method in onCreate since the view pager is
         // not triggered until user interacts
+    }
+
+    private void updateCoinGraph() {
+        //Every second get the newest info about the coin you want
+        mCoinGraph = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mCoinGraph.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                mService.getHourlyDataForPast24Hours();
+                mCoinGraph.postDelayed(this, delay);
+
+            }
+        }, delay);
     }
 
     private void updatePriceTicker() {
@@ -253,6 +275,13 @@ public class CoinDataActivity extends AppCompatActivity {
                             mOrderFragment.updatePrice(currencyDetails);
                         }
                     }
+                    if (curFrag instanceof CoinGraphFragment) {
+                        mCoinGraphFragment = (CoinGraphFragment) curFrag;
+                        String coinGraph = intent.getStringExtra(LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA);
+                        if (coinGraph != null && !coinGraph.isEmpty()) {
+                            mCoinGraphFragment.updateGraph(coinGraph);
+                        }
+                    }
                 }
 //                }
             }
@@ -262,6 +291,7 @@ public class CoinDataActivity extends AppCompatActivity {
         bittrexServiceFilter.addAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
         bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION);
         registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
 
@@ -320,6 +350,7 @@ public class CoinDataActivity extends AppCompatActivity {
     }
 
     private void endAllHandlers() {
+        if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
         if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
         if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
         if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
@@ -403,7 +434,7 @@ public class CoinDataActivity extends AppCompatActivity {
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
-        private String title[] = {"Orders", "Order History", "Book", "Transfer"};
+        private String title[] = {"Price History", "Orders", "Order History", "Book", "Transfer"};
 
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -415,21 +446,26 @@ public class CoinDataActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
+                if (mCoinGraphFragment == null) {
+                    mCoinGraphFragment = CoinGraphFragment.newInstance();
+                }
+                return mCoinGraphFragment;
+            } else if (position == 1) {
                 if (mOrderFragment == null) {
                     mOrderFragment = OrderFragment.newInstance();
                 }
                 return mOrderFragment;
-            } else if (position == 1) {
+            } else if (position == 2) {
                 if (mOrderHistoryFragment == null) {
                     mOrderHistoryFragment = OrderHistoryFragment.newInstance();
                 }
                 return mOrderHistoryFragment;
-            } else if (position == 2) {
+            } else if (position == 3) {
                 if (mOrderBookFragment == null) {
                     mOrderBookFragment = OrderBookFragment.newInstance();
                 }
                 return mOrderBookFragment;
-            } else if (position == 3) {
+            } else if (position == 4) {
                 if (mTransferFragment == null) {
                     mTransferFragment = TransferFragment.newInstance();
                 }
