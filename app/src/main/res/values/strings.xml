@@ -44,4 +44,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="_24_hour_high">24 Hour High</string>
+    <string name="_24_hour_low">24 Hour Low</string>
+    <string name="_24_hour_volume">24 Hour Volume</string>
+    <string name="_24_hour_change">24 Hour Change</string>
 </resources>

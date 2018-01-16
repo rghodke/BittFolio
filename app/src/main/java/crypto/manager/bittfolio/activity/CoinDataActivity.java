@@ -68,6 +68,8 @@ public class CoinDataActivity extends AppCompatActivity {
     private static final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
     private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA";
     private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION = "LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
     private CoinData mCoinData;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -159,6 +161,7 @@ public class CoinDataActivity extends AppCompatActivity {
             public void run() {
                 //do something
                 mService.getHourlyDataForPast24Hours();
+                mService.getMarketDataForCurrency();
                 mCoinGraph.postDelayed(this, delay);
 
             }
@@ -281,6 +284,10 @@ public class CoinDataActivity extends AppCompatActivity {
                         if (coinGraph != null && !coinGraph.isEmpty()) {
                             mCoinGraphFragment.updateGraph(coinGraph);
                         }
+                        String coinData = intent.getStringExtra(LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA);
+                        if (coinData != null && !coinData.isEmpty()) {
+                            mCoinGraphFragment.updateStats(coinData);
+                        }
                     }
                 }
 //                }
@@ -292,6 +299,7 @@ public class CoinDataActivity extends AppCompatActivity {
         bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
         bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
         registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
 

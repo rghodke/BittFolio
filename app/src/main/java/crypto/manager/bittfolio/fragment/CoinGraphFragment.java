@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -16,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +43,7 @@ public class CoinGraphFragment extends Fragment {
     private String mParam2;
     private LineChart mChart;
     private boolean mNewGraph;
+    private TextView m24High, mBid, m24Volume, m24Low, mAsk, m24Change;
 
     public CoinGraphFragment() {
         // Required empty public constructor
@@ -65,6 +68,7 @@ public class CoinGraphFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         if (getArguments() != null) {
         }
     }
@@ -79,6 +83,16 @@ public class CoinGraphFragment extends Fragment {
         mChart.setDescription(null);
         XAxis xAxis = mChart.getXAxis();
         xAxis.setValueFormatter(new HourlyDateAxisFormatter());
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        m24High = view.findViewById(R.id.text_view_24_high);
+        mBid = view.findViewById(R.id.text_view_current_bid_price);
+        m24Volume = view.findViewById(R.id.text_view_24_hour_volume);
+
+        m24Low = view.findViewById(R.id.text_view_24_low);
+        mAsk = view.findViewById(R.id.text_view_current_ask_price);
+        m24Change = view.findViewById(R.id.text_view_24_hour_change);
+
         return view;
     }
 
@@ -119,4 +133,26 @@ public class CoinGraphFragment extends Fragment {
         if (!mNewGraph) mChart.notifyDataSetChanged();
     }
 
+    public void updateStats(String coinData) {
+        try {
+            JSONObject coinDataJSON = new JSONObject(coinData);
+            JSONArray coinDataArray = coinDataJSON.getJSONArray("result");
+            if (coinDataArray.length() > 0) {
+                coinDataJSON = coinDataArray.getJSONObject(0);
+                m24High.setText(coinDataJSON.getString("High"));
+                mBid.setText(coinDataJSON.getString("Bid"));
+                double volume = coinDataJSON.getDouble("Volume");
+                m24Volume.setText(new DecimalFormat("#.##").format(volume));
+                m24Low.setText(coinDataJSON.getString("Low"));
+                mAsk.setText(coinDataJSON.getString("Ask"));
+                double change = (coinDataJSON.getDouble("Last") / coinDataJSON.getDouble("PrevDay")) - 1;
+                change *= 100;
+                m24Change.setText((new DecimalFormat("#.##").format(change)) + "%");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 }

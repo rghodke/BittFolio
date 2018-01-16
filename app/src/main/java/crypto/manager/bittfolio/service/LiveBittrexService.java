@@ -45,6 +45,8 @@ public class LiveBittrexService extends Service {
     private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
     private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA";
     private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION = "LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
@@ -82,6 +84,10 @@ public class LiveBittrexService extends Service {
 
     public void getHourlyDataForPast24Hours() {
         connectCryptoComparePublicApi("histohour?fsym=" + mCurrency + "&tsym=BTC&limit=24&aggregate=1&e=Bittrex", LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA, LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION);
+    }
+
+    public void getMarketDataForCurrency() {
+        connectBittrexPublicApi("getmarketsummary?market=BTC-" + mCurrency, LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA, LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
     }
 
     private void connectCryptoComparePublicApi(String publicParameter, final String intentExtra, final String intentAction) {
