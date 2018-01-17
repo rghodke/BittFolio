@@ -1,10 +1,13 @@
 package crypto.manager.bittfolio.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -22,28 +25,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import crypto.manager.bittfolio.R;
-import crypto.manager.bittfolio.adapter.HourlyDateAxisFormatter;
+import crypto.manager.bittfolio.adapter.DateAxisFormatter;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link CoinGraphFragment.OnFragmentInteractionListener} interface
+ * {@link OnCoinGraphFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link CoinGraphFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class CoinGraphFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private LineChart mChart;
     private boolean mNewGraph;
     private TextView m24High, mBid, m24Volume, m24Low, mAsk, m24Change;
+
+    private OnCoinGraphFragmentInteractionListener mListener;
+
 
     public CoinGraphFragment() {
         // Required empty public constructor
@@ -66,6 +65,17 @@ public class CoinGraphFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnCoinGraphFragmentInteractionListener) {
+            mListener = (OnCoinGraphFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnCoinGraphFragmentInteractionListener");
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
@@ -82,7 +92,7 @@ public class CoinGraphFragment extends Fragment {
         mChart = (LineChart) view.findViewById(R.id.chart);
         mChart.setDescription(null);
         XAxis xAxis = mChart.getXAxis();
-        xAxis.setValueFormatter(new HourlyDateAxisFormatter());
+        xAxis.setValueFormatter(new DateAxisFormatter(2));
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         m24High = view.findViewById(R.id.text_view_24_high);
@@ -93,13 +103,38 @@ public class CoinGraphFragment extends Fragment {
         mAsk = view.findViewById(R.id.text_view_current_ask_price);
         m24Change = view.findViewById(R.id.text_view_24_hour_change);
 
+        Spinner spinner = view.findViewById(R.id.spinner_timeframe);
+        spinner.setSelection(2, true);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (mListener != null) {
+                    updateGraphInterval(i);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         return view;
+    }
+
+    private void updateGraphInterval(int i) {
+        XAxis xAxis = mChart.getXAxis();
+        DateAxisFormatter formatter = (DateAxisFormatter) xAxis.getValueFormatter();
+        formatter.setInterval(i);
+        mListener.updateGraphAtInterval(i);
     }
 
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
     }
 
 
@@ -152,7 +187,11 @@ public class CoinGraphFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
+
+    public interface OnCoinGraphFragmentInteractionListener {
+        void updateGraphAtInterval(int i);
+    }
+
+
 }

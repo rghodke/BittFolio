@@ -54,7 +54,7 @@ import crypto.manager.bittfolio.fragment.TransferFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 
-public class CoinDataActivity extends AppCompatActivity {
+public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener {
 
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
@@ -66,8 +66,8 @@ public class CoinDataActivity extends AppCompatActivity {
     private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
     private static final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
     private static final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
-    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA";
-    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION = "LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION";
+    private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "LIVE_PRICE_HISTORY_INTENT_ACTION";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
     private CoinData mCoinData;
@@ -126,7 +126,7 @@ public class CoinDataActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 endAllHandlers();
                 if (position == 0) {
-                    updateCoinGraph();
+                    updateCoinGraph(2); //Default is 1 day
                 } else if (position == 1) {
                     updatePriceTicker();
                 } else if (position == 2) {
@@ -148,20 +148,48 @@ public class CoinDataActivity extends AppCompatActivity {
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        updateCoinGraph(); //Have to call this method in onCreate since the view pager is
+        updateCoinGraph(2); //Have to call this method in onCreate since the view pager is
         // not triggered until user interacts
     }
 
-    private void updateCoinGraph() {
+    private void updateCoinGraph(final int i) {
         //Every second get the newest info about the coin you want
         mCoinGraph = new Handler();
         final int delay = 1000; //milliseconds
 
         mCoinGraph.postDelayed(new Runnable() {
             public void run() {
-                //do something
-                mService.getHourlyDataForPast24Hours();
                 mService.getMarketDataForCurrency();
+                //do something
+                switch (i) {
+                    case 0:
+                        mService.getMinuteDataForOneHour();
+                        break;
+                    case 1:
+                        mService.getHalfHourDataForPast12Hours();
+                        break;
+                    case 2:
+                        mService.getHourlyDataForPast24Hours();
+                        break;
+                    case 3:
+                        mService.getThreeHourlyDataForPast3Days();
+                        break;
+                    case 4:
+                        mService.getSixHourlyDataForPast1Week();
+                        break;
+                    case 5:
+                        mService.getDailyDataForPast1Month();
+                        break;
+                    case 6:
+                        mService.getThreeDaysDataForPast3Month();
+                        break;
+                    case 7:
+                        mService.getWeeklyDataForPast6Month();
+                        break;
+                    default:
+                        mService.getHourlyDataForPast24Hours();
+                        break;
+                }
                 mCoinGraph.postDelayed(this, delay);
 
             }
@@ -280,7 +308,7 @@ public class CoinDataActivity extends AppCompatActivity {
                     }
                     if (curFrag instanceof CoinGraphFragment) {
                         mCoinGraphFragment = (CoinGraphFragment) curFrag;
-                        String coinGraph = intent.getStringExtra(LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA);
+                        String coinGraph = intent.getStringExtra(LIVE_PRICE_HISTORY_INTENT_EXTRA);
                         if (coinGraph != null && !coinGraph.isEmpty()) {
                             mCoinGraphFragment.updateGraph(coinGraph);
                         }
@@ -298,7 +326,7 @@ public class CoinDataActivity extends AppCompatActivity {
         bittrexServiceFilter.addAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
         bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
-        bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
         registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
@@ -399,6 +427,12 @@ public class CoinDataActivity extends AppCompatActivity {
     public void startSellTransaction(String quantity, String price) {
         Globals globals = (Globals) getApplication();
         new LimitSellTask(globals.getApiKey(), globals.getApiSecret(), "BTC-" + mCoinData.getCurrency(), quantity, price).execute();
+    }
+
+    @Override
+    public void updateGraphAtInterval(int i) {
+        if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
+        updateCoinGraph(i);
     }
 
     /**

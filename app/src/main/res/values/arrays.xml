@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="timeframe_arrays">
+        <item>1H</item>
+        <item>12H</item>
+        <item>1D</item>
+        <item>3D</item>
+        <item>1W</item>
+        <item>1M</item>
+        <item>3M</item>
+        <item>6M</item>
+    </string-array>
+</resources>

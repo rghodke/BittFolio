@@ -6,16 +6,37 @@
     android:weightSum="100"
     tools:context="crypto.manager.bittfolio.fragment.CoinGraphFragment">
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="7">
+
+        <TextView
+            android:id="@+id/label_timeframe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/timefame" />
+
+        <Spinner
+            android:id="@+id/spinner_timeframe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:entries="@array/timeframe_arrays"
+            android:spinnerMode="dialog" />
+    </RelativeLayout>
+
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="70" />
+        android:layout_weight="65" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="30">
+        android:layout_weight="28">
 
         <LinearLayout
             android:id="@+id/linearLayout"

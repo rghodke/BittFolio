@@ -43,8 +43,8 @@ public class LiveBittrexService extends Service {
     private static final String CURRENCY = "CURRENCY";
     private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
-    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA";
-    private static final String LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION = "LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION";
+    private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "LIVE_PRICE_HISTORY_INTENT_ACTION";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
     // Binder given to clients
@@ -57,6 +57,7 @@ public class LiveBittrexService extends Service {
     private String mApiKey, mApiSecret, mCurrency;
     private OkHttpClient client;
     private Object latestPrice;
+    private Object minuteDataForOneHour;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -82,9 +83,38 @@ public class LiveBittrexService extends Service {
         connectBittrexPublicApi("getorderbook?market=BTC-" + mCurrency + "&type=both", LIVE_ORDER_BOOK_INTENT_EXTRA, LIVE_ORDER_BOOK_INTENT_ACTION);
     }
 
-    public void getHourlyDataForPast24Hours() {
-        connectCryptoComparePublicApi("histohour?fsym=" + mCurrency + "&tsym=BTC&limit=24&aggregate=1&e=Bittrex", LIVE_PRICE_HISTORY_HOURLY_INTENT_EXTRA, LIVE_PRICE_HISTORY_HOURLY_INTENT_ACTION);
+    public void getMinuteDataForOneHour() {
+        connectCryptoComparePublicApi("histominute?fsym=" + mCurrency + "&tsym=BTC&limit=60&aggregate=1&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
     }
+
+    public void getHalfHourDataForPast12Hours() {
+        connectCryptoComparePublicApi("histominute?fsym=" + mCurrency + "&tsym=BTC&limit=24&aggregate=30&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
+    public void getHourlyDataForPast24Hours() {
+        connectCryptoComparePublicApi("histohour?fsym=" + mCurrency + "&tsym=BTC&limit=24&aggregate=1&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
+    public void getThreeHourlyDataForPast3Days() {
+        connectCryptoComparePublicApi("histohour?fsym=" + mCurrency + "&tsym=BTC&limit=24&aggregate=3&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
+    public void getSixHourlyDataForPast1Week() {
+        connectCryptoComparePublicApi("histohour?fsym=" + mCurrency + "&tsym=BTC&limit=28&aggregate=6&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
+    public void getDailyDataForPast1Month() {
+        connectCryptoComparePublicApi("histoday?fsym=" + mCurrency + "&tsym=BTC&limit=30&aggregate=1&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
+    public void getThreeDaysDataForPast3Month() {
+        connectCryptoComparePublicApi("histoday?fsym=" + mCurrency + "&tsym=BTC&limit=30&aggregate=3&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
+    public void getWeeklyDataForPast6Month() {
+        connectCryptoComparePublicApi("histoday?fsym=" + mCurrency + "&tsym=BTC&limit=26&aggregate=7&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
+    }
+
 
     public void getMarketDataForCurrency() {
         connectBittrexPublicApi("getmarketsummary?market=BTC-" + mCurrency, LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA, LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
@@ -94,6 +124,8 @@ public class LiveBittrexService extends Service {
         Request request = new Request.Builder()
                 .url("https://min-api.cryptocompare.com/data/" + publicParameter)
                 .build();
+
+        System.out.println(request.url().toString());
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -157,6 +189,7 @@ public class LiveBittrexService extends Service {
     public void getLatestPrice() {
         connectBittrexPublicApi("getticker?market=BTC-" + mCurrency, LATEST_PRICE_INTENT_EXTRA, LATEST_PRICE_INTENT_ACTION);
     }
+
 
     /**
      * Class used for the client Binder.  Because we know this service always
