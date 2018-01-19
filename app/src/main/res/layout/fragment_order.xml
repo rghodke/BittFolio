@@ -95,7 +95,11 @@
             android:layout_alignBottom="@+id/buy_quantity_label"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:hint="@string/quantity" />
+            android:ellipsize="start"
+            android:gravity="center_horizontal"
+            android:hint="@string/quantity"
+            android:maxLength="10"
+            android:minEms="10" />
 
         <TextView
             android:id="@+id/buy_price_label"
@@ -112,7 +116,11 @@
             android:layout_alignBottom="@+id/buy_price_label"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:hint="@string/buy_price" />
+            android:ellipsize="start"
+            android:gravity="center_horizontal"
+            android:hint="@string/buy_price"
+            android:maxLength="10"
+            android:minEms="10" />
 
         <Button
             android:id="@+id/buy_button"
@@ -151,7 +159,11 @@
             android:layout_alignBottom="@+id/sell_quantity_label"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:hint="@string/quantity" />
+            android:ellipsize="start"
+            android:gravity="center_horizontal"
+            android:hint="@string/quantity"
+            android:maxLength="10"
+            android:minEms="10" />
 
         <TextView
             android:id="@+id/sell_price_label"
@@ -168,7 +180,11 @@
             android:layout_alignBottom="@+id/sell_price_label"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:hint="@string/sell_price" />
+            android:ellipsize="start"
+            android:gravity="center_horizontal"
+            android:hint="@string/sell_price"
+            android:maxLength="10"
+            android:minEms="10" />
 
         <Button
             android:id="@+id/sell_button"

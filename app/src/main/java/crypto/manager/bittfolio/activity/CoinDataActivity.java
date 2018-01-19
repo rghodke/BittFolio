@@ -70,6 +70,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "LIVE_PRICE_HISTORY_INTENT_ACTION";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
+    private static final String LATEST_BTC_USDT_PRICE_INTENT_EXTRA = "LATEST_BTC_USDT_PRICE_INTENT_EXTRA";
+    private static final String LATEST_BTC_USDT_PRICE_INTENT_ACTION = "LATEST_BTC_USDT_PRICE_INTENT_ACTION";
     private CoinData mCoinData;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -98,6 +100,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private Handler mPriceHandler;
     private CoinGraphFragment mCoinGraphFragment;
     private Handler mCoinGraph;
+    private Handler mBtcUsdtHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,8 +130,10 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                 endAllHandlers();
                 if (position == 0) {
                     updateCoinGraph(2); //Default is 1 day
+                    updateBtcUsdtTicker();
                 } else if (position == 1) {
                     updatePriceTicker();
+                    updateBtcUsdtTicker();
                 } else if (position == 2) {
                     updateOrderHistory();
                 } else if (position == 3) {
@@ -150,7 +155,15 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
         updateCoinGraph(2); //Have to call this method in onCreate since the view pager is
         // not triggered until user interacts
+        updateBtcUsdtTicker();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_coin_data, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
 
     private void updateCoinGraph(final int i) {
         //Every second get the newest info about the coin you want
@@ -191,6 +204,21 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                         break;
                 }
                 mCoinGraph.postDelayed(this, delay);
+
+            }
+        }, delay);
+    }
+
+    private void updateBtcUsdtTicker() {
+        //Every second get the newest info about the coin you want
+        mBtcUsdtHandler = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mBtcUsdtHandler.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                mService.getUSDTBTCPrice();
+                mBtcUsdtHandler.postDelayed(this, delay);
 
             }
         }, delay);
@@ -305,6 +333,11 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                         if (currencyDetails != null && !currencyDetails.isEmpty()) {
                             mOrderFragment.updatePrice(currencyDetails);
                         }
+                        String btcUSDT = intent.getStringExtra(LATEST_BTC_USDT_PRICE_INTENT_EXTRA);
+                        if (btcUSDT != null && !btcUSDT.isEmpty()) {
+                            mOrderFragment.updateBTCUSDTPrice(btcUSDT);
+                        }
+
                     }
                     if (curFrag instanceof CoinGraphFragment) {
                         mCoinGraphFragment = (CoinGraphFragment) curFrag;
@@ -315,6 +348,10 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                         String coinData = intent.getStringExtra(LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA);
                         if (coinData != null && !coinData.isEmpty()) {
                             mCoinGraphFragment.updateStats(coinData);
+                        }
+                        String btcUSDT = intent.getStringExtra(LATEST_BTC_USDT_PRICE_INTENT_EXTRA);
+                        if (btcUSDT != null && !btcUSDT.isEmpty()) {
+                            mCoinGraphFragment.updateBTCUSDTPrice(btcUSDT);
                         }
                     }
                 }
@@ -328,6 +365,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LATEST_BTC_USDT_PRICE_INTENT_ACTION);
         registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
 
@@ -364,12 +402,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         }, delay);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_coin_data, menu);
-        return false;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -378,10 +410,20 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+        if (id == R.id.action_change_units) {
 
+            Fragment curFrag = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
+            //Update it with the new data
+            if (curFrag != null) {
+                if (curFrag instanceof OrderFragment) {
+                    mOrderFragment = (OrderFragment) curFrag;
+                    mOrderFragment.changeUnits();
+                } else if (curFrag instanceof CoinGraphFragment) {
+                    mCoinGraphFragment = (CoinGraphFragment) curFrag;
+                    mCoinGraphFragment.changeUnits();
+                }
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -390,6 +432,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
         if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
         if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
+        if (mBtcUsdtHandler != null) mBtcUsdtHandler.removeCallbacksAndMessages(null);
     }
 
     public void scanQRCode(View view) {

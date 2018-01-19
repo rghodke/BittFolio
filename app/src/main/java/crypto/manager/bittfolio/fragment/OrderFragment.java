@@ -28,11 +28,11 @@ import crypto.manager.bittfolio.activity.CoinDataActivity;
  */
 public class OrderFragment extends Fragment {
 
+    double btcUSDTValue = 1.0;
     private Button mBuyButton, mSellButton;
     private EditText mBuyQuantityEditText, mSellQuantityEditText, mBuyPriceEditText, mSellPriceEditText;
-
     private TextView mBidPrice, mAskPrice, mLastPrice;
-
+    private boolean isDollars = false;
 
     public OrderFragment() {
         // Required empty public constructor
@@ -80,8 +80,13 @@ public class OrderFragment extends Fragment {
                 if (mBuyQuantityEditText != null && mBuyPriceEditText != null) {
                     String quantity = mBuyQuantityEditText.getText().toString();
                     String price = mBuyPriceEditText.getText().toString();
+                    price = price.replaceAll("[^\\d.]", "");
+                    double priceDouble = Double.parseDouble(price);
+                    if (isDollars) {
+                        priceDouble /= btcUSDTValue;
+                    }
                     if (!quantity.isEmpty() && !price.isEmpty())
-                        ((CoinDataActivity) getActivity()).startBuyTransaction(quantity, price);
+                        ((CoinDataActivity) getActivity()).startBuyTransaction(quantity, String.valueOf(priceDouble));
                 }
             }
         });
@@ -97,16 +102,33 @@ public class OrderFragment extends Fragment {
                 if (mSellQuantityEditText != null && mSellPriceEditText != null) {
                     String quantity = mSellQuantityEditText.getText().toString();
                     String price = mSellPriceEditText.getText().toString();
+                    price = price.replaceAll("[^\\d.]", "");
+                    double priceDouble = Double.parseDouble(price);
+                    if (isDollars) {
+                        priceDouble /= btcUSDTValue;
+                    }
                     if (!quantity.isEmpty() && !price.isEmpty())
-                        ((CoinDataActivity) getActivity()).startSellTransaction(quantity, price);
+                        ((CoinDataActivity) getActivity()).startSellTransaction(quantity, String.valueOf(priceDouble));
                 }
             }
         });
 
+        View.OnClickListener updatePriceOnClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView textView = (TextView) view;
+                String price = textView.getText().toString();
+                mBuyPriceEditText.setText(price);
+                mSellPriceEditText.setText(price);
+            }
+        };
 
         mBidPrice = view.findViewById(R.id.text_view_current_bid_price);
+        mBidPrice.setOnClickListener(updatePriceOnClick);
         mAskPrice = view.findViewById(R.id.text_view_current_ask_price);
+        mAskPrice.setOnClickListener(updatePriceOnClick);
         mLastPrice = view.findViewById(R.id.text_view_current_last_price);
+        mLastPrice.setOnClickListener(updatePriceOnClick);
 
         // Set the adapter
         Context context = view.getContext();
@@ -114,7 +136,6 @@ public class OrderFragment extends Fragment {
         return view;
 
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -134,16 +155,42 @@ public class OrderFragment extends Fragment {
             double ask = innerObj.getDouble("Ask");
             double last = innerObj.getDouble("Last");
 
-            DecimalFormat df = new DecimalFormat("#.########");
+            String priceFormat = "#.########";
 
-            mBidPrice.setText(df.format(bid));
-            mAskPrice.setText(df.format(ask));
-            mLastPrice.setText(df.format(last));
+            if (isDollars) {
+                bid *= btcUSDTValue;
+                ask *= btcUSDTValue;
+                last *= btcUSDTValue;
+                priceFormat = "#.00";
+            }
+
+            DecimalFormat df = new DecimalFormat(priceFormat);
+
+            String currency = isDollars ? "$" : "₿";
+
+            mBidPrice.setText(currency + df.format(bid));
+            mAskPrice.setText(currency + df.format(ask));
+            mLastPrice.setText(currency + df.format(last));
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+
+    }
+
+    public void changeUnits() {
+        isDollars = !isDollars;
+    }
+
+    public void updateBTCUSDTPrice(String btcUSDT) {
+        try {
+            JSONObject btcJson = new JSONObject(btcUSDT);
+            JSONObject innerObj = btcJson.getJSONObject("result");
+            btcUSDTValue = innerObj.getDouble("Last");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 }

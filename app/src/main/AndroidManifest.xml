@@ -14,9 +14,9 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.LoginActivity"
+            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"
-            android:label="@string/app_name">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,8 +32,7 @@
         <activity
             android:name=".activity.CoinDataActivity"
             android:label="@string/title_activity_coin_data"
-            android:windowSoftInputMode="adjustPan"
-            />
+            android:windowSoftInputMode="adjustPan" />
     </application>
 
 

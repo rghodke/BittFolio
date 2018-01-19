@@ -37,12 +37,12 @@ import crypto.manager.bittfolio.adapter.DateAxisFormatter;
  */
 public class CoinGraphFragment extends Fragment {
 
+    double btcUSDTValue = 1.0;
     private LineChart mChart;
     private boolean mNewGraph;
     private TextView m24High, mBid, m24Volume, m24Low, mAsk, m24Change;
-
     private OnCoinGraphFragmentInteractionListener mListener;
-
+    private boolean isDollars;
 
     public CoinGraphFragment() {
         // Required empty public constructor
@@ -130,18 +130,15 @@ public class CoinGraphFragment extends Fragment {
         mListener.updateGraphAtInterval(i);
     }
 
-
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
-
     public void updateGraph(String coinGraph) {
         mNewGraph = true;
-        List<Entry> entriesBTC = new ArrayList<Entry>();
-        List<Entry> entriesUSDT = new ArrayList<Entry>();
+        List<Entry> entriesUnits = new ArrayList<Entry>();
         try {
             JSONObject jsonData = new JSONObject(coinGraph);
             JSONArray jsonPriceArray = jsonData.getJSONArray("Data");
@@ -149,14 +146,16 @@ public class CoinGraphFragment extends Fragment {
                 JSONObject priceObj = jsonPriceArray.getJSONObject(i);
                 long millis = priceObj.getLong("time");
                 float close = Float.valueOf(priceObj.getString("close"));
-                entriesBTC.add(new Entry(millis, close));
-//                entriesUSDT.add(new Entry(millis, close*13500));
+                //Convert to appropriate units
+                if (isDollars) close *= btcUSDTValue;
+                entriesUnits.add(new Entry(millis, close));
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
-        LineDataSet dataSetBTC = new LineDataSet(entriesBTC, "BTC"); // add entriesBTC to dataset
-//        LineDataSet dataSetUSDT = new LineDataSet(entriesUSDT, "USDT"); // add entriesBTC to dataset
+        String units = isDollars ? "USDT" : "BTC";
+        LineDataSet dataSetBTC = new LineDataSet(entriesUnits, units); // add entriesUnits to dataset
+//        LineDataSet dataSetUSDT = new LineDataSet(entriesUSDT, "USDT"); // add entriesUnits to dataset
 //        dataSetBTC.setColor();
 //        dataSetBTC.setValueTextColor(...); // styling, ...
         LineData lineData = new LineData(dataSetBTC);
@@ -174,12 +173,24 @@ public class CoinGraphFragment extends Fragment {
             JSONArray coinDataArray = coinDataJSON.getJSONArray("result");
             if (coinDataArray.length() > 0) {
                 coinDataJSON = coinDataArray.getJSONObject(0);
-                m24High.setText(coinDataJSON.getString("High"));
-                mBid.setText(coinDataJSON.getString("Bid"));
+                double high = coinDataJSON.getDouble("High");
+                double bid = coinDataJSON.getDouble("Bid");
                 double volume = coinDataJSON.getDouble("Volume");
-                m24Volume.setText(new DecimalFormat("#.##").format(volume));
-                m24Low.setText(coinDataJSON.getString("Low"));
-                mAsk.setText(coinDataJSON.getString("Ask"));
+                double low = coinDataJSON.getDouble("Low");
+                double ask = coinDataJSON.getDouble("Ask");
+                String currency = isDollars ? "$" : "₿";
+                if (isDollars) {
+                    high *= btcUSDTValue;
+                    bid *= btcUSDTValue;
+                    volume *= btcUSDTValue;
+                    low *= btcUSDTValue;
+                    ask *= btcUSDTValue;
+                }
+                m24High.setText(currency + String.valueOf(high));
+                mBid.setText(currency + String.valueOf(bid));
+                m24Volume.setText(currency + new DecimalFormat("#.##").format(volume));
+                m24Low.setText(currency + String.valueOf(low));
+                mAsk.setText(currency + String.valueOf(ask));
                 double change = (coinDataJSON.getDouble("Last") / coinDataJSON.getDouble("PrevDay")) - 1;
                 change *= 100;
                 m24Change.setText((new DecimalFormat("#.##").format(change)) + "%");
@@ -187,6 +198,22 @@ public class CoinGraphFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void changeUnits() {
+        isDollars = !isDollars;
+        mNewGraph = true;
+    }
+
+    public void updateBTCUSDTPrice(String btcUSDT) {
+        try {
+            JSONObject btcJson = new JSONObject(btcUSDT);
+            JSONObject innerObj = btcJson.getJSONObject("result");
+            btcUSDTValue = innerObj.getDouble("Last");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public interface OnCoinGraphFragmentInteractionListener {
