@@ -178,6 +178,27 @@ public class PortfolioFragment extends Fragment {
 
         for (CoinData coinData : coinDataList) {
             String currencyKey = "BTC-" + coinData.getCurrency();
+            //btc is always in dollars
+            if (coinData.getCurrency().equals("BTC")) {
+                currencyKey = "USDT-" + coinData.getCurrency();
+                double coinValue = currencyValue.get(currencyKey);
+                double holding = (coinData.getHolding());
+                double balance = coinValue * holding;
+                coinData.setBalance((balance));
+                coinData.setPrice(coinValue);
+                totalBalance += holding;
+                continue;
+            }
+            //usdt is always in dollars
+            //don't add usdt to total portfolio as bittrex doesn't either
+            if (coinData.getCurrency().equals("USDT")) {
+                double coinValue = 1.00;
+                double holding = (coinData.getHolding());
+                double balance = coinValue * holding;
+                coinData.setBalance((balance));
+                coinData.setPrice(coinValue);
+                continue;
+            }
             if (currencyValue.containsKey(currencyKey)) {
                 double coinValue = currencyValue.get(currencyKey);
                 double holding = (coinData.getHolding());
@@ -192,6 +213,13 @@ public class PortfolioFragment extends Fragment {
             String USDBTC = "USDT-BTC";
             double coinValue = currencyValue.get(USDBTC);
             for (CoinData coinData : coinDataList) {
+                //btc is always in dollars
+                if (coinData.getCurrency().equals("BTC")) {
+                    continue;
+                }
+                if (coinData.getCurrency().equals("USDT")) {
+                    continue;
+                }
                 coinData.setBalance(coinData.getBalance() * coinValue);
                 coinData.setPrice(coinData.getPrice() * coinValue);
             }
@@ -204,10 +232,13 @@ public class PortfolioFragment extends Fragment {
     }
 
     private void refreshPortfolioData(double totalBalance) {
+        String currency = isDollars ? "$" : "₿";
         if (isDollars) {
-            mTotalBalance.setText(new DecimalFormat("#.##").format(totalBalance));
+            String val = currency + new DecimalFormat("#.##").format(totalBalance);
+            mTotalBalance.setText(val);
         } else {
-            mTotalBalance.setText(new DecimalFormat("#.#######").format(totalBalance));
+            String val = currency + new DecimalFormat("#.#######").format(totalBalance);
+            mTotalBalance.setText(val);
         }
         recyclerViewAdapter.notifyDataSetChanged();
         if (prevBalance == 0.0) {
@@ -224,6 +255,9 @@ public class PortfolioFragment extends Fragment {
 
     public void changeUnits() {
         isDollars = !isDollars;
+        if (recyclerViewAdapter != null) {
+            recyclerViewAdapter.setDollars(isDollars);
+        }
     }
 
     public void sortBy(String sortingMethod) {
@@ -322,6 +356,12 @@ public class PortfolioFragment extends Fragment {
                         JSONObject data = coinBalancesJson.getJSONObject("Data");
 
                         for (CoinData coinData : mCoinData) {
+                            //Bittrex has special name for BCH
+                            if (coinData.getCurrency().equals("BCC")) {
+                                JSONObject currencyData = data.getJSONObject("BCH");
+                                coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
+                                continue;
+                            }
                             if (data.has(coinData.getCurrency())) {
                                 JSONObject currencyData = data.getJSONObject(coinData.getCurrency());
                                 coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
