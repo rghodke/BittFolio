@@ -53,7 +53,6 @@ public class LoginActivity extends AppCompatActivity {
     // UI references.
     private EditText mApiKeyView;
     private EditText mApiSecretView;
-    private View mProgressView;
     private View mLoginFormView;
 
     @Override

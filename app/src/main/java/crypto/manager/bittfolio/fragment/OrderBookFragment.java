@@ -32,14 +32,14 @@ import crypto.manager.bittfolio.model.OrderBookEntry;
  */
 public class OrderBookFragment extends Fragment {
     private static final String ARG_ORDER_BOOK_JSON_STRING = "ORDER_HISTORY_JSON";
-    private OrderBookRecyclerViewAdapter recyclerViewBuyAdapter, recyclerViewSellAdapter;
+    private OrderBookRecyclerViewAdapter mRecyclerViewBuyAdapter, mRecyclerViewSellAdapter;
 
 
     // TODO: Rename and change types of parameters
     private String mOrderBookJSON;
-    private List<OrderBookEntry> orderBookBuyEntries;
-    private List<OrderBookEntry> orderBookSellEntries;
-    private RecyclerView recyclerViewBuyList, recyclerViewSellList;
+    private List<OrderBookEntry> mOrderBookBuyEntries;
+    private List<OrderBookEntry> mOrderBookSellEntries;
+    private RecyclerView mRecyclerViewBuyList, mRecyclerViewSellList;
 
     public OrderBookFragment() {
         // Required empty public constructor
@@ -83,22 +83,22 @@ public class OrderBookFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_book_list, container, false);
 
-        orderBookBuyEntries = new ArrayList<>();
-        orderBookSellEntries = new ArrayList<>();
+        mOrderBookBuyEntries = new ArrayList<>();
+        mOrderBookSellEntries = new ArrayList<>();
 
-        recyclerViewBuyList = (RecyclerView) view.findViewById(R.id.buy_list);
+        mRecyclerViewBuyList = (RecyclerView) view.findViewById(R.id.buy_list);
 
-        recyclerViewSellList = (RecyclerView) view.findViewById(R.id.sell_list);
+        mRecyclerViewSellList = (RecyclerView) view.findViewById(R.id.sell_list);
 
         // Set the adapter
         Context context = view.getContext();
-        recyclerViewBuyList.setLayoutManager(new LinearLayoutManager(context));
-        recyclerViewBuyAdapter = new OrderBookRecyclerViewAdapter(orderBookBuyEntries);
-        recyclerViewBuyList.setAdapter(recyclerViewBuyAdapter);
+        mRecyclerViewBuyList.setLayoutManager(new LinearLayoutManager(context));
+        mRecyclerViewBuyAdapter = new OrderBookRecyclerViewAdapter(mOrderBookBuyEntries);
+        mRecyclerViewBuyList.setAdapter(mRecyclerViewBuyAdapter);
 
-        recyclerViewSellList.setLayoutManager(new LinearLayoutManager(context));
-        recyclerViewSellAdapter = new OrderBookRecyclerViewAdapter(orderBookSellEntries);
-        recyclerViewSellList.setAdapter(recyclerViewSellAdapter);
+        mRecyclerViewSellList.setLayoutManager(new LinearLayoutManager(context));
+        mRecyclerViewSellAdapter = new OrderBookRecyclerViewAdapter(mOrderBookSellEntries);
+        mRecyclerViewSellList.setAdapter(mRecyclerViewSellAdapter);
 
         return view;
 
@@ -117,8 +117,8 @@ public class OrderBookFragment extends Fragment {
 
 
     public void updateOrderBookHistory(String stringExtra) {
-        orderBookBuyEntries = new ArrayList<>();
-        orderBookSellEntries = new ArrayList<>();
+        mOrderBookBuyEntries = new ArrayList<>();
+        mOrderBookSellEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);
             JSONObject orderHistoryJSON = jsonObject.getJSONObject("result");
@@ -126,11 +126,11 @@ public class OrderBookFragment extends Fragment {
             JSONArray orderHistorySellJSON = orderHistoryJSON.getJSONArray("sell");
             for (int i = 0; i < orderHistoryBuyJSON.length(); i++) {
                 JSONObject orderHistoryEntry = orderHistoryBuyJSON.getJSONObject(i);
-                orderBookBuyEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Rate")));
+                mOrderBookBuyEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Rate")));
             }
             for (int i = 0; i < orderHistorySellJSON.length(); i++) {
                 JSONObject orderHistoryEntry = orderHistorySellJSON.getJSONObject(i);
-                orderBookSellEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Rate")));
+                mOrderBookSellEntries.add(new OrderBookEntry(orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("Rate")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -140,7 +140,7 @@ public class OrderBookFragment extends Fragment {
 
 
     private void refreshOrderBookData() {
-        recyclerViewBuyAdapter.updateData(orderBookBuyEntries);
-        recyclerViewSellAdapter.updateData(orderBookSellEntries);
+        mRecyclerViewBuyAdapter.updateData(mOrderBookBuyEntries);
+        mRecyclerViewSellAdapter.updateData(mOrderBookSellEntries);
     }
 }

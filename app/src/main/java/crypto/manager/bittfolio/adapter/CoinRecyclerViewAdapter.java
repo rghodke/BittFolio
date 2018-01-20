@@ -25,12 +25,14 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
 
     private final List<CoinData> mCoins;
     private final OnPortfolioListFragmentInteractionListener mListener;
-    private boolean isDollars;
+    private boolean mIsDollars;
+    private double mTotalBalance;
+    private boolean mIsPercent;
 
     public CoinRecyclerViewAdapter(List<CoinData> coins, OnPortfolioListFragmentInteractionListener listener) {
         mCoins = coins;
         mListener = listener;
-        isDollars = false;
+        mIsDollars = false;
     }
 
     @Override
@@ -43,9 +45,9 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         //Append the appropriate currency symbol
-        String currency = isDollars ? "$" : "₿";
+        String currency = mIsDollars ? "$" : "₿";
         //Restrict number to appropriate decimal points
-        String decimalFormat = isDollars ? "#.00" : "#.########";
+        String decimalFormat = mIsDollars ? "#.00" : "#.########";
         DecimalFormat df = new DecimalFormat(decimalFormat);
         //Always have btc and usdt in $
         if (mCoins.get(position).getCurrency().equals("BTC") || mCoins.get(position).getCurrency().equals("USDT")) {
@@ -54,14 +56,29 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
         holder.mItem = mCoins.get(position);
         Picasso.with(holder.mCurrencyIcon.getContext()).load(mCoins.get(position).getImageUrl()).into(holder.mCurrencyIcon);
         holder.mTickerView.setText(mCoins.get(position).getCurrency());
+
         holder.mHoldingView.setText(String.valueOf(mCoins.get(position).getHolding()));
         //Some coins have been delisted and have the price of 0
         if (Double.compare(mCoins.get(position).getPrice(), 0) != 0) {
             String price = currency + df.format(mCoins.get(position).getPrice());
             holder.mPriceView.setText(price);
         } else holder.mPriceView.setText("N/A");
-        String balance = currency + df.format(mCoins.get(position).getBalance());
-        holder.mBalanceView.setText(balance);
+
+        double balance = mCoins.get(position).getBalance();
+        if (mCoins.get(position).getCurrency().equals("BTC")) {
+            balance = mIsDollars ? mCoins.get(position).getBalance() : mCoins.get(position).getHolding();
+        }
+        String balanceStr = currency + df.format(mCoins.get(position).getBalance());
+        if (mIsPercent) {
+            if (!mCoins.get(position).getCurrency().equals("USDT")) {
+                balance = balance / mTotalBalance;
+                balance *= 100;
+            }
+        }
+        if (!mCoins.get(position).getCurrency().equals("USDT")) {
+            balanceStr = mIsPercent ? new DecimalFormat("#.##").format(balance) + "%" : currency + df.format(mCoins.get(position).getBalance());
+        }
+        holder.mBalanceView.setText(balanceStr);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +99,15 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
     }
 
     public void setDollars(boolean dollars) {
-        isDollars = dollars;
+        mIsDollars = dollars;
+    }
+
+    public void changeBalanceToPercent(boolean isPercent) {
+        this.mIsPercent = isPercent;
+    }
+
+    public void setTotalBalance(double totalBalance) {
+        this.mTotalBalance = totalBalance;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

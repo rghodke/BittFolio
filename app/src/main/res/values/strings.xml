@@ -50,4 +50,6 @@
     <string name="_24_hour_change">24 Hour Change</string>
     <string name="timeframe">Timeframe</string>
     <string name="change_units">Change Units</string>
+    <string name="total_portfolio_value">Total Portfolio Value</string>
+    <string name="show_percent_holdings">Show Percent Holdings</string>
 </resources>

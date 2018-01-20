@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     tools:context="crypto.manager.bittfolio.activity.PortfolioActivity">
 
+
     <FrameLayout
         android:id="@+id/fragment_holder"
         android:layout_width="match_parent"

@@ -28,11 +28,11 @@ import crypto.manager.bittfolio.activity.CoinDataActivity;
  */
 public class OrderFragment extends Fragment {
 
-    double btcUSDTValue = 1.0;
+    double mBtcUSDTValue = 1.0;
     private Button mBuyButton, mSellButton;
     private EditText mBuyQuantityEditText, mSellQuantityEditText, mBuyPriceEditText, mSellPriceEditText;
     private TextView mBidPrice, mAskPrice, mLastPrice;
-    private boolean isDollars = false;
+    private boolean mIsDollars = false;
 
     public OrderFragment() {
         // Required empty public constructor
@@ -82,8 +82,8 @@ public class OrderFragment extends Fragment {
                     String price = mBuyPriceEditText.getText().toString();
                     price = price.replaceAll("[^\\d.]", "");
                     double priceDouble = Double.parseDouble(price);
-                    if (isDollars) {
-                        priceDouble /= btcUSDTValue;
+                    if (mIsDollars) {
+                        priceDouble /= mBtcUSDTValue;
                     }
                     if (!quantity.isEmpty() && !price.isEmpty())
                         ((CoinDataActivity) getActivity()).startBuyTransaction(quantity, String.valueOf(priceDouble));
@@ -104,8 +104,8 @@ public class OrderFragment extends Fragment {
                     String price = mSellPriceEditText.getText().toString();
                     price = price.replaceAll("[^\\d.]", "");
                     double priceDouble = Double.parseDouble(price);
-                    if (isDollars) {
-                        priceDouble /= btcUSDTValue;
+                    if (mIsDollars) {
+                        priceDouble /= mBtcUSDTValue;
                     }
                     if (!quantity.isEmpty() && !price.isEmpty())
                         ((CoinDataActivity) getActivity()).startSellTransaction(quantity, String.valueOf(priceDouble));
@@ -157,16 +157,16 @@ public class OrderFragment extends Fragment {
 
             String priceFormat = "#.########";
 
-            if (isDollars) {
-                bid *= btcUSDTValue;
-                ask *= btcUSDTValue;
-                last *= btcUSDTValue;
+            if (mIsDollars) {
+                bid *= mBtcUSDTValue;
+                ask *= mBtcUSDTValue;
+                last *= mBtcUSDTValue;
                 priceFormat = "#.00";
             }
 
             DecimalFormat df = new DecimalFormat(priceFormat);
 
-            String currency = isDollars ? "$" : "₿";
+            String currency = mIsDollars ? "$" : "₿";
 
             mBidPrice.setText(currency + df.format(bid));
             mAskPrice.setText(currency + df.format(ask));
@@ -180,14 +180,14 @@ public class OrderFragment extends Fragment {
     }
 
     public void changeUnits() {
-        isDollars = !isDollars;
+        mIsDollars = !mIsDollars;
     }
 
     public void updateBTCUSDTPrice(String btcUSDT) {
         try {
             JSONObject btcJson = new JSONObject(btcUSDT);
             JSONObject innerObj = btcJson.getJSONObject("result");
-            btcUSDTValue = innerObj.getDouble("Last");
+            mBtcUSDTValue = innerObj.getDouble("Last");
         } catch (JSONException e) {
             e.printStackTrace();
         }

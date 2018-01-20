@@ -37,12 +37,12 @@ import crypto.manager.bittfolio.adapter.DateAxisFormatter;
  */
 public class CoinGraphFragment extends Fragment {
 
-    double btcUSDTValue = 1.0;
+    double mBtcUSDTValue = 1.0;
     private LineChart mChart;
     private boolean mNewGraph;
     private TextView m24High, mBid, m24Volume, m24Low, mAsk, m24Change;
     private OnCoinGraphFragmentInteractionListener mListener;
-    private boolean isDollars;
+    private boolean mIsDollars;
 
     public CoinGraphFragment() {
         // Required empty public constructor
@@ -147,13 +147,13 @@ public class CoinGraphFragment extends Fragment {
                 long millis = priceObj.getLong("time");
                 float close = Float.valueOf(priceObj.getString("close"));
                 //Convert to appropriate units
-                if (isDollars) close *= btcUSDTValue;
+                if (mIsDollars) close *= mBtcUSDTValue;
                 entriesUnits.add(new Entry(millis, close));
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
-        String units = isDollars ? "USDT" : "BTC";
+        String units = mIsDollars ? "USDT" : "BTC";
         LineDataSet dataSetBTC = new LineDataSet(entriesUnits, units); // add entriesUnits to dataset
 //        LineDataSet dataSetUSDT = new LineDataSet(entriesUSDT, "USDT"); // add entriesUnits to dataset
 //        dataSetBTC.setColor();
@@ -178,13 +178,13 @@ public class CoinGraphFragment extends Fragment {
                 double volume = coinDataJSON.getDouble("Volume");
                 double low = coinDataJSON.getDouble("Low");
                 double ask = coinDataJSON.getDouble("Ask");
-                String currency = isDollars ? "$" : "₿";
-                if (isDollars) {
-                    high *= btcUSDTValue;
-                    bid *= btcUSDTValue;
-                    volume *= btcUSDTValue;
-                    low *= btcUSDTValue;
-                    ask *= btcUSDTValue;
+                String currency = mIsDollars ? "$" : "₿";
+                if (mIsDollars) {
+                    high *= mBtcUSDTValue;
+                    bid *= mBtcUSDTValue;
+                    volume *= mBtcUSDTValue;
+                    low *= mBtcUSDTValue;
+                    ask *= mBtcUSDTValue;
                 }
                 m24High.setText(currency + String.valueOf(high));
                 mBid.setText(currency + String.valueOf(bid));
@@ -201,7 +201,7 @@ public class CoinGraphFragment extends Fragment {
     }
 
     public void changeUnits() {
-        isDollars = !isDollars;
+        mIsDollars = !mIsDollars;
         mNewGraph = true;
     }
 
@@ -209,7 +209,7 @@ public class CoinGraphFragment extends Fragment {
         try {
             JSONObject btcJson = new JSONObject(btcUSDT);
             JSONObject innerObj = btcJson.getJSONObject("result");
-            btcUSDTValue = innerObj.getDouble("Last");
+            mBtcUSDTValue = innerObj.getDouble("Last");
         } catch (JSONException e) {
             e.printStackTrace();
         }

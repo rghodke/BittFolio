@@ -31,19 +31,15 @@ import crypto.manager.bittfolio.model.OrderHistoryEntry;
  * create an instance of this fragment.
  */
 public class OrderHistoryFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final String ARG_ORDER_HISTORY_JSON_STRING = "ORDER_HISTORY_JSON";
-    private OrderHistoryRecyclerViewAdapter recyclerViewAdapter;
+    private OrderHistoryRecyclerViewAdapter mRecyclerViewAdapter;
 
 
     // TODO: Rename and change types of parameters
     private String mOrderHistoryJSON;
     private String mParam2;
-    private List<OrderHistoryEntry> orderHistoryEntries;
-    private RecyclerView recyclerView;
+    private List<OrderHistoryEntry> mOrderHistoryEntries;
+    private RecyclerView mRecyclerView;
 
     public OrderHistoryFragment() {
         // Required empty public constructor
@@ -87,15 +83,15 @@ public class OrderHistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_order_history_list, container, false);
 
-        orderHistoryEntries = new ArrayList<>();
+        mOrderHistoryEntries = new ArrayList<>();
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
 
         // Set the adapter
         Context context = view.getContext();
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(orderHistoryEntries);
-        recyclerView.setAdapter(recyclerViewAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mRecyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(mOrderHistoryEntries);
+        mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
         return view;
 
@@ -114,7 +110,7 @@ public class OrderHistoryFragment extends Fragment {
 
 
     public void updateOrderHistory(String stringExtra) {
-        orderHistoryEntries = new ArrayList<>();
+        mOrderHistoryEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);
             JSONArray orderHistoryJSON = jsonObject.getJSONArray("result");
@@ -123,7 +119,7 @@ public class OrderHistoryFragment extends Fragment {
                 String orderType = (orderHistoryEntry.getString("OrderType"));
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
-                orderHistoryEntries.add(new OrderHistoryEntry(orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
+                mOrderHistoryEntries.add(new OrderHistoryEntry(orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -133,6 +129,6 @@ public class OrderHistoryFragment extends Fragment {
 
 
     private void refreshOrderHistoryData() {
-        recyclerViewAdapter.updateData(orderHistoryEntries);
+        mRecyclerViewAdapter.updateData(mOrderHistoryEntries);
     }
 }

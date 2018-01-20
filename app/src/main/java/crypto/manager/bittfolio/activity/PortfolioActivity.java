@@ -9,7 +9,9 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import crypto.manager.bittfolio.Globals;
@@ -18,20 +20,19 @@ import crypto.manager.bittfolio.fragment.PortfolioFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 
-public class PortfolioActivity extends FragmentActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener {
+public class PortfolioActivity extends AppCompatActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener {
 
-    private static final String ARG_COIN_DATA = "COIN_DATA";
-    private static final String TAG_PORTFOLIO_FRAGMENT = "PORTFOLIO_FRAGMENT";
+    private static final String ARG_COIN_DATA = "ARG_COIN_DATA";
+    private static final String TAG_PORTFOLIO_FRAGMENT = "TAG_PORTFOLIO_FRAGMENT";
     private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
-    private static final String TAG_COIN_DATA_FRAGMENT = "COIN_DATA_FRAGMENT";
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
     private static final String TICKER = "TICKER";
     private static final String HOLDING = "HOLDING";
     private static final String PRICE = "PRICE";
     private static final String BALANCE = "BALANCE";
-    private final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
-    private final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
+    private static final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
+    private static final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
     private PortfolioFragment mPortfolioFragment;
     private LiveBittrexService mService;
     private ServiceConnection mConnection;
@@ -58,6 +59,29 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
 
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, mPortfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_portfolio, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.action_change_balance_percent) {
+            //Update the list
+            if (mPortfolioFragment != null) {
+                mPortfolioFragment.changeBalanceToPercent();
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -146,7 +170,7 @@ public class PortfolioActivity extends FragmentActivity implements PortfolioFrag
         handler.postDelayed(new Runnable() {
             public void run() {
                 //do something
-                mService.getLiveCoinValues();
+                if (mService != null) mService.getLiveCoinValues();
                 handler.postDelayed(this, delay);
 
             }

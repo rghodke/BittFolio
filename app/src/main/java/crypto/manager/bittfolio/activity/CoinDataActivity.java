@@ -59,7 +59,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
     private static final String CURRENCY = "CURRENCY";
-    private static final String ARG_COIN_DATA = "COIN_DATA";
+    private static final String ARG_COIN_DATA = "ARG_COIN_DATA";
     private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
     private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";

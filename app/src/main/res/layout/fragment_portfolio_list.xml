@@ -17,12 +17,25 @@
             android:layout_width="match_parent"
             android:layout_height="50dp">
 
-            <TextView
-                android:id="@+id/text_view_portfolio_total_balance"
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="changeUnit"
-                android:textSize="40sp" />
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/label_total_portfolio_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_portfolio_value"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+                <TextView
+                    android:id="@+id/text_view_portfolio_total_balance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/label_total_portfolio_value"
+                    android:onClick="changeUnit"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+            </RelativeLayout>
 
             <ImageView
                 android:id="@+id/image_view_happiness_indicator"
