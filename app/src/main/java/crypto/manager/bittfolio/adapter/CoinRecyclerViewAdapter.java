@@ -28,6 +28,7 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
     private boolean mIsDollars;
     private double mTotalBalance;
     private boolean mIsPercent;
+    private boolean mIsHidden;
 
     public CoinRecyclerViewAdapter(List<CoinData> coins, OnPortfolioListFragmentInteractionListener listener) {
         mCoins = coins;
@@ -91,6 +92,14 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
             }
         });
 
+        if (mIsHidden) {
+            holder.mHoldingView.setVisibility(View.INVISIBLE);
+            holder.mBalanceView.setVisibility(View.INVISIBLE);
+        } else {
+            holder.mHoldingView.setVisibility(View.VISIBLE);
+            holder.mBalanceView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     @Override
@@ -108,6 +117,11 @@ public class CoinRecyclerViewAdapter extends RecyclerView.Adapter<CoinRecyclerVi
 
     public void setTotalBalance(double totalBalance) {
         this.mTotalBalance = totalBalance;
+    }
+
+    public void changeHoldingVisibility(boolean isHidden) {
+        this.mIsHidden = isHidden;
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -51,5 +51,8 @@
     <string name="timeframe">Timeframe</string>
     <string name="change_units">Change Units</string>
     <string name="total_portfolio_value">Total Portfolio Value</string>
-    <string name="show_percent_holdings">Show Percent Holdings</string>
+    <string name="show_percent_balance">Show Percent Balance</string>
+    <string name="hide_percent_balance">Hide Percent Balance</string>
+    <string name="hide_holdings">Hide Holdings</string>
+    <string name="show_holdings">Show Holdings</string>
 </resources>

@@ -83,11 +83,13 @@ public class CoinGraphFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_coin_graph, container, false);
+
         //Set-up graph
         mChart = (LineChart) view.findViewById(R.id.chart);
         mChart.setDescription(null);

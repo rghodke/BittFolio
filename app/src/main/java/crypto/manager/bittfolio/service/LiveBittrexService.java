@@ -127,8 +127,6 @@ public class LiveBittrexService extends Service {
                 .url("https://min-api.cryptocompare.com/data/" + publicParameter)
                 .build();
 
-        System.out.println(request.url().toString());
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

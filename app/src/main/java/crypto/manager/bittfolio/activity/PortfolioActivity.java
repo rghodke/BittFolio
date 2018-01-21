@@ -38,6 +38,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private ServiceConnection mConnection;
     private boolean mBound = false;
     private BroadcastReceiver mBroadCastNewMessage;
+    private boolean mIsPercent;
+    private boolean mIsHoldingHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +80,29 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         if (id == R.id.action_change_balance_percent) {
             //Update the list
             if (mPortfolioFragment != null) {
-                mPortfolioFragment.changeBalanceToPercent();
+                mIsPercent = !mIsPercent;
+                if (mIsPercent) {
+                    item.setTitle(R.string.hide_percent_balance);
+                } else {
+                    item.setTitle(R.string.show_percent_balance);
+                }
+                mPortfolioFragment.showHideBalance(mIsPercent);
             }
         }
+
+        if (id == R.id.action_hide_holdings) {
+            //Update the list
+            if (mPortfolioFragment != null) {
+                mIsHoldingHidden = !mIsHoldingHidden;
+                if (mIsHoldingHidden) {
+                    item.setTitle(R.string.show_holdings);
+                } else {
+                    item.setTitle(R.string.hide_holdings);
+                }
+                mPortfolioFragment.showHideHoldings(mIsHoldingHidden);
+            }
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

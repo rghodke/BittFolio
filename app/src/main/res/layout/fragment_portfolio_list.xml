@@ -20,6 +20,7 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/label_total_portfolio_value"
                     android:layout_width="wrap_content"
@@ -37,11 +38,36 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/image_view_happiness_indicator"
+                android:layout_toStartOf="@+id/image_view_happiness_indicator">
+
+                <TextView
+                    android:id="@+id/label_24_hour_change"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_24_hour_change"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+                <TextView
+                    android:id="@+id/text_view_24_hour_change"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/label_24_hour_change"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+            </RelativeLayout>
+
+
             <ImageView
                 android:id="@+id/image_view_happiness_indicator"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_alignParentRight="true" />
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:padding="5dp" />
         </RelativeLayout>
 
         <LinearLayout
@@ -57,8 +83,11 @@
                 android:id="@+id/text_view_ticker"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/text_margin"
-                android:layout_weight="20"
+                android:layout_marginBottom="@dimen/text_margin"
+                android:layout_marginLeft="@dimen/text_margin"
+                android:layout_marginStart="@dimen/text_margin"
+                android:layout_marginTop="@dimen/text_margin"
+                android:layout_weight="24"
                 android:gravity="center_horizontal"
                 android:onClick="sortByTicker"
                 android:text="@string/coin"

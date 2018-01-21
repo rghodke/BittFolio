@@ -36,6 +36,7 @@ import java.util.Map;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.CoinData;
+import crypto.manager.bittfolio.model.PriceData;
 
 /**
  * A fragment representing a list of Items.
@@ -58,9 +59,9 @@ public class PortfolioFragment extends Fragment {
     private TextView mTotalBalanceTextView;
     private ImageView mHappinessIndicator;
     private double mTotalBalance;
-    private double mPrevBalance = 0.0;
+    private double mPrevBalance;
     private boolean mIsDollars;
-    private boolean mIsPercent;
+    private TextView m24HourChange;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -101,6 +102,7 @@ public class PortfolioFragment extends Fragment {
 
         mTotalBalanceTextView = (TextView) view.findViewById(R.id.text_view_portfolio_total_balance);
         mHappinessIndicator = (ImageView) view.findViewById(R.id.image_view_happiness_indicator);
+        m24HourChange = (TextView) view.findViewById(R.id.text_view_24_hour_change);
 
         // Set the adapter
         Context context = view.getContext();
@@ -162,32 +164,35 @@ public class PortfolioFragment extends Fragment {
      * @param coinDataString
      */
     public void updateCoinData(String coinDataString) {
-        Map<String, Double> currencyValue = new HashMap<>();
+        Map<String, PriceData> currencyValue = new HashMap<>();
         try {
             JSONObject jsonObject = new JSONObject(coinDataString);
             JSONArray currenciesData = jsonObject.getJSONArray("result");
             for (int i = 0; i < currenciesData.length(); i++) {
                 JSONObject currencyData = currenciesData.getJSONObject(i);
-                currencyValue.put(currencyData.getString("MarketName"), currencyData.getDouble("Last"));
+                currencyValue.put(currencyData.getString("MarketName"), new PriceData(currencyData.getDouble("Last"), currencyData.getDouble("PrevDay")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         mTotalBalance = 0.0;
+        mPrevBalance = 0.0;
 
         for (CoinData coinData : mCoinDataList) {
             String currencyKey = "BTC-" + coinData.getCurrency();
             //btc is always in dollars
             if (coinData.getCurrency().equals("BTC")) {
                 currencyKey = "USDT-" + coinData.getCurrency();
-                double coinValue = currencyValue.get(currencyKey);
+                double coinValue = currencyValue.get(currencyKey).getLast();
                 double holding = (coinData.getHolding());
                 double balance = coinValue * holding;
                 coinData.setBalance((balance));
                 coinData.setPrice(coinValue);
+                coinData.setPrevDay(currencyValue.get(currencyKey).getPrevDay());
                 //add just the holding to the total since its already in btc units
                 mTotalBalance += holding;
+                mPrevBalance += holding;
                 continue;
             }
             //usdt is always in dollars
@@ -198,22 +203,25 @@ public class PortfolioFragment extends Fragment {
                 double balance = coinValue * holding;
                 coinData.setBalance((balance));
                 coinData.setPrice(coinValue);
+                coinData.setPrevDay(1.00);
                 continue;
             }
             if (currencyValue.containsKey(currencyKey)) {
-                double coinValue = currencyValue.get(currencyKey);
+                double coinValue = currencyValue.get(currencyKey).getLast();
                 double holding = (coinData.getHolding());
                 double balance = coinValue * holding;
                 //add the btc units worth of the currency
                 mTotalBalance += balance;
+                mPrevBalance += currencyValue.get(currencyKey).getPrevDay() * holding;
                 coinData.setBalance((balance));
                 coinData.setPrice(coinValue);
+                coinData.setPrevDay(currencyValue.get(currencyKey).getPrevDay());
             }
         }
 
         if (mIsDollars) {
             String USDBTC = "USDT-BTC";
-            double coinValue = currencyValue.get(USDBTC);
+            double coinValue = currencyValue.get(USDBTC).getLast();
             for (CoinData coinData : mCoinDataList) {
                 //btc is always in dollars
                 if (coinData.getCurrency().equals("BTC")) {
@@ -224,8 +232,10 @@ public class PortfolioFragment extends Fragment {
                 }
                 coinData.setBalance(coinData.getBalance() * coinValue);
                 coinData.setPrice(coinData.getPrice() * coinValue);
+                coinData.setPrevDay(coinData.getPrevDay() * coinValue);
             }
             mTotalBalance *= coinValue;
+            mPrevBalance *= currencyValue.get(USDBTC).getPrevDay();
         }
 
         //Update the list with the second to second update on balances
@@ -247,16 +257,17 @@ public class PortfolioFragment extends Fragment {
         mRecyclerViewAdapter.notifyDataSetChanged();
         mRecyclerViewAdapter.setTotalBalance(totalBalance);
 
-        if (mPrevBalance == 0.0) {
-        }
+        //24 hour % change
+        double percentChange = ((mTotalBalance / mPrevBalance) - 1) * 100;
+        String percentChangeStr = new DecimalFormat("#.00").format(percentChange) + "%";
+        m24HourChange.setText(percentChangeStr);
+
         //Negative change in portfolio balance
-        else if (totalBalance < mPrevBalance) {
+        if (totalBalance < mPrevBalance) {
             Picasso.with(getContext()).load(R.drawable.sad_face).fit().into(mHappinessIndicator);
         } else if (totalBalance >= mPrevBalance) { //Positive change in portfolio
             Picasso.with(getContext()).load(R.drawable.happy_face).fit().into(mHappinessIndicator);
         }
-        //Keep track of the mTotalBalance in mPrevBalance to monitor change
-        mPrevBalance = totalBalance;
     }
 
     public void changeUnits() {
@@ -306,9 +317,12 @@ public class PortfolioFragment extends Fragment {
         mRecyclerViewAdapter.notifyDataSetChanged();
     }
 
-    public void changeBalanceToPercent() {
-        mIsPercent = !mIsPercent;
-        mRecyclerViewAdapter.changeBalanceToPercent(mIsPercent);
+    public void showHideBalance(boolean isPercent) {
+        mRecyclerViewAdapter.changeBalanceToPercent(isPercent);
+    }
+
+    public void showHideHoldings(boolean isHidden) {
+        mRecyclerViewAdapter.changeHoldingVisibility(isHidden);
     }
 
     /**
