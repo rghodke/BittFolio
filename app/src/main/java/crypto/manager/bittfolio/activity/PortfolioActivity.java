@@ -14,16 +14,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.List;
+
 import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
+import crypto.manager.bittfolio.fragment.CoinSearchFragment;
 import crypto.manager.bittfolio.fragment.PortfolioFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 
-public class PortfolioActivity extends AppCompatActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener {
+public class PortfolioActivity extends AppCompatActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener, CoinSearchFragment.onCoinSearchFragmentInteractionListener {
 
     private static final String ARG_COIN_DATA = "ARG_COIN_DATA";
     private static final String TAG_PORTFOLIO_FRAGMENT = "TAG_PORTFOLIO_FRAGMENT";
+    private static final String TAG_COIN_SEARCH_FRAGMENT = "TAG_COIN_SEARCH_FRAGMENT";
     private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
@@ -33,13 +37,16 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private static final String BALANCE = "BALANCE";
     private static final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
     private static final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
-    private PortfolioFragment mPortfolioFragment;
+    private static final String CURRENT_FRAGMENT_INTENT_EXTRA = "CURRENT_FRAGMENT_INTENT_EXTRA";
+    private static PortfolioFragment mPortfolioFragment;
+    private static CoinSearchFragment mCoinSearchFragment;
     private LiveBittrexService mService;
     private ServiceConnection mConnection;
     private boolean mBound = false;
     private BroadcastReceiver mBroadCastNewMessage;
     private boolean mIsPercent;
     private boolean mIsHoldingHidden;
+    private List<CoinData> mCoinList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +58,24 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             coinBalanceString = getIntent().getStringExtra(EXTRA_COIN_BALANCE_STRING);
         }
 
+        String fragmentToDisplay;
+
         //persist the fragment through rotation
         if (savedInstanceState != null) {
             mPortfolioFragment = (PortfolioFragment) getSupportFragmentManager().findFragmentByTag(TAG_PORTFOLIO_FRAGMENT);
+            mCoinSearchFragment = (CoinSearchFragment) getSupportFragmentManager().findFragmentByTag(TAG_COIN_SEARCH_FRAGMENT);
+            fragmentToDisplay = savedInstanceState.getString(CURRENT_FRAGMENT_INTENT_EXTRA);
         } else {
             mPortfolioFragment = PortfolioFragment.newInstance(coinBalanceString);
+            mCoinSearchFragment = CoinSearchFragment.newInstance();
+            fragmentToDisplay = TAG_PORTFOLIO_FRAGMENT;
         }
 
-
-        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, mPortfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
+        if (fragmentToDisplay.equals(TAG_COIN_SEARCH_FRAGMENT)) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCoinSearchFragment, TAG_COIN_SEARCH_FRAGMENT).commit();
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mPortfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
+        }
 
     }
 
@@ -69,6 +85,19 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        String currentFragDisplayed = "";
+        if (mCoinSearchFragment != null) {
+            if (mCoinSearchFragment.isVisible()) {
+                currentFragDisplayed = TAG_COIN_SEARCH_FRAGMENT;
+            }
+        } else {
+            currentFragDisplayed = TAG_PORTFOLIO_FRAGMENT;
+        }
+        bundle.putString(CURRENT_FRAGMENT_INTENT_EXTRA, currentFragDisplayed);
+        super.onSaveInstanceState(bundle);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -76,6 +105,15 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        if (id == R.id.action_search) {
+            if (mCoinSearchFragment != null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCoinSearchFragment, TAG_COIN_SEARCH_FRAGMENT).addToBackStack(null).commit();
+            } else {
+                mCoinSearchFragment = CoinSearchFragment.newInstance();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCoinSearchFragment, TAG_COIN_SEARCH_FRAGMENT).addToBackStack(null).commit();
+            }
+        }
 
         if (id == R.id.action_change_balance_percent) {
             //Update the list
@@ -223,5 +261,22 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     public void sortByBalance(View view) {
         if (mPortfolioFragment != null)
             mPortfolioFragment.sortBy(BALANCE);
+    }
+
+    @Override
+    public void onCoinSelected(String coin) {
+        if (mCoinList != null) {
+            for (CoinData coinData : mCoinList) {
+                if (coinData.getCurrency().equals(coin)) {
+                    onPortfolioListFragmentInteraction(coinData);
+                    return;
+                }
+            }
+        }
+        onPortfolioListFragmentInteraction(new CoinData(coin, 0.0));
+    }
+
+    public void setCoinList(List<CoinData> mCoinList) {
+        this.mCoinList = mCoinList;
     }
 }

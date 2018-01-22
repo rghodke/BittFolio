@@ -55,4 +55,6 @@
     <string name="hide_percent_balance">Hide Percent Balance</string>
     <string name="hide_holdings">Hide Holdings</string>
     <string name="show_holdings">Show Holdings</string>
+    <string name="search">Search</string>
+    <string name="loading_currency_list">Loading Currency List</string>
 </resources>

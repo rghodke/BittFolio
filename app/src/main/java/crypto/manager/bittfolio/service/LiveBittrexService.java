@@ -127,6 +127,7 @@ public class LiveBittrexService extends Service {
                 .url("https://min-api.cryptocompare.com/data/" + publicParameter)
                 .build();
 
+
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -159,6 +160,7 @@ public class LiveBittrexService extends Service {
         Request request = new Request.Builder()
                 .url("https://bittrex.com/api/v1.1/public/" + publicParameter)
                 .build();
+
 
         client.newCall(request).enqueue(new Callback() {
             @Override

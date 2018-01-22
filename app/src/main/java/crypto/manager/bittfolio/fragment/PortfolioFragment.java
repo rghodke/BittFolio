@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import crypto.manager.bittfolio.R;
+import crypto.manager.bittfolio.activity.PortfolioActivity;
 import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.model.PriceData;
@@ -99,6 +100,9 @@ public class PortfolioFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        PortfolioActivity portfolioActivity = (PortfolioActivity) getActivity();
+        portfolioActivity.setCoinList(mCoinDataList);
 
         mTotalBalanceTextView = (TextView) view.findViewById(R.id.text_view_portfolio_total_balance);
         mHappinessIndicator = (ImageView) view.findViewById(R.id.image_view_happiness_indicator);
