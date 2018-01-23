@@ -319,7 +319,7 @@ public class LoginActivity extends AppCompatActivity {
             if (success) {
                 finish();
             } else {
-                Toast.makeText(getBaseContext(), R.string.signin_error_message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), R.string.error_signin_message, Toast.LENGTH_SHORT).show();
                 mApiSecretView.setError(getString(R.string.error_incorrect_password));
                 mApiSecretView.requestFocus();
             }

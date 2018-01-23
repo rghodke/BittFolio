@@ -25,7 +25,7 @@
                     android:id="@+id/label_total_portfolio_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/total_portfolio_value"
+                    android:text="@string/label_total_portfolio_value"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
                 <TextView
@@ -48,7 +48,7 @@
                     android:id="@+id/label_24_hour_change"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/_24_hour_change"
+                    android:text="@string/label_24_hour_change"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
                 <TextView
@@ -90,7 +90,7 @@
                 android:layout_weight="24"
                 android:gravity="center_horizontal"
                 android:onClick="sortByTicker"
-                android:text="@string/coin"
+                android:text="@string/label_coin"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -100,7 +100,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
                 android:onClick="sortByHolding"
-                android:text="@string/holdings"
+                android:text="@string/label_holdings"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -110,7 +110,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="30"
                 android:onClick="sortByPrice"
-                android:text="@string/price"
+                android:text="@string/label_price"
                 android:textColor="@android:color/white" />
 
 
@@ -121,7 +121,7 @@
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="22"
                 android:onClick="sortByBalance"
-                android:text="@string/balance"
+                android:text="@string/label_balance"
                 android:textColor="@android:color/white" />
         </LinearLayout>
 

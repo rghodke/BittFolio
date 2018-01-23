@@ -15,7 +15,7 @@
             android:id="@+id/label_timeframe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/timeframe" />
+            android:text="@string/label_timeframe" />
 
         <Spinner
             android:id="@+id/spinner_timeframe"
@@ -57,7 +57,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="false"
-                    android:text="@string/_24_hour_high" />
+                    android:text="@string/label_24_hour_high" />
 
                 <TextView
                     android:id="@+id/text_view_24_high"
@@ -83,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:gravity="center_horizontal"
-                    android:text="@string/current_bid_price" />
+                    android:text="@string/label_current_bid_price" />
 
                 <TextView
                     android:id="@+id/text_view_current_bid_price"
@@ -111,7 +111,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
                     android:gravity="right"
-                    android:text="@string/_24_hour_volume" />
+                    android:text="@string/label_24_hour_volume" />
 
                 <TextView
                     android:id="@+id/text_view_24_hour_volume"
@@ -154,7 +154,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:text="@string/_24_hour_low" />
+                    android:text="@string/label_24_hour_low" />
 
                 <TextView
                     android:id="@+id/text_view_24_low"
@@ -178,7 +178,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:gravity="center_horizontal"
-                    android:text="@string/current_ask_price" />
+                    android:text="@string/label_current_ask_price" />
 
                 <TextView
                     android:id="@+id/text_view_current_ask_price"
@@ -206,7 +206,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
                     android:gravity="right"
-                    android:text="@string/_24_hour_change" />
+                    android:text="@string/label_24_hour_change" />
 
                 <TextView
                     android:id="@+id/text_view_24_hour_change"

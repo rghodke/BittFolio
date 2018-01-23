@@ -3,18 +3,13 @@ package crypto.manager.bittfolio.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -77,8 +72,94 @@ public class LiveBittrexService extends Service {
         connectBittrexPublicApi("getmarketsummaries", LIVE_COIN_INTENT_EXTRA, LIVE_COIN_INTENT_ACTION);
     }
 
+    //Method imported from
+    //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+    //Used to create the apisign
+    public String calculateHash(String secret, String url, String encryption) {
+
+        Mac shaHmac = null;
+
+        try {
+
+            shaHmac = Mac.getInstance(encryption);
+
+        } catch (NoSuchAlgorithmException e) {
+
+            e.printStackTrace();
+        }
+
+        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
+
+        try {
+
+            shaHmac.init(secretKey);
+
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+
+        byte[] hash = shaHmac.doFinal(url.getBytes());
+        String check = bytesToHex(hash);
+
+        return check;
+    }
+
+    //Method imported from
+    //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
+    private String bytesToHex(byte[] bytes) {
+
+        char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+        char[] hexChars = new char[bytes.length * 2];
+
+        for (int j = 0; j < bytes.length; j++) {
+
+            int v = bytes[j] & 0xFF;
+
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+
+        return new String(hexChars);
+    }
+
     public void getOrderHistory() {
-        new OrderHistoryTask().execute();
+        String nonce = Long.toString(new Date().getTime());
+        String urlString = "https://bittrex.com/api/v1.1/account/getorderhistory?apikey=" + mApiKey + "&nonce=" + nonce + "&market=" + "BTC-" + mCurrency;
+
+        Request request = new Request.Builder()
+                .url(urlString)
+                .get()
+                .addHeader("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"))
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String currenciesJSONString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_ORDER_HISTORY_INTENT_EXTRA, currenciesJSONString);
+                            intent.setAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
+                            context.sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+
     }
 
     public void getOrderBook() {
@@ -153,7 +234,6 @@ public class LiveBittrexService extends Service {
             }
         });
 
-
     }
 
     private void connectBittrexPublicApi(String publicParameter, final String intentExtra, final String intentAction) {
@@ -205,121 +285,6 @@ public class LiveBittrexService extends Service {
         public LiveBittrexService getService() {
             // Return this instance of LiveBittrexService so clients can call public methods
             return LiveBittrexService.this;
-        }
-    }
-
-    //Ripped from LoginActivity
-    public class OrderHistoryTask extends AsyncTask<Void, Void, String> {
-
-        //Method imported from
-        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
-        //Used to create the apisign
-        public String calculateHash(String secret, String url, String encryption) {
-
-            Mac shaHmac = null;
-
-            try {
-
-                shaHmac = Mac.getInstance(encryption);
-
-            } catch (NoSuchAlgorithmException e) {
-
-                e.printStackTrace();
-            }
-
-            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), encryption);
-
-            try {
-
-                shaHmac.init(secretKey);
-
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            }
-
-            byte[] hash = shaHmac.doFinal(url.getBytes());
-            String check = bytesToHex(hash);
-
-            return check;
-        }
-
-        //Method imported from
-        //https://github.com/platelminto/java-bittrex/blob/master/src/EncryptionUtility.java
-        private String bytesToHex(byte[] bytes) {
-
-            char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-            char[] hexChars = new char[bytes.length * 2];
-
-            for (int j = 0; j < bytes.length; j++) {
-
-                int v = bytes[j] & 0xFF;
-
-                hexChars[j * 2] = hexArray[v >>> 4];
-                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-            }
-
-            return new String(hexChars);
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            String nonce = Long.toString(new Date().getTime());
-            URL url = null;
-            HttpURLConnection connection = null;
-            try {
-                String urlString = "https://bittrex.com/api/v1.1/account/getorderhistory?apikey=" + mApiKey + "&nonce=" + nonce + "&market=" + "BTC-" + mCurrency;
-                url = new URL(urlString);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"));
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuffer resultBuffer = new StringBuffer();
-                String line = "";
-                while ((line = reader.readLine()) != null)
-                    resultBuffer.append(line);
-
-
-                int requestCode = connection.getResponseCode();
-                if (requestCode == 200) {
-
-                    /*
-                    Bittrex will return 200 even if login info is incorrect. Look for success
-                    variable
-                     */
-                    String success = null;
-                    try {
-                        JSONObject successJSON = new JSONObject(resultBuffer.toString());
-                        success = successJSON.getString("success");
-                    } catch (JSONException e) {
-                        success = "false";
-                    }
-                    if (success.equals("false")) {
-                        return "";
-                    }
-
-                    return resultBuffer.toString();
-                } else {
-                    return "";
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "";
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(final String success) {
-            if (!success.isEmpty()) {
-                Intent intent = new Intent();
-                intent.putExtra(LIVE_ORDER_HISTORY_INTENT_EXTRA, success);
-                intent.setAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
-                context.sendBroadcast(intent);
-            } else {
-            }
         }
     }
 }

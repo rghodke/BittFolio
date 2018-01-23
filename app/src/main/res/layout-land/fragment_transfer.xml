@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/deposit" />
+            android:text="@string/label_deposit" />
 
         <TextView
             android:id="@+id/text_view_wallet_id"
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/withdraw" />
+            android:text="@string/label_withdraw" />
 
         <EditText
             android:id="@+id/edit_text_quantity"
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/withdraw_label"
             android:layout_margin="10dp"
-            android:hint="@string/quantity" />
+            android:hint="@string/label_quantity" />
 
         <RelativeLayout
             android:id="@+id/withdraw_wallet_layout"
@@ -74,7 +74,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:hint="@string/wallet_id" />
+                android:hint="@string/label_wallet_id" />
 
             <ImageButton
                 android:layout_width="40dp"
@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/withdraw_wallet_layout"
             android:layout_centerHorizontal="true"
-            android:text="@string/send" />
+            android:text="@string/label_send" />
 
     </RelativeLayout>
 

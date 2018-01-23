@@ -1,7 +1,6 @@
 package crypto.manager.bittfolio.fragment;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -19,16 +18,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +32,11 @@ import crypto.manager.bittfolio.activity.PortfolioActivity;
 import crypto.manager.bittfolio.adapter.CoinRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.model.PriceData;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * A fragment representing a list of Items.
@@ -124,7 +123,7 @@ public class PortfolioFragment extends Fragment {
 
     private List<CoinData> parseCoinData(String coinData) throws JSONException {
 
-        List<CoinData> coinDataList = new ArrayList<>();
+        final List<CoinData> coinDataList = new ArrayList<>();
 
         JSONObject coinBalancesJson = new JSONObject(coinData);
 
@@ -139,10 +138,48 @@ public class PortfolioFragment extends Fragment {
             }
         }
 
-        new RetrieveIconImage(coinDataList).execute();
+        //Get the icons
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://www.cryptocompare.com/api/data/coinlist/")
+                .get()
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String currenciesJSONString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        JSONObject data = jsonObject.getJSONObject("Data");
+
+                        for (CoinData coinData : coinDataList) {
+                            //Bittrex has special name for BCH
+                            if (coinData.getCurrency().equals("BCC")) {
+                                JSONObject currencyData = data.getJSONObject("BCH");
+                                coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
+                                continue;
+                            }
+                            if (data.has(coinData.getCurrency())) {
+                                JSONObject currencyData = data.getJSONObject(coinData.getCurrency());
+                                coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else return;
+            }
+        });
 
         return coinDataList;
-
     }
 
     @Override
@@ -344,73 +381,4 @@ public class PortfolioFragment extends Fragment {
         void onPortfolioListFragmentInteraction(CoinData item);
     }
 
-    class RetrieveIconImage extends AsyncTask<Void, Void, Boolean> {
-
-        private List<CoinData> mCoinData;
-
-        public RetrieveIconImage(List<CoinData> cd) {
-            this.mCoinData = cd;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            String nonce = Long.toString(new Date().getTime());
-            URL url = null;
-            HttpURLConnection connection = null;
-            try {
-                String urlString = "https://www.cryptocompare.com/api/data/coinlist/";
-                url = new URL(urlString);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuffer resultBuffer = new StringBuffer();
-                String line = "";
-                while ((line = reader.readLine()) != null)
-                    resultBuffer.append(line);
-
-
-                int requestCode = connection.getResponseCode();
-                if (requestCode == 200) {
-
-                    /*
-                    Bittrex will return 200 even if login info is incorrect. Look for success
-                    variable
-                     */
-                    String success = null;
-                    try {
-                        JSONObject coinBalancesJson = new JSONObject(resultBuffer.toString());
-                        success = coinBalancesJson.getString("Response");
-                        JSONObject data = coinBalancesJson.getJSONObject("Data");
-
-                        for (CoinData coinData : mCoinData) {
-                            //Bittrex has special name for BCH
-                            if (coinData.getCurrency().equals("BCC")) {
-                                JSONObject currencyData = data.getJSONObject("BCH");
-                                coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
-                                continue;
-                            }
-                            if (data.has(coinData.getCurrency())) {
-                                JSONObject currencyData = data.getJSONObject(coinData.getCurrency());
-                                coinData.setImageUrl("https://www.cryptocompare.com" + currencyData.getString("ImageUrl"));
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        success = "false";
-                    }
-                    if (success.equals("false")) {
-                        return false;
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-    }
 }

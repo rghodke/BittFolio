@@ -120,9 +120,9 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             if (mPortfolioFragment != null) {
                 mIsPercent = !mIsPercent;
                 if (mIsPercent) {
-                    item.setTitle(R.string.hide_percent_balance);
+                    item.setTitle(R.string.label_hide_percent_balance);
                 } else {
-                    item.setTitle(R.string.show_percent_balance);
+                    item.setTitle(R.string.label_show_percent_balance);
                 }
                 mPortfolioFragment.showHideBalance(mIsPercent);
             }
@@ -133,9 +133,9 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             if (mPortfolioFragment != null) {
                 mIsHoldingHidden = !mIsHoldingHidden;
                 if (mIsHoldingHidden) {
-                    item.setTitle(R.string.show_holdings);
+                    item.setTitle(R.string.label_show_holdings);
                 } else {
-                    item.setTitle(R.string.hide_holdings);
+                    item.setTitle(R.string.label_hide_holdings);
                 }
                 mPortfolioFragment.showHideHoldings(mIsHoldingHidden);
             }

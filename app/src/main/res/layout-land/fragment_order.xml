@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/current_bid_price" />
+            android:text="@string/label_current_bid_price" />
 
 
         <TextView
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_margin="10dp"
-            android:text="@string/price" />
+            android:text="@string/label_price" />
 
         <TextView
             android:id="@+id/current_ask_price_label"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/current_bid_price_label"
             android:layout_margin="10dp"
-            android:text="@string/current_ask_price" />
+            android:text="@string/label_current_ask_price" />
 
 
         <TextView
@@ -40,7 +40,7 @@
             android:layout_alignParentRight="true"
             android:layout_below="@id/text_view_current_bid_price"
             android:layout_margin="10dp"
-            android:text="@string/price" />
+            android:text="@string/label_price" />
 
         <TextView
             android:id="@+id/current_last_price_label"
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/current_ask_price_label"
             android:layout_margin="10dp"
-            android:text="@string/current_last_price" />
+            android:text="@string/label_current_last_price" />
 
 
         <TextView
@@ -58,7 +58,7 @@
             android:layout_alignParentRight="true"
             android:layout_below="@id/text_view_current_ask_price"
             android:layout_margin="10dp"
-            android:text="@string/price" />
+            android:text="@string/label_price" />
 
 
     </RelativeLayout>
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="@string/buy_order" />
+                android:text="@string/label_buy_order" />
 
 
             <TextView
@@ -93,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/buy_label"
                 android:layout_margin="10dp"
-                android:text="@string/quantity" />
+                android:text="@string/label_quantity" />
 
             <EditText
                 android:id="@+id/edit_text_buy_quantity"
@@ -104,7 +104,7 @@
                 android:layout_alignParentRight="true"
                 android:ellipsize="start"
                 android:gravity="center_horizontal"
-                android:hint="@string/quantity"
+                android:hint="@string/label_quantity"
                 android:maxLength="10"
                 android:minEms="10" />
 
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/buy_quantity_label"
                 android:layout_margin="10dp"
-                android:text="@string/price" />
+                android:text="@string/label_price" />
 
             <EditText
                 android:id="@+id/edit_text_buy_price"
@@ -125,7 +125,7 @@
                 android:layout_alignParentRight="true"
                 android:ellipsize="start"
                 android:gravity="center_horizontal"
-                android:hint="@string/buy_price"
+                android:hint="@string/label_buy_price"
                 android:maxLength="10"
                 android:minEms="10" />
 
@@ -134,7 +134,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/buy_price_label"
-                android:text="@string/buy" />
+                android:text="@string/label_buy" />
 
         </RelativeLayout>
 
@@ -148,7 +148,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="@string/sell_order" />
+                android:text="@string/label_sell_order" />
 
 
             <TextView
@@ -157,7 +157,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/sell_label"
                 android:layout_margin="10dp"
-                android:text="@string/quantity" />
+                android:text="@string/label_quantity" />
 
             <EditText
                 android:id="@+id/edit_text_sell_quantity"
@@ -168,7 +168,7 @@
                 android:layout_alignParentRight="true"
                 android:ellipsize="start"
                 android:gravity="center_horizontal"
-                android:hint="@string/quantity"
+                android:hint="@string/label_quantity"
                 android:maxLength="10"
                 android:minEms="10" />
 
@@ -178,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/sell_quantity_label"
                 android:layout_margin="10dp"
-                android:text="@string/price" />
+                android:text="@string/label_price" />
 
             <EditText
                 android:id="@+id/edit_text_sell_price"
@@ -189,7 +189,7 @@
                 android:layout_alignParentRight="true"
                 android:ellipsize="start"
                 android:gravity="center_horizontal"
-                android:hint="@string/sell_price"
+                android:hint="@string/label_sell_price"
                 android:maxLength="10"
                 android:minEms="10" />
 
@@ -198,7 +198,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/sell_price_label"
-                android:text="@string/sell" />
+                android:text="@string/label_sell" />
 
         </RelativeLayout>
 

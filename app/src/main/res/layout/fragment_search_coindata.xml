@@ -9,7 +9,7 @@
         android:id="@+id/edit_text_quantity_coin_search"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="Please enter the coin you want to explore" />
+        android:hint="@string/label_please_enter_the_coin_you_want_to_explore" />
 
     <!-- List View -->
     <ListView

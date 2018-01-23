@@ -157,7 +157,7 @@ public class CoinSearchFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             mPDialog = new ProgressDialog(getContext());
-            mPDialog.setTitle(getString(R.string.loading_currency_list));
+            mPDialog.setTitle(getString(R.string.label_loading_currency_list));
             mPDialog.show();
         }
 

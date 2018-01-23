@@ -1,60 +1,66 @@
 <resources>
+
     <string name="app_name">BittFolio</string>
+    <string name="title_activity_tabbed_coin_detail">TabbedCoinDetailActivity</string>
+    <string name="title_activity_coin_data">CoinDataActivity</string>
+    <string name="logo_for_the_bittfolio_app">Logo for the BittFolio App</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_api_key">API Key</string>
-    <string name="prompt_api_secret">API Secret</string>
-    <string name="action_sign_in">Sign in</string>
-    <string name="action_sign_in_short">Sign in</string>
+    <string name="label_prompt_api_key">API Key</string>
+    <string name="label_prompt_api_secret">API Secret</string>
+    <string name="label_action_sign_in">Sign in</string>
+    <string name="label_action_sign_in_short">Sign in</string>
     <string name="error_missing_key">API Key is missing</string>
     <string name="error_missing_secret">API Secret is missing</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
-    <string name="signin_error_message">Couldn\'t connect to Bittrex</string>
-    <string name="coin">Coin</string>
-    <string name="holdings">Holdings</string>
-    <string name="balance">Balance</string>
-    <string name="title_activity_tabbed_coin_detail">TabbedCoinDetailActivity</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_coin_data">CoinDataActivity</string>
+    <string name="error_signin_message">Couldn\'t connect to Bittrex</string>
 
-    <string name="type">Type</string>
-    <string name="quantity">Quantity</string>
-    <string name="quantity_remaining">Quantity Remaining</string>
-    <string name="price">Price</string>
-    <string name="buy_order">Buy Order</string>
-    <string name="sell_order">Sell Order</string>
-    <string name="deposit">Deposit</string>
-    <string name="withdraw">Withdraw</string>
-    <string name="wallet_id">Wallet ID</string>
-    <string name="scan">Scan</string>
-    <string name="send">Send</string>
-    <string name="buy">Buy</string>
-    <string name="buy_price">Buy Price</string>
-    <string name="sell_price">Sell Price</string>
-    <string name="sell">Sell</string>
-    <string name="current_price">Current Price</string>
-    <string name="current_bid_price">Current Bid Price</string>
-    <string name="current_ask_price">Current Ask Price</string>
-    <string name="current_last_price">Current Last Price</string>
-    <string name="logo_for_the_bittfolio_app">Logo for the BittFolio App</string>
+    <!-- Strings related to portfolio -->
+    <string name="label_coin">Coin</string>
+    <string name="label_holdings">Holdings</string>
+    <string name="label_balance">Balance</string>
+    <string name="toolbar_action_settings">Settings</string>
+    <string name="toolbar_action_change_units">Change Units</string>
+    <string name="label_total_portfolio_value">Total Portfolio Value</string>
+    <string name="label_show_percent_balance">Show Percent Balance</string>
+    <string name="label_hide_percent_balance">Hide Percent Balance</string>
+    <string name="label_hide_holdings">Hide Holdings</string>
+    <string name="label_show_holdings">Show Holdings</string>
+    <string name="label_search">Search</string>
+    <string name="label_loading_currency_list">Loading Currency List</string>
+    <string name="label_please_enter_the_coin_you_want_to_explore">Please enter the coin you want to explore</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="_24_hour_high">24 Hour High</string>
-    <string name="_24_hour_low">24 Hour Low</string>
-    <string name="_24_hour_volume">24 Hour Volume</string>
-    <string name="_24_hour_change">24 Hour Change</string>
-    <string name="timeframe">Timeframe</string>
-    <string name="change_units">Change Units</string>
-    <string name="total_portfolio_value">Total Portfolio Value</string>
-    <string name="show_percent_balance">Show Percent Balance</string>
-    <string name="hide_percent_balance">Hide Percent Balance</string>
-    <string name="hide_holdings">Hide Holdings</string>
-    <string name="show_holdings">Show Holdings</string>
-    <string name="search">Search</string>
-    <string name="loading_currency_list">Loading Currency List</string>
+
+    <!--Strings related to order/order history-->
+    <string name="label_type">Type</string>
+    <string name="label_quantity">Quantity</string>
+    <string name="label_quantity_remaining">Quantity Remaining</string>
+    <string name="label_price">Price</string>
+    <string name="label_buy_order">Buy Order</string>
+    <string name="label_sell_order">Sell Order</string>
+    <string name="label_buy">Buy</string>
+    <string name="label_buy_price">Buy Price</string>
+    <string name="label_sell_price">Sell Price</string>
+    <string name="label_sell">Sell</string>
+    <string name="label_current_price">Current Price</string>
+    <string name="label_current_bid_price">Current Bid Price</string>
+    <string name="label_current_ask_price">Current Ask Price</string>
+    <string name="label_current_last_price">Current Last Price</string>
+
+    <!--Strings related to wallets-->
+    <string name="label_deposit">Deposit</string>
+    <string name="label_withdraw">Withdraw</string>
+    <string name="label_wallet_id">Wallet ID</string>
+    <string name="label_scan">Scan</string>
+    <string name="label_send">Send</string>
+
+    <!--Strings related to price history-->
+    <string name="label_24_hour_high">24 Hour High</string>
+    <string name="label_24_hour_low">24 Hour Low</string>
+    <string name="label_24_hour_volume">24 Hour Volume</string>
+    <string name="label_24_hour_change">24 Hour Change</string>
+    <string name="label_timeframe">Timeframe</string>
+
+
 </resources>

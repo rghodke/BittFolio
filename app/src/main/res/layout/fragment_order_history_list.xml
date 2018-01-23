@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="20"
-                android:text="@string/type"
+                android:text="@string/label_type"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
-                android:text="@string/quantity"
+                android:text="@string/label_quantity"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
-                android:text="@string/quantity_remaining"
+                android:text="@string/label_quantity_remaining"
                 android:textColor="@android:color/white" />
 
 
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
                 android:layout_weight="26"
-                android:text="@string/price"
+                android:text="@string/label_price"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
