@@ -31,8 +31,10 @@ public class LiveBittrexService extends Service {
     private static final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
     private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
     private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
-    private static final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION = "LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA = "LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION = "LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION";
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
     private static final String CURRENCY = "CURRENCY";
@@ -123,18 +125,12 @@ public class LiveBittrexService extends Service {
         return new String(hexChars);
     }
 
-    public void getOrderHistory() {
-        String nonce = Long.toString(new Date().getTime());
-        String urlString = "https://bittrex.com/api/v1.1/account/getorderhistory?apikey=" + mApiKey + "&nonce=" + nonce + "&market=" + "BTC-" + mCurrency;
 
-        Request request = new Request.Builder()
-                .url(urlString)
-                .get()
-                .addHeader("apisign", calculateHash(mApiSecret, urlString, "HmacSHA512"))
-                .build();
+    public void getClosedOrderHistory() {
 
-
-        client.newCall(request).enqueue(new Callback() {
+        String endpoint = "account/getorderhistory";
+        String urlParams = "market=" + "BTC-" + mCurrency;
+        Callback closedOrderHistory = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -143,13 +139,13 @@ public class LiveBittrexService extends Service {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    String currenciesJSONString = response.body().string();
+                    String responseString = response.body().string();
                     try {
-                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        JSONObject jsonObject = new JSONObject(responseString);
                         if (jsonObject.getString("success").equals("true")) {
                             Intent intent = new Intent();
-                            intent.putExtra(LIVE_ORDER_HISTORY_INTENT_EXTRA, currenciesJSONString);
-                            intent.setAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
+                            intent.putExtra(LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION);
                             context.sendBroadcast(intent);
                         }
                     } catch (JSONException e) {
@@ -157,10 +153,45 @@ public class LiveBittrexService extends Service {
                     }
                 }
             }
-        });
+        };
 
 
+        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
     }
+
+    public void getOpenOrderHistory() {
+
+        String endpoint = "market/getopenorders";
+        String urlParams = "market=" + "BTC-" + mCurrency;
+        Callback closedOrderHistory = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION);
+                            context.sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+    }
+
 
     public void getOrderBook() {
         connectBittrexPublicApi("getorderbook?market=BTC-" + mCurrency + "&type=both", LIVE_ORDER_BOOK_INTENT_EXTRA, LIVE_ORDER_BOOK_INTENT_ACTION);
@@ -218,12 +249,12 @@ public class LiveBittrexService extends Service {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    String currenciesJSONString = response.body().string();
+                    String responseString = response.body().string();
                     try {
-                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        JSONObject jsonObject = new JSONObject(responseString);
                         if (jsonObject.getString("Response").equals("Success") && jsonObject.getInt("Type") >= 100) {
                             Intent intent = new Intent();
-                            intent.putExtra(intentExtra, currenciesJSONString);
+                            intent.putExtra(intentExtra, responseString);
                             intent.setAction(intentAction);
                             context.sendBroadcast(intent);
                         }
@@ -251,12 +282,12 @@ public class LiveBittrexService extends Service {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    String currenciesJSONString = response.body().string();
+                    String responseString = response.body().string();
                     try {
-                        JSONObject jsonObject = new JSONObject(currenciesJSONString);
+                        JSONObject jsonObject = new JSONObject(responseString);
                         if (jsonObject.getString("success").equals("true")) {
                             Intent intent = new Intent();
-                            intent.putExtra(intentExtra, currenciesJSONString);
+                            intent.putExtra(intentExtra, responseString);
                             intent.setAction(intentAction);
                             context.sendBroadcast(intent);
                         }
@@ -267,6 +298,24 @@ public class LiveBittrexService extends Service {
             }
         });
     }
+
+    private void connectBittrexPrivate(String endpoint, String urlParameters, Callback callback) {
+        String nonce = Long.toString(new Date().getTime());
+        String apiKey = mApiKey;
+        String apiSecret = mApiSecret;
+        String urlString = "https://bittrex.com/api/v1.1/" + endpoint + "?apikey=" + apiKey + "&nonce=" + nonce + "&" + urlParameters;
+        Request request = new Request.Builder()
+                .url(urlString)
+                .get()
+                .addHeader("apisign", calculateHash(apiSecret, urlString, "HmacSHA512"))
+                .build();
+
+        OkHttpClient client = new OkHttpClient();
+
+        client.newCall(request).enqueue(callback);
+
+    }
+
 
     public void getLatestPrice() {
         connectBittrexPublicApi("getticker?market=BTC-" + mCurrency, LATEST_PRICE_INTENT_EXTRA, LATEST_PRICE_INTENT_ACTION);

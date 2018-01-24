@@ -20,10 +20,13 @@ import crypto.manager.bittfolio.model.OrderHistoryEntry;
 public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderHistoryRecyclerViewAdapter.ViewHolder> {
 
     private final List<OrderHistoryEntry> mOrderHistoryEntries;
+    private List<OrderHistoryEntry> mClosedOrderHistoryEntries;
+    private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
 
 
-    public OrderHistoryRecyclerViewAdapter(List<OrderHistoryEntry> coins) {
-        mOrderHistoryEntries = coins;
+    public OrderHistoryRecyclerViewAdapter(List<OrderHistoryEntry> closedOrder, List<OrderHistoryEntry> openOrder) {
+        mOrderHistoryEntries = closedOrder;
+        mOpenOrderHistoryEntries = openOrder;
     }
 
     @Override
@@ -36,6 +39,7 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mOrderHistoryEntries.get(position);
+        holder.mStatusView.setText(mOrderHistoryEntries.get(position).getStatus());
         holder.mTypeView.setText(mOrderHistoryEntries.get(position).getType());
         holder.mQuantityView.setText(mOrderHistoryEntries.get(position).getQuantity());
         holder.mQuantityRemainingView.setText(mOrderHistoryEntries.get(position).getQuantityRemaining());
@@ -47,14 +51,25 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
         return mOrderHistoryEntries.size();
     }
 
-    public void updateData(List<OrderHistoryEntry> freshData) {
+    public void updateClosedOrderHistoryData(List<OrderHistoryEntry> freshData) {
+        mClosedOrderHistoryEntries = freshData;
         mOrderHistoryEntries.clear();
-        mOrderHistoryEntries.addAll(freshData);
+        mOrderHistoryEntries.addAll(mOpenOrderHistoryEntries);
+        mOrderHistoryEntries.addAll(mClosedOrderHistoryEntries);
+        notifyDataSetChanged();
+    }
+
+    public void updateOpenOrderHistoryData(List<OrderHistoryEntry> freshData) {
+        mOpenOrderHistoryEntries = freshData;
+        mOrderHistoryEntries.clear();
+        mOrderHistoryEntries.addAll(mOpenOrderHistoryEntries);
+        mOrderHistoryEntries.addAll(mClosedOrderHistoryEntries);
         notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
+        public final TextView mStatusView;
         public final TextView mTypeView;
         public final TextView mQuantityView;
         public final TextView mQuantityRemainingView;
@@ -64,6 +79,7 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
         public ViewHolder(View view) {
             super(view);
             mView = view;
+            mStatusView = (TextView) view.findViewById(R.id.text_view_status);
             mTypeView = (TextView) view.findViewById(R.id.text_view_type);
             mQuantityView = (TextView) view.findViewById(R.id.text_view_quantity);
             mQuantityRemainingView = (TextView) view.findViewById(R.id.text_view_quantity_remaining);

@@ -21,11 +21,21 @@
             android:weightSum="100">
 
             <TextView
+                android:id="@+id/text_view_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="15"
+                android:text="@string/label_type"
+                android:textColor="@android:color/white" />
+
+
+            <TextView
                 android:id="@+id/text_view_type"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
-                android:layout_weight="20"
+                android:layout_weight="15"
                 android:text="@string/label_type"
                 android:textColor="@android:color/white" />
 
@@ -34,7 +44,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
-                android:layout_weight="26"
+                android:layout_weight="23"
                 android:text="@string/label_quantity"
                 android:textColor="@android:color/white" />
 
@@ -43,7 +53,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
-                android:layout_weight="26"
+                android:layout_weight="23"
                 android:text="@string/label_quantity_remaining"
                 android:textColor="@android:color/white" />
 
@@ -53,7 +63,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
-                android:layout_weight="26"
+                android:layout_weight="23"
                 android:text="@string/label_price"
                 android:textColor="@android:color/white" />
 
@@ -67,6 +77,6 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/layout_order_history_header"
         app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/fragment_order_book_entry" />
+        tools:listitem="@layout/fragment_order_history_entry" />
 
 </RelativeLayout>

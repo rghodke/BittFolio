@@ -38,8 +38,9 @@ public class OrderHistoryFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mOrderHistoryJSON;
     private String mParam2;
-    private List<OrderHistoryEntry> mOrderHistoryEntries;
+    private List<OrderHistoryEntry> mClosedOrderHistoryEntries;
     private RecyclerView mRecyclerView;
+    private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
 
     public OrderHistoryFragment() {
         // Required empty public constructor
@@ -83,14 +84,15 @@ public class OrderHistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_order_history_list, container, false);
 
-        mOrderHistoryEntries = new ArrayList<>();
+        mClosedOrderHistoryEntries = new ArrayList<>();
+        mOpenOrderHistoryEntries = new ArrayList<>();
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
 
         // Set the adapter
         Context context = view.getContext();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mRecyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(mOrderHistoryEntries);
+        mRecyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
         return view;
@@ -109,8 +111,8 @@ public class OrderHistoryFragment extends Fragment {
     }
 
 
-    public void updateOrderHistory(String stringExtra) {
-        mOrderHistoryEntries = new ArrayList<>();
+    public void updateClosedOrderHistory(String stringExtra) {
+        mClosedOrderHistoryEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);
             JSONArray orderHistoryJSON = jsonObject.getJSONArray("result");
@@ -119,7 +121,25 @@ public class OrderHistoryFragment extends Fragment {
                 String orderType = (orderHistoryEntry.getString("OrderType"));
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
-                mOrderHistoryEntries.add(new OrderHistoryEntry(orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
+                mClosedOrderHistoryEntries.add(new OrderHistoryEntry("CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        refreshOrderHistoryData();
+    }
+
+    public void updateOpenOrderHistory(String stringExtra) {
+        mOpenOrderHistoryEntries = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(stringExtra);
+            JSONArray orderHistoryJSON = jsonObject.getJSONArray("result");
+            for (int i = 0; i < orderHistoryJSON.length(); i++) {
+                JSONObject orderHistoryEntry = orderHistoryJSON.getJSONObject(i);
+                String orderType = (orderHistoryEntry.getString("OrderType"));
+                if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
+                if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
+                mOpenOrderHistoryEntries.add(new OrderHistoryEntry("OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -129,6 +149,7 @@ public class OrderHistoryFragment extends Fragment {
 
 
     private void refreshOrderHistoryData() {
-        mRecyclerViewAdapter.updateData(mOrderHistoryEntries);
+        mRecyclerViewAdapter.updateClosedOrderHistoryData(mClosedOrderHistoryEntries);
+        mRecyclerViewAdapter.updateOpenOrderHistoryData(mOpenOrderHistoryEntries);
     }
 }

@@ -65,8 +65,10 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
     private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
-    private static final String LIVE_ORDER_HISTORY_INTENT_EXTRA = "LIVE_ORDER_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_ORDER_HISTORY_INTENT_ACTION = "LIVE_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION = "LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA = "LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION = "LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION";
     private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_INTENT_EXTRA";
     private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "LIVE_PRICE_HISTORY_INTENT_ACTION";
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
@@ -464,9 +466,13 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                 if (curFrag != null) {
                     if (curFrag instanceof OrderHistoryFragment) {
                         mOrderHistoryFragment = (OrderHistoryFragment) curFrag;
-                        String orderHistory = intent.getStringExtra(LIVE_ORDER_HISTORY_INTENT_EXTRA);
-                        if (orderHistory != null && !orderHistory.isEmpty()) {
-                            mOrderHistoryFragment.updateOrderHistory(orderHistory);
+                        String closedOrderHistory = intent.getStringExtra(LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA);
+                        if (closedOrderHistory != null && !closedOrderHistory.isEmpty()) {
+                            mOrderHistoryFragment.updateClosedOrderHistory(closedOrderHistory);
+                        }
+                        String openOpenOrder = intent.getStringExtra(LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA);
+                        if (openOpenOrder != null && !openOpenOrder.isEmpty()) {
+                            mOrderHistoryFragment.updateOpenOrderHistory(openOpenOrder);
                         }
                         return;
                     }
@@ -511,7 +517,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         };
         IntentFilter bittrexServiceFilter = new IntentFilter();
         //The possible data intent actions
-        bittrexServiceFilter.addAction(LIVE_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
         bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_INTENT_ACTION);
@@ -531,7 +538,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         mOrderHistoryHandler.postDelayed(new Runnable() {
             public void run() {
                 //do something
-                mService.getOrderHistory();
+                mService.getOpenOrderHistory();
+                mService.getClosedOrderHistory();
                 mOrderHistoryHandler.postDelayed(this, delay);
 
             }

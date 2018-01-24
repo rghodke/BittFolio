@@ -20,12 +20,14 @@ public class OrderHistoryEntry implements Parcelable {
                     return new OrderHistoryEntry[size];
                 }
             };
+    private String mStatus;
     private String mType;
     private String mQuantity;
     private String mQuantityRemaining;
     private String mPrice;
 
-    public OrderHistoryEntry(String type, String quantity, String quantityRemaining, String price) {
+    public OrderHistoryEntry(String status, String type, String quantity, String quantityRemaining, String price) {
+        this.mStatus = status;
         this.mType = type;
         this.mQuantity = quantity;
         this.mQuantityRemaining = quantityRemaining;
@@ -34,6 +36,7 @@ public class OrderHistoryEntry implements Parcelable {
 
 
     private OrderHistoryEntry(Parcel in) {
+        mStatus = in.readString();
         mType = in.readString();
         mQuantity = in.readString();
         mQuantityRemaining = in.readString();
@@ -47,10 +50,19 @@ public class OrderHistoryEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mStatus);
         parcel.writeString(mType);
         parcel.writeString(mQuantity);
         parcel.writeString(mQuantityRemaining);
         parcel.writeString(mPrice);
+    }
+
+    public String getStatus() {
+        return mStatus;
+    }
+
+    public void setStatus(String status) {
+        this.mStatus = status;
     }
 
     public String getType() {
