@@ -43,6 +43,7 @@
     <string name="label_buy_price">Buy Price</string>
     <string name="label_sell_price">Sell Price</string>
     <string name="label_sell">Sell</string>
+    <string name="label_status">Status</string>
     <string name="label_current_price">Current Price</string>
     <string name="label_current_bid_price">Current Bid Price</string>
     <string name="label_current_ask_price">Current Ask Price</string>
@@ -72,6 +73,8 @@
     <string name="error_transaction_failed_with_message">Transaction Failed with Message </string>
     <string name="message_transaction_successful_with_uuid">Transaction Successful with UUID </string>
     <string name="message_order_canceled">The order was canceled</string>
+    <string name="label_order_history">Order History</string>
+    <string name="label_exchange">Exchange</string>
 
 
 </resources>

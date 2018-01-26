@@ -21,20 +21,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import crypto.manager.bittfolio.R;
-import crypto.manager.bittfolio.adapter.OrderHistoryRecyclerViewAdapter;
+import crypto.manager.bittfolio.adapter.OverallOrderHistoryRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.OrderHistoryEntry;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link OrderHistoryFragment.OnFragmentInteractionListener} interface
+ * {@link OverallOrderHistoryFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link OrderHistoryFragment#newInstance} factory method to
+ * Use the {@link OverallOrderHistoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class OrderHistoryFragment extends Fragment {
-    private static final String ARG_ORDER_HISTORY_JSON_STRING = "ORDER_HISTORY_JSON";
-    private OrderHistoryRecyclerViewAdapter mRecyclerViewAdapter;
+public class OverallOrderHistoryFragment extends Fragment {
+    private static final String ARG_OVERALL_ORDER_HISTORY_JSON_STRING = "OVERALL_ORDER_HISTORY_JSON";
+    private OverallOrderHistoryRecyclerViewAdapter mRecyclerViewAdapter;
 
 
     // TODO: Rename and change types of parameters
@@ -43,10 +43,10 @@ public class OrderHistoryFragment extends Fragment {
     private List<OrderHistoryEntry> mClosedOrderHistoryEntries;
     private RecyclerView mRecyclerView;
     private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
-    private OnOrderHistoryListFragmentInteractionListener mListener;
+    private OnOverallOrderHistoryListFragmentInteractionListener mListener;
 //    private OnOrderHistoryListFragmentInteractionListener mListener;
 
-    public OrderHistoryFragment() {
+    public OverallOrderHistoryFragment() {
         // Required empty public constructor
     }
 
@@ -59,8 +59,8 @@ public class OrderHistoryFragment extends Fragment {
      * @return A new instance of fragment OrderHistoryFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static OrderHistoryFragment newInstance() {
-        OrderHistoryFragment fragment = new OrderHistoryFragment();
+    public static OverallOrderHistoryFragment newInstance() {
+        OverallOrderHistoryFragment fragment = new OverallOrderHistoryFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -86,7 +86,7 @@ public class OrderHistoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_order_history_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_overall_order_history_list, container, false);
 
         mClosedOrderHistoryEntries = new ArrayList<>();
         mOpenOrderHistoryEntries = new ArrayList<>();
@@ -96,7 +96,7 @@ public class OrderHistoryFragment extends Fragment {
         // Set the adapter
         Context context = view.getContext();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mRecyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
+        mRecyclerViewAdapter = new OverallOrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
         registerForContextMenu(mRecyclerView);
         return view;
@@ -129,11 +129,11 @@ public class OrderHistoryFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnOrderHistoryListFragmentInteractionListener) {
-            mListener = (OnOrderHistoryListFragmentInteractionListener) context;
+        if (context instanceof OnOverallOrderHistoryListFragmentInteractionListener) {
+            mListener = (OnOverallOrderHistoryListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnPortfolioListFragmentInteractionListener");
+                    + " must implement OnOverallOrderHistoryListFragmentInteractionListener");
         }
     }
 
@@ -187,7 +187,7 @@ public class OrderHistoryFragment extends Fragment {
         mRecyclerViewAdapter.updateOpenOrderHistoryData(mOpenOrderHistoryEntries);
     }
 
-    public interface OnOrderHistoryListFragmentInteractionListener {
+    public interface OnOverallOrderHistoryListFragmentInteractionListener {
         void onOrderCancelled(OrderHistoryEntry item);
     }
 }

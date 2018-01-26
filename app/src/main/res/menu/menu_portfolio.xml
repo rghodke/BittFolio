@@ -10,6 +10,12 @@
         android:title="@string/label_search"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_order_history"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:orderInCategory="100"
+        android:title="@string/label_order_history"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_change_balance_percent"
         android:orderInCategory="100"
         android:title="@string/label_show_percent_balance"

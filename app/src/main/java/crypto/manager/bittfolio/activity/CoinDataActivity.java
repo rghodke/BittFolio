@@ -13,6 +13,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -58,24 +59,24 @@ import okhttp3.Response;
 
 public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener, OrderHistoryFragment.OnOrderHistoryListFragmentInteractionListener {
 
-    private static final String API_KEY = "API_KEY";
-    private static final String API_SECRET = "API_SECRET";
-    private static final String CURRENCY = "CURRENCY";
-    private static final String ARG_COIN_DATA = "ARG_COIN_DATA";
-    private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
-    private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
-    private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
-    private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
-    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION = "LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION";
-    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA = "LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION = "LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION";
-    private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "LIVE_PRICE_HISTORY_INTENT_ACTION";
-    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
-    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
-    private static final String LATEST_BTC_USDT_PRICE_INTENT_EXTRA = "LATEST_BTC_USDT_PRICE_INTENT_EXTRA";
-    private static final String LATEST_BTC_USDT_PRICE_INTENT_ACTION = "LATEST_BTC_USDT_PRICE_INTENT_ACTION";
+    private static final String API_KEY = "crypto.manager.bittfolio.API_KEY";
+    private static final String API_SECRET = "crypto.manager.bittfolio.API_SECRET";
+    private static final String CURRENCY = "crypto.manager.bittfolio.CURRENCY";
+    private static final String ARG_COIN_DATA = "crypto.manager.bittfolio.ARG_COIN_DATA";
+    private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_ORDER_BOOK_INTENT_EXTRA";
+    private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_ORDER_BOOK_INTENT_ACTION";
+    private static final String LATEST_PRICE_INTENT_ACTION = "crypto.manager.bittfolio.LATEST_PRICE_INTENT_ACTION";
+    private static final String LATEST_PRICE_INTENT_EXTRA = "crypto.manager.bittfolio.LATEST_PRICE_INTENT_EXTRA";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_PRICE_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_PRICE_HISTORY_INTENT_ACTION";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
+    private static final String LATEST_BTC_USDT_PRICE_INTENT_EXTRA = "crypto.manager.bittfolio.LATEST_BTC_USDT_PRICE_INTENT_EXTRA";
+    private static final String LATEST_BTC_USDT_PRICE_INTENT_ACTION = "crypto.manager.bittfolio.LATEST_BTC_USDT_PRICE_INTENT_ACTION";
     private CoinData mCoinData;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -105,11 +106,14 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private CoinGraphFragment mCoinGraphFragment;
     private Handler mCoinGraph;
     private Handler mBtcUsdtHandler;
+    private OkHttpClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_data);
+
+        mClient = new OkHttpClient();
 
         mCoinData = getIntent().getExtras().getParcelable(ARG_COIN_DATA);
 
@@ -251,7 +255,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -271,7 +275,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                     String messageStr = jsonObject.getString("message");
                                     Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException e) {
@@ -397,9 +401,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                 .addHeader("apisign", calculateHash(apiSecret, urlString, "HmacSHA512"))
                 .build();
 
-        OkHttpClient client = new OkHttpClient();
 
-        client.newCall(request).enqueue(callback);
+        mClient.newCall(request).enqueue(callback);
 
     }
 
@@ -418,7 +421,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public void onPause() {
         endAllHandlers();
         unbindService(mConnection);
-        unregisterReceiver(mBroadCastNewMessage);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadCastNewMessage);
         mBound = false;
         super.onPause();
     }
@@ -525,7 +528,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LATEST_BTC_USDT_PRICE_INTENT_ACTION);
-        registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
     }
 
     /**
@@ -598,7 +601,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public void scanQRCode(View view) {
         //TODO: Remove ZXING library dependency in order to avoid having the user leave the app
 //        BarcodeDetector detector =
-//                new BarcodeDetector.Builder(getApplicationContext())
+//                new BarcodeDetector.Builder(getApplicationContext`())
 //                        .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
 //                        .build();
 //        if(detector.isOperational()){
@@ -631,7 +634,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -646,12 +649,12 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                 if (jsonObject.getString("success").equals("true")) {
                                     JSONObject result = jsonObject.getJSONObject("result");
                                     String uuidStr = result.getString("uuid");
-                                    Toast.makeText(CoinDataActivity.this, R.string.message_transaction_successful_with_uuid + uuidStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.message_transaction_successful_with_uuid) + uuidStr, Toast.LENGTH_SHORT).show();
                                 } else if (jsonObject.getString("success").equals("false")) {
                                     String messageStr = jsonObject.getString("message");
-                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed_with_message + messageStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException e) {
@@ -681,7 +684,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -699,12 +702,12 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                 if (jsonObject.getString("success").equals("true")) {
                                     JSONObject result = jsonObject.getJSONObject("result");
                                     String uuidStr = result.getString("uuid");
-                                    Toast.makeText(CoinDataActivity.this, R.string.message_transaction_successful_with_uuid + uuidStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.message_transaction_successful_with_uuid) + uuidStr, Toast.LENGTH_SHORT).show();
                                 } else if (jsonObject.getString("success").equals("false")) {
                                     String messageStr = jsonObject.getString("message");
-                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed_with_message + messageStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException e) {
@@ -737,7 +740,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Toast.makeText(CoinDataActivity.this, R.string.error_cancel_failed, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_cancel_failed), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -750,12 +753,12 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                     String resultJsonString = response.body().string();
                                     JSONObject jsonObject = new JSONObject(resultJsonString);
                                     if (jsonObject.getString("success").equals("true")) {
-                                        Toast.makeText(CoinDataActivity.this, R.string.message_order_canceled, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(CoinDataActivity.this, getString(R.string.message_order_canceled), Toast.LENGTH_SHORT).show();
                                     } else if (jsonObject.getString("success").equals("false")) {
                                         String messageStr = jsonObject.getString("message");
-                                        Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed_with_message + messageStr, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed), Toast.LENGTH_SHORT).show();
                                     }
 
                                 } catch (JSONException e) {

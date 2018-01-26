@@ -42,7 +42,7 @@ import crypto.manager.bittfolio.R;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String EXTRA_COIN_BALANCE_STRING = "EXTRA_COIN_BALANCE_STRING";
+    private static final String EXTRA_COIN_BALANCE_STRING = "crypto.manager.bittfolio.EXTRA_COIN_BALANCE_STRING";
     private static final String PREFS_LOGIN = "LoginPref";
     private static final String PREF_USERNAME = "username";
     private static final String PREF_PASSWORD = "password";
@@ -319,7 +319,7 @@ public class LoginActivity extends AppCompatActivity {
             if (success) {
                 finish();
             } else {
-                Toast.makeText(getBaseContext(), R.string.error_signin_message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), getString(R.string.error_signin_message), Toast.LENGTH_SHORT).show();
                 mApiSecretView.setError(getString(R.string.error_incorrect_password));
                 mApiSecretView.requestFocus();
             }

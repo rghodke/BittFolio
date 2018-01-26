@@ -32,7 +32,7 @@ import okhttp3.Response;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link onCoinSearchFragmentInteractionListener}
  * interface.
  */
 public class CoinSearchFragment extends Fragment {
@@ -42,6 +42,7 @@ public class CoinSearchFragment extends Fragment {
     private ListView mCoinListView;
     private EditText mEditTextSearch;
     private ArrayAdapter<String> mCoinListAdapter;
+    private OkHttpClient mClient;
 
     public CoinSearchFragment() {
         // Required empty public constructor
@@ -75,13 +76,8 @@ public class CoinSearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search_coindata, container, false);
-    }
-
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-
+        View view = inflater.inflate(R.layout.fragment_search_coindata, container, false);
+        mClient = new OkHttpClient();
         mCoinListView = (ListView) view.findViewById(R.id.list_view_coin_search);
         mCoinListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -114,6 +110,7 @@ public class CoinSearchFragment extends Fragment {
         });
 
         new RetrieveCurrencyList().execute();
+        return view;
     }
 
 
@@ -172,13 +169,12 @@ public class CoinSearchFragment extends Fragment {
         }
 
         public List<String> getCurrencyList() throws IOException, JSONException {
-            OkHttpClient client = new OkHttpClient();
             final List<String> currencies = new ArrayList<>();
             Request request = new Request.Builder()
                     .url("https://bittrex.com/api/v1.1/public/getmarkets")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            Response response = mClient.newCall(request).execute();
             String responseStr = response.body().string();
             JSONObject jsonObject = null;
             jsonObject = new JSONObject(responseStr);

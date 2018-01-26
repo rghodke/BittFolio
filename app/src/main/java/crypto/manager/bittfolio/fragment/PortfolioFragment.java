@@ -46,7 +46,7 @@ import okhttp3.Response;
  */
 public class PortfolioFragment extends Fragment {
 
-    private static final String ARG_BALANCES_JSON_STRING = "ARG_BALANCES_JSON_STRING";
+    private static final String ARG_BALANCES_JSON_STRING = "crypto.manager.bittfolio.ARG_BALANCES_JSON_STRING";
     private static final String TICKER = "TICKER";
     private static final String HOLDING = "HOLDING";
     private static final String PRICE = "PRICE";
@@ -62,6 +62,7 @@ public class PortfolioFragment extends Fragment {
     private double mPrevBalance;
     private boolean mIsDollars;
     private TextView m24HourChange;
+    private OkHttpClient mClient;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -92,6 +93,8 @@ public class PortfolioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_portfolio_list, container, false);
+
+        mClient = new OkHttpClient();
 
         mCoinDataList = new ArrayList<>();
         try {
@@ -139,14 +142,13 @@ public class PortfolioFragment extends Fragment {
         }
 
         //Get the icons
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://www.cryptocompare.com/api/data/coinlist/")
                 .get()
                 .build();
 
 
-        client.newCall(request).enqueue(new Callback() {
+        mClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -205,82 +207,85 @@ public class PortfolioFragment extends Fragment {
      * @param coinDataString
      */
     public void updateCoinData(String coinDataString) {
-        Map<String, PriceData> currencyValue = new HashMap<>();
-        try {
-            JSONObject jsonObject = new JSONObject(coinDataString);
-            JSONArray currenciesData = jsonObject.getJSONArray("result");
-            for (int i = 0; i < currenciesData.length(); i++) {
-                JSONObject currencyData = currenciesData.getJSONObject(i);
-                currencyValue.put(currencyData.getString("MarketName"), new PriceData(currencyData.getDouble("Last"), currencyData.getDouble("PrevDay")));
+        if (coinDataString != null && !coinDataString.isEmpty()) {
+            Map<String, PriceData> currencyValue = new HashMap<>();
+            try {
+                JSONObject jsonObject = new JSONObject(coinDataString);
+                JSONArray currenciesData = jsonObject.getJSONArray("result");
+                for (int i = 0; i < currenciesData.length(); i++) {
+                    JSONObject currencyData = currenciesData.getJSONObject(i);
+                    currencyValue.put(currencyData.getString("MarketName"), new PriceData(currencyData.getDouble("Last"), currencyData.getDouble("PrevDay")));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
-        mTotalBalance = 0.0;
-        mPrevBalance = 0.0;
+            mTotalBalance = 0.0;
+            mPrevBalance = 0.0;
 
-        for (CoinData coinData : mCoinDataList) {
-            String currencyKey = "BTC-" + coinData.getCurrency();
-            //btc is always in dollars
-            if (coinData.getCurrency().equals("BTC")) {
-                currencyKey = "USDT-" + coinData.getCurrency();
-                double coinValue = currencyValue.get(currencyKey).getLast();
-                double holding = (coinData.getHolding());
-                double balance = coinValue * holding;
-                coinData.setBalance((balance));
-                coinData.setPrice(coinValue);
-                coinData.setPrevDay(currencyValue.get(currencyKey).getPrevDay());
-                //add just the holding to the total since its already in btc units
-                mTotalBalance += holding;
-                mPrevBalance += holding;
-                continue;
-            }
-            //usdt is always in dollars
-            //don't add usdt to total portfolio as bittrex doesn't either
-            if (coinData.getCurrency().equals("USDT")) {
-                double coinValue = 1.00;
-                double holding = (coinData.getHolding());
-                double balance = coinValue * holding;
-                coinData.setBalance((balance));
-                coinData.setPrice(coinValue);
-                coinData.setPrevDay(1.00);
-                continue;
-            }
-            if (currencyValue.containsKey(currencyKey)) {
-                double coinValue = currencyValue.get(currencyKey).getLast();
-                double holding = (coinData.getHolding());
-                double balance = coinValue * holding;
-                //add the btc units worth of the currency
-                mTotalBalance += balance;
-                mPrevBalance += currencyValue.get(currencyKey).getPrevDay() * holding;
-                coinData.setBalance((balance));
-                coinData.setPrice(coinValue);
-                coinData.setPrevDay(currencyValue.get(currencyKey).getPrevDay());
-            }
-        }
-
-        if (mIsDollars) {
-            String USDBTC = "USDT-BTC";
-            double coinValue = currencyValue.get(USDBTC).getLast();
             for (CoinData coinData : mCoinDataList) {
+                String currencyKey = "BTC-" + coinData.getCurrency();
                 //btc is always in dollars
                 if (coinData.getCurrency().equals("BTC")) {
+                    currencyKey = "USDT-" + coinData.getCurrency();
+                    double coinValue = currencyValue.get(currencyKey).getLast();
+                    double holding = (coinData.getHolding());
+                    double balance = coinValue * holding;
+                    coinData.setBalance((balance));
+                    coinData.setPrice(coinValue);
+                    coinData.setPrevDay(currencyValue.get(currencyKey).getPrevDay());
+                    //add just the holding to the total since its already in btc units
+                    mTotalBalance += holding;
+                    mPrevBalance += holding;
                     continue;
                 }
+                //usdt is always in dollars
+                //don't add usdt to total portfolio as bittrex doesn't either
                 if (coinData.getCurrency().equals("USDT")) {
+                    double coinValue = 1.00;
+                    double holding = (coinData.getHolding());
+                    double balance = coinValue * holding;
+                    coinData.setBalance((balance));
+                    coinData.setPrice(coinValue);
+                    coinData.setPrevDay(1.00);
                     continue;
                 }
-                coinData.setBalance(coinData.getBalance() * coinValue);
-                coinData.setPrice(coinData.getPrice() * coinValue);
-                coinData.setPrevDay(coinData.getPrevDay() * coinValue);
+                if (currencyValue.containsKey(currencyKey)) {
+                    double coinValue = currencyValue.get(currencyKey).getLast();
+                    double holding = (coinData.getHolding());
+                    double balance = coinValue * holding;
+                    //add the btc units worth of the currency
+                    mTotalBalance += balance;
+                    mPrevBalance += currencyValue.get(currencyKey).getPrevDay() * holding;
+                    coinData.setBalance((balance));
+                    coinData.setPrice(coinValue);
+                    coinData.setPrevDay(currencyValue.get(currencyKey).getPrevDay());
+                }
             }
-            mTotalBalance *= coinValue;
-            mPrevBalance *= currencyValue.get(USDBTC).getPrevDay();
-        }
 
-        //Update the list with the second to second update on balances
-        refreshPortfolioData(mTotalBalance);
+            if (mIsDollars) {
+                String USDBTC = "USDT-BTC";
+                double coinValue = currencyValue.get(USDBTC).getLast();
+                for (CoinData coinData : mCoinDataList) {
+                    //btc is always in dollars
+                    if (coinData.getCurrency().equals("BTC")) {
+                        continue;
+                    }
+                    if (coinData.getCurrency().equals("USDT")) {
+                        continue;
+                    }
+                    coinData.setBalance(coinData.getBalance() * coinValue);
+                    coinData.setPrice(coinData.getPrice() * coinValue);
+                    coinData.setPrevDay(coinData.getPrevDay() * coinValue);
+                }
+                mTotalBalance *= coinValue;
+                mPrevBalance *= currencyValue.get(USDBTC).getPrevDay();
+            }
+
+            //Update the list with the second to second update on balances
+            refreshPortfolioData(mTotalBalance);
+
+        }
 
     }
 

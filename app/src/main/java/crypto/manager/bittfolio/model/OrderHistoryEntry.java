@@ -20,6 +20,7 @@ public class OrderHistoryEntry implements Parcelable {
                     return new OrderHistoryEntry[size];
                 }
             };
+    private String mMarket;
     private String mStatus;
     private String mType;
     private String mQuantity;
@@ -27,7 +28,8 @@ public class OrderHistoryEntry implements Parcelable {
     private String mPrice;
     private String mUuid;
 
-    public OrderHistoryEntry(String status, String type, String quantity, String quantityRemaining, String price, String uuid) {
+    public OrderHistoryEntry(String market, String status, String type, String quantity, String quantityRemaining, String price, String uuid) {
+        this.mMarket = market;
         this.mStatus = status;
         this.mType = type;
         this.mQuantity = quantity;
@@ -38,6 +40,7 @@ public class OrderHistoryEntry implements Parcelable {
 
 
     private OrderHistoryEntry(Parcel in) {
+        mMarket = in.readString();
         mStatus = in.readString();
         mType = in.readString();
         mQuantity = in.readString();
@@ -53,6 +56,7 @@ public class OrderHistoryEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mMarket);
         parcel.writeString(mStatus);
         parcel.writeString(mType);
         parcel.writeString(mQuantity);
@@ -104,5 +108,13 @@ public class OrderHistoryEntry implements Parcelable {
 
     public String getPrice() {
         return mPrice;
+    }
+
+    public String getMarket() {
+        return mMarket;
+    }
+
+    public void setMarket(String market) {
+        this.mMarket = market;
     }
 }

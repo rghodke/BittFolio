@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,32 +28,35 @@ import okhttp3.Response;
 
 public class LiveBittrexService extends Service {
     // Random number generator
-    private static final String LIVE_COIN_INTENT_EXTRA = "LIVE_COIN_INTENT_EXTRA";
-    private static final String LIVE_COIN_INTENT_ACTION = "LIVE_COIN_INTENT_ACTION";
-    private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "LIVE_ORDER_BOOK_INTENT_EXTRA";
-    private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "LIVE_ORDER_BOOK_INTENT_ACTION";
-    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION = "LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION";
-    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA = "LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION = "LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION";
-    private static final String API_KEY = "API_KEY";
-    private static final String API_SECRET = "API_SECRET";
-    private static final String CURRENCY = "CURRENCY";
-    private static final String LATEST_PRICE_INTENT_ACTION = "LATEST_PRICE_INTENT_ACTION";
-    private static final String LATEST_PRICE_INTENT_EXTRA = "LATEST_PRICE_INTENT_EXTRA";
-    private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "LIVE_PRICE_HISTORY_INTENT_EXTRA";
-    private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "LIVE_PRICE_HISTORY_INTENT_ACTION";
-    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
-    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
-    private static final String LATEST_BTC_USDT_PRICE_INTENT_EXTRA = "LATEST_BTC_USDT_PRICE_INTENT_EXTRA";
-    private static final String LATEST_BTC_USDT_PRICE_INTENT_ACTION = "LATEST_BTC_USDT_PRICE_INTENT_ACTION";
+    private static final String LIVE_COIN_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_COIN_INTENT_EXTRA";
+    private static final String LIVE_COIN_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_COIN_INTENT_ACTION";
+    private static final String LIVE_ORDER_BOOK_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_ORDER_BOOK_INTENT_EXTRA";
+    private static final String LIVE_ORDER_BOOK_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_ORDER_BOOK_INTENT_ACTION";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION";
+    private static final String API_KEY = "crypto.manager.bittfolio.API_KEY";
+    private static final String API_SECRET = "crypto.manager.bittfolio.API_SECRET";
+    private static final String CURRENCY = "crypto.manager.bittfolio.CURRENCY";
+    private static final String LATEST_PRICE_INTENT_ACTION = "crypto.manager.bittfolio.LATEST_PRICE_INTENT_ACTION";
+    private static final String LATEST_PRICE_INTENT_EXTRA = "crypto.manager.bittfolio.LATEST_PRICE_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_PRICE_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_PRICE_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_PRICE_HISTORY_INTENT_ACTION";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA";
+    private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
+    private static final String LATEST_BTC_USDT_PRICE_INTENT_EXTRA = "crypto.manager.bittfolio.LATEST_BTC_USDT_PRICE_INTENT_EXTRA";
+    private static final String LATEST_BTC_USDT_PRICE_INTENT_ACTION = "crypto.manager.bittfolio.LATEST_BTC_USDT_PRICE_INTENT_ACTION";
+    private static final String LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
     // Random number generator
     private final Random mGenerator = new Random();
     private final Context context = this;
-
     private String mApiKey, mApiSecret, mCurrency;
     private OkHttpClient client;
     private Object latestPrice;
@@ -125,7 +129,6 @@ public class LiveBittrexService extends Service {
         return new String(hexChars);
     }
 
-
     public void getClosedOrderHistory() {
 
         String endpoint = "account/getorderhistory";
@@ -146,7 +149,7 @@ public class LiveBittrexService extends Service {
                             Intent intent = new Intent();
                             intent.putExtra(LIVE_CLOSED_ORDER_HISTORY_INTENT_EXTRA, responseString);
                             intent.setAction(LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION);
-                            context.sendBroadcast(intent);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -159,11 +162,77 @@ public class LiveBittrexService extends Service {
         connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
     }
 
+    public void getOverallClosedOrderHistory() {
+
+        String endpoint = "account/getorderhistory";
+        String urlParams = "";
+        Callback closedOrderHistory = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+    }
+
+
+    public void getOverallOpenOrderHistory() {
+        String endpoint = "market/getopenorders";
+        Callback overallOpenOrderHistory = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        String urlParams = "";
+        connectBittrexPrivate(endpoint, urlParams, overallOpenOrderHistory);
+    }
+
     public void getOpenOrderHistory() {
 
         String endpoint = "market/getopenorders";
         String urlParams = "market=" + "BTC-" + mCurrency;
-        Callback closedOrderHistory = new Callback() {
+        Callback openOrderHistory = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -179,7 +248,7 @@ public class LiveBittrexService extends Service {
                             Intent intent = new Intent();
                             intent.putExtra(LIVE_OPEN_ORDER_HISTORY_INTENT_EXTRA, responseString);
                             intent.setAction(LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION);
-                            context.sendBroadcast(intent);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -189,7 +258,7 @@ public class LiveBittrexService extends Service {
         };
 
 
-        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+        connectBittrexPrivate(endpoint, urlParams, openOrderHistory);
     }
 
 
@@ -256,7 +325,7 @@ public class LiveBittrexService extends Service {
                             Intent intent = new Intent();
                             intent.putExtra(intentExtra, responseString);
                             intent.setAction(intentAction);
-                            context.sendBroadcast(intent);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -289,7 +358,7 @@ public class LiveBittrexService extends Service {
                             Intent intent = new Intent();
                             intent.putExtra(intentExtra, responseString);
                             intent.setAction(intentAction);
-                            context.sendBroadcast(intent);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -309,8 +378,6 @@ public class LiveBittrexService extends Service {
                 .get()
                 .addHeader("apisign", calculateHash(apiSecret, urlString, "HmacSHA512"))
                 .build();
-
-        OkHttpClient client = new OkHttpClient();
 
         client.newCall(request).enqueue(callback);
 
