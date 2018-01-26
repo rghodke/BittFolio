@@ -378,7 +378,7 @@ public class PortfolioFragment extends Fragment {
      */
     public interface OnPortfolioListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onPortfolioListFragmentInteraction(CoinData item);
+        void onCoinSelected(CoinData item);
     }
 
 }

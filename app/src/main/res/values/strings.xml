@@ -48,6 +48,10 @@
     <string name="label_current_ask_price">Current Ask Price</string>
     <string name="label_current_last_price">Current Last Price</string>
 
+    <!--Order History Menu Items-->
+    <string name="item_close_order">Close Order</string>
+    <string name="item_more_details">More Details</string>
+
     <!--Strings related to wallets-->
     <string name="label_deposit">Deposit</string>
     <string name="label_withdraw">Withdraw</string>
@@ -61,6 +65,13 @@
     <string name="label_24_hour_volume">24 Hour Volume</string>
     <string name="label_24_hour_change">24 Hour Change</string>
     <string name="label_timeframe">Timeframe</string>
+
+    <!--Toast Messages-->
+    <string name="error_cancel_failed">Cancel Failed</string>
+    <string name="error_transaction_failed">Transaction Failed</string>
+    <string name="error_transaction_failed_with_message">Transaction Failed with Message </string>
+    <string name="message_transaction_successful_with_uuid">Transaction Successful with UUID </string>
+    <string name="message_order_canceled">The order was canceled</string>
 
 
 </resources>

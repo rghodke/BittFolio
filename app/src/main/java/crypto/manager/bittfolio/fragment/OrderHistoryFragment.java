@@ -8,8 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +43,8 @@ public class OrderHistoryFragment extends Fragment {
     private List<OrderHistoryEntry> mClosedOrderHistoryEntries;
     private RecyclerView mRecyclerView;
     private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
+    private OnOrderHistoryListFragmentInteractionListener mListener;
+//    private OnOrderHistoryListFragmentInteractionListener mListener;
 
     public OrderHistoryFragment() {
         // Required empty public constructor
@@ -94,15 +98,43 @@ public class OrderHistoryFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mRecyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
-
+        registerForContextMenu(mRecyclerView);
         return view;
 
     }
 
 
     @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int position = -1;
+        try {
+            position = mRecyclerViewAdapter.getPosition();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return super.onContextItemSelected(item);
+        }
+        switch (item.getItemId()) {
+            case R.id.context_open_order_menu_close_order:
+                mListener.onOrderCancelled(mRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
+                return true;
+            case R.id.context_open_order_menu_more_details:
+                System.out.println("MORE DETAILS @ " + position);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if (context instanceof OnOrderHistoryListFragmentInteractionListener) {
+            mListener = (OnOrderHistoryListFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnPortfolioListFragmentInteractionListener");
+        }
     }
 
     @Override
@@ -121,7 +153,7 @@ public class OrderHistoryFragment extends Fragment {
                 String orderType = (orderHistoryEntry.getString("OrderType"));
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
-                mClosedOrderHistoryEntries.add(new OrderHistoryEntry("CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
+                mClosedOrderHistoryEntries.add(new OrderHistoryEntry("CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -139,7 +171,7 @@ public class OrderHistoryFragment extends Fragment {
                 String orderType = (orderHistoryEntry.getString("OrderType"));
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
-                mOpenOrderHistoryEntries.add(new OrderHistoryEntry("OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price")));
+                mOpenOrderHistoryEntries.add(new OrderHistoryEntry("OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -151,5 +183,9 @@ public class OrderHistoryFragment extends Fragment {
     private void refreshOrderHistoryData() {
         mRecyclerViewAdapter.updateClosedOrderHistoryData(mClosedOrderHistoryEntries);
         mRecyclerViewAdapter.updateOpenOrderHistoryData(mOpenOrderHistoryEntries);
+    }
+
+    public interface OnOrderHistoryListFragmentInteractionListener {
+        void onOrderCancelled(OrderHistoryEntry item);
     }
 }

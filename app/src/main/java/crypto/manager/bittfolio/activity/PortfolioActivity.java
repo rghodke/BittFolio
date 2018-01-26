@@ -145,7 +145,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     }
 
     @Override
-    public void onPortfolioListFragmentInteraction(CoinData item) {
+    public void onCoinSelected(CoinData item) {
         Intent intent = new Intent(this, CoinDataActivity.class);
         intent.putExtra(ARG_COIN_DATA, item);
         startActivity(intent);
@@ -268,12 +268,12 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         if (mCoinList != null) {
             for (CoinData coinData : mCoinList) {
                 if (coinData.getCurrency().equals(coin)) {
-                    onPortfolioListFragmentInteraction(coinData);
+                    onCoinSelected(coinData);
                     return;
                 }
             }
         }
-        onPortfolioListFragmentInteraction(new CoinData(coin, 0.0));
+        onCoinSelected(new CoinData(coin, 0.0));
     }
 
     public void setCoinList(List<CoinData> mCoinList) {

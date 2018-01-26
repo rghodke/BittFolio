@@ -48,6 +48,7 @@ import crypto.manager.bittfolio.fragment.OrderFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
 import crypto.manager.bittfolio.fragment.TransferFragment;
 import crypto.manager.bittfolio.model.CoinData;
+import crypto.manager.bittfolio.model.OrderHistoryEntry;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -55,7 +56,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener {
+public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener, OrderHistoryFragment.OnOrderHistoryListFragmentInteractionListener {
 
     private static final String API_KEY = "API_KEY";
     private static final String API_SECRET = "API_SECRET";
@@ -250,7 +251,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(CoinDataActivity.this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -265,12 +266,12 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                 if (jsonObject.getString("success").equals("true")) {
                                     JSONObject result = jsonObject.getJSONObject("result");
                                     String uuidStr = result.getString("uuid");
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Successful with UUID " + uuidStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.message_transaction_successful_with_uuid) + uuidStr, Toast.LENGTH_SHORT).show();
                                 } else if (jsonObject.getString("success").equals("false")) {
                                     String messageStr = jsonObject.getString("message");
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Failed with Message " + messageStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException e) {
@@ -630,7 +631,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(CoinDataActivity.this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -645,12 +646,12 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                 if (jsonObject.getString("success").equals("true")) {
                                     JSONObject result = jsonObject.getJSONObject("result");
                                     String uuidStr = result.getString("uuid");
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Successful with UUID " + uuidStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.message_transaction_successful_with_uuid + uuidStr, Toast.LENGTH_SHORT).show();
                                 } else if (jsonObject.getString("success").equals("false")) {
                                     String messageStr = jsonObject.getString("message");
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Failed with Message " + messageStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed_with_message + messageStr, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException e) {
@@ -677,7 +678,13 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(CoinDataActivity.this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
 
             @Override
@@ -692,12 +699,12 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                 if (jsonObject.getString("success").equals("true")) {
                                     JSONObject result = jsonObject.getJSONObject("result");
                                     String uuidStr = result.getString("uuid");
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Successful with UUID " + uuidStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.message_transaction_successful_with_uuid + uuidStr, Toast.LENGTH_SHORT).show();
                                 } else if (jsonObject.getString("success").equals("false")) {
                                     String messageStr = jsonObject.getString("message");
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Failed with Message " + messageStr, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed_with_message + messageStr, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(CoinDataActivity.this, "Transaction Failed", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException e) {
@@ -718,6 +725,53 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public void updateGraphAtInterval(int i) {
         if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
         updateCoinGraph(i);
+    }
+
+    @Override
+    public void onOrderCancelled(OrderHistoryEntry item) {
+        if (item != null) {
+            String endpoint = "market/cancel";
+            String urlParams = "uuid=" + item.getUuid();
+            Callback cancelOrderCallback = new Callback() {
+                Handler mainHandler = new Handler(getMainLooper());
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Toast.makeText(CoinDataActivity.this, R.string.error_cancel_failed, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResponse(Call call, final Response response) throws IOException {
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (response.isSuccessful()) {
+                                try {
+                                    String resultJsonString = response.body().string();
+                                    JSONObject jsonObject = new JSONObject(resultJsonString);
+                                    if (jsonObject.getString("success").equals("true")) {
+                                        Toast.makeText(CoinDataActivity.this, R.string.message_order_canceled, Toast.LENGTH_SHORT).show();
+                                    } else if (jsonObject.getString("success").equals("false")) {
+                                        String messageStr = jsonObject.getString("message");
+                                        Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed_with_message + messageStr, Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(CoinDataActivity.this, R.string.error_transaction_failed, Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                }
+            };
+
+            connectBittrexPrivate(endpoint, urlParams, cancelOrderCallback);
+        }
+
     }
 
     /**

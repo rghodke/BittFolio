@@ -188,14 +188,22 @@ public class CoinGraphFragment extends Fragment {
                     low *= mBtcUSDTValue;
                     ask *= mBtcUSDTValue;
                 }
-                m24High.setText(currency + String.valueOf(high));
-                mBid.setText(currency + String.valueOf(bid));
-                m24Volume.setText(currency + new DecimalFormat("#.##").format(volume));
-                m24Low.setText(currency + String.valueOf(low));
-                mAsk.setText(currency + String.valueOf(ask));
+                String decimalFormat = mIsDollars ? "#.00" : "#.########";
+                DecimalFormat df = new DecimalFormat(decimalFormat);
+                String _24HourHighStr = currency + df.format(high);
+                m24High.setText(_24HourHighStr);
+                String bidStr = currency + df.format(bid);
+                mBid.setText(bidStr);
+                String _24HourVolumeStr = currency + new DecimalFormat("#.##").format(volume);
+                m24Volume.setText(_24HourVolumeStr);
+                String _24HourLowStr = currency + df.format(low);
+                m24Low.setText(_24HourLowStr);
+                String askStr = currency + df.format(ask);
+                mAsk.setText(askStr);
                 double change = (coinDataJSON.getDouble("Last") / coinDataJSON.getDouble("PrevDay")) - 1;
                 change *= 100;
-                m24Change.setText((new DecimalFormat("#.##").format(change)) + "%");
+                String _24HourChange = (new DecimalFormat("#.##").format(change)) + "%";
+                m24Change.setText(_24HourChange);
             }
         } catch (JSONException e) {
             e.printStackTrace();
