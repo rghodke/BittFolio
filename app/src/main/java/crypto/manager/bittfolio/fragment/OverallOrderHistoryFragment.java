@@ -1,5 +1,6 @@
 package crypto.manager.bittfolio.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 
 import org.json.JSONArray;
@@ -66,6 +68,16 @@ public class OverallOrderHistoryFragment extends Fragment {
         return fragment;
     }
 
+    //Workaround to persist dialog through rotation
+    //https://stackoverflow.com/questions/7557265/prevent-dialog-dismissal-on-screen-rotation-in-android
+    private static void doKeepDialog(Dialog dialog) {
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(lp);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +115,6 @@ public class OverallOrderHistoryFragment extends Fragment {
 
     }
 
-
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -119,7 +130,9 @@ public class OverallOrderHistoryFragment extends Fragment {
                 mListener.onOrderCancelled(mRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
                 return true;
             case R.id.context_open_order_menu_more_details:
-                System.out.println("MORE DETAILS @ " + position);
+                OrderDetailDialog orderDetailDialog = new OrderDetailDialog(getActivity(), mRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
+                orderDetailDialog.show();
+                doKeepDialog(orderDetailDialog);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -135,6 +148,7 @@ public class OverallOrderHistoryFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnOverallOrderHistoryListFragmentInteractionListener");
         }
+        mListener.startOverallOrderHistoryDataService();
     }
 
     @Override
@@ -154,7 +168,7 @@ public class OverallOrderHistoryFragment extends Fragment {
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
                 String exchange = orderHistoryEntry.getString("Exchange");
-                mClosedOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid")));
+                mClosedOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("Commission"), orderHistoryEntry.getString("TimeStamp"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -173,7 +187,7 @@ public class OverallOrderHistoryFragment extends Fragment {
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
                 String exchange = orderHistoryEntry.getString("Exchange");
-                mOpenOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid")));
+                mOpenOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("Commission"), orderHistoryEntry.getString("TimeStamp"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -188,6 +202,8 @@ public class OverallOrderHistoryFragment extends Fragment {
     }
 
     public interface OnOverallOrderHistoryListFragmentInteractionListener {
+        void startOverallOrderHistoryDataService();
+
         void onOrderCancelled(OrderHistoryEntry item);
     }
 }

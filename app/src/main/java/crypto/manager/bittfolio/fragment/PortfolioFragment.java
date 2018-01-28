@@ -193,6 +193,7 @@ public class PortfolioFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnPortfolioListFragmentInteractionListener");
         }
+        mListener.startPortfolioDataService();
     }
 
     @Override
@@ -383,6 +384,8 @@ public class PortfolioFragment extends Fragment {
      */
     public interface OnPortfolioListFragmentInteractionListener {
         // TODO: Update argument type and name
+        void startPortfolioDataService();
+
         void onCoinSelected(CoinData item);
     }
 

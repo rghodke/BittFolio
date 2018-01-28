@@ -73,8 +73,21 @@
     <string name="error_transaction_failed_with_message">Transaction Failed with Message </string>
     <string name="message_transaction_successful_with_uuid">Transaction Successful with UUID </string>
     <string name="message_order_canceled">The order was canceled</string>
+
+    <!--Order History Labels-->
     <string name="label_order_history">Order History</string>
     <string name="label_exchange">Exchange</string>
+    <string name="label_order_id">Order Id</string>
+    <string name="label_order_type">Order Type</string>
+    <string name="label_limit">Limit</string>
+    <string name="label_commission_paid">Commission Paid</string>
+    <string name="label_price_per_unit">Price Per Unit</string>
+    <string name="label_date_opened">Date Opened</string>
+    <string name="label_date_closed">Date Closed</string>
+    <string name="label_immediate_or_cancel">Immediate Or Cancel</string>
+    <string name="label_is_conditional">Is Conditional</string>
+    <string name="label_condition">Condition</string>
+    <string name="label_condition_target">Condition Target</string>
 
 
 </resources>

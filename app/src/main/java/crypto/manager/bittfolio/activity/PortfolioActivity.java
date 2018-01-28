@@ -74,6 +74,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private boolean mIsHoldingHidden;
     private List<CoinData> mCoinList;
     private OkHttpClient mClient;
+    private Handler mOverallOrderHistoryHandler;
+    private Handler mCoinPriceHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +192,19 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     }
 
     @Override
+    public void startPortfolioDataService() {
+        stopAllHandlers();
+        //Update the price on a second basis
+        updateCoinPrice();
+    }
+
+    private void stopAllHandlers() {
+        if (mCoinPriceHandler != null) mCoinPriceHandler.removeCallbacksAndMessages(null);
+        if (mOverallOrderHistoryHandler != null)
+            mOverallOrderHistoryHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
     public void onCoinSelected(CoinData item) {
         Intent intent = new Intent(this, CoinDataActivity.class);
         intent.putExtra(ARG_COIN_DATA, item);
@@ -253,24 +268,19 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         bittrexServiceFilter.addAction(LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
 
-
-        //Update the price on a second basis
-        updateCoinPrice();
-        //Update overall order history
-        updateOverallOrderHistory();
     }
 
     private void updateOverallOrderHistory() {
         //Every second get the newest info about the coin you want
-        final Handler handler = new Handler();
+        mOverallOrderHistoryHandler = new Handler();
         final int delay = 1000; //milliseconds
 
-        handler.postDelayed(new Runnable() {
+        mOverallOrderHistoryHandler.postDelayed(new Runnable() {
             public void run() {
                 //do something
                 if (mService != null) mService.getOverallClosedOrderHistory();
                 if (mService != null) mService.getOverallOpenOrderHistory();
-                handler.postDelayed(this, delay);
+                mOverallOrderHistoryHandler.postDelayed(this, delay);
 
             }
         }, delay);
@@ -305,14 +315,14 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
      */
     public void updateCoinPrice() {
         //Every second get the newest info about the coin you want
-        final Handler handler = new Handler();
+        mCoinPriceHandler = new Handler();
         final int delay = 1000; //milliseconds
 
-        handler.postDelayed(new Runnable() {
+        mCoinPriceHandler.postDelayed(new Runnable() {
             public void run() {
                 //do something
                 if (mService != null) mService.getLiveCoinValues();
-                handler.postDelayed(this, delay);
+                mCoinPriceHandler.postDelayed(this, delay);
 
             }
         }, delay);
@@ -359,6 +369,13 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
 
     public void setCoinList(List<CoinData> mCoinList) {
         this.mCoinList = mCoinList;
+    }
+
+    @Override
+    public void startOverallOrderHistoryDataService() {
+        stopAllHandlers();
+        //Update overall order history
+        updateOverallOrderHistory();
     }
 
     @Override

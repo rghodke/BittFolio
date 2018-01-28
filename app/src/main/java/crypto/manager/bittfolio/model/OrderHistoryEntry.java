@@ -26,9 +26,18 @@ public class OrderHistoryEntry implements Parcelable {
     private String mQuantity;
     private String mQuantityRemaining;
     private String mPrice;
+    private String mPricePerUnit;
     private String mUuid;
+    private String mLimit;
+    private String mCommissionPaid;
+    private String mOpenDate;
+    private String mCloseDate;
+    private String mImmediateOrCancel;
+    private String mIsConditional;
+    private String mCondition;
+    private String mConditionTarget;
 
-    public OrderHistoryEntry(String market, String status, String type, String quantity, String quantityRemaining, String price, String uuid) {
+    public OrderHistoryEntry(String market, String status, String type, String quantity, String quantityRemaining, String price, String uuid, String pricePerUnit, String limit, String commissionPaid, String openDate, String closeDate, String immediateOrCancel, String isConditional, String condition, String conditionTarget) {
         this.mMarket = market;
         this.mStatus = status;
         this.mType = type;
@@ -36,6 +45,15 @@ public class OrderHistoryEntry implements Parcelable {
         this.mQuantityRemaining = quantityRemaining;
         this.mPrice = price;
         this.mUuid = uuid;
+        this.mPricePerUnit = pricePerUnit;
+        this.mLimit = limit;
+        this.mCommissionPaid = commissionPaid;
+        this.mOpenDate = openDate;
+        this.mCloseDate = closeDate;
+        this.mImmediateOrCancel = immediateOrCancel;
+        this.mIsConditional = isConditional;
+        this.mCondition = condition;
+        this.mConditionTarget = conditionTarget;
     }
 
 
@@ -47,6 +65,15 @@ public class OrderHistoryEntry implements Parcelable {
         mQuantityRemaining = in.readString();
         mPrice = in.readString();
         mUuid = in.readString();
+        mPricePerUnit = in.readString();
+        mLimit = in.readString();
+        mCommissionPaid = in.readString();
+        mOpenDate = in.readString();
+        mCloseDate = in.readString();
+        mImmediateOrCancel = in.readString();
+        mIsConditional = in.readString();
+        mCondition = in.readString();
+        mConditionTarget = in.readString();
     }
 
     @Override
@@ -63,6 +90,15 @@ public class OrderHistoryEntry implements Parcelable {
         parcel.writeString(mQuantityRemaining);
         parcel.writeString(mPrice);
         parcel.writeString(mUuid);
+        parcel.writeString(mPricePerUnit);
+        parcel.writeString(mLimit);
+        parcel.writeString(mCommissionPaid);
+        parcel.writeString(mOpenDate);
+        parcel.writeString(mCloseDate);
+        parcel.writeString(mImmediateOrCancel);
+        parcel.writeString(mIsConditional);
+        parcel.writeString(mCondition);
+        parcel.writeString(mConditionTarget);
     }
 
     public String getStatus() {
@@ -116,5 +152,78 @@ public class OrderHistoryEntry implements Parcelable {
 
     public void setMarket(String market) {
         this.mMarket = market;
+    }
+
+    public String getLimit() {
+        return mLimit;
+    }
+
+    public void setLimit(String limit) {
+        this.mLimit = limit;
+    }
+
+    public String getCommissionPaid() {
+        return mCommissionPaid;
+    }
+
+    public void setCommissionPaid(String commisionPaid) {
+        this.mCommissionPaid = commisionPaid;
+    }
+
+    public String getPricePerUnit() {
+        return mPricePerUnit;
+    }
+
+    public void setPricePerUnit(String mPricePerUnit) {
+        this.mPricePerUnit = mPricePerUnit;
+    }
+
+    public String getOpenDate() {
+        return mOpenDate;
+    }
+
+    public void setOpenDate(String openDate) {
+        this.mOpenDate = openDate;
+    }
+
+    public String getCloseDate() {
+        return mCloseDate;
+    }
+
+    public void setCloseDate(String closeDate) {
+        this.mCloseDate = closeDate;
+    }
+
+
+    public String getImmediateOrCancel() {
+        return mImmediateOrCancel;
+    }
+
+    public void setImmediateOrCancel(String immediateOrCancel) {
+        mImmediateOrCancel = immediateOrCancel;
+    }
+
+    public String getIsConditional() {
+        return mIsConditional;
+    }
+
+    public void setIsConditional(String isConditional) {
+        mIsConditional = isConditional;
+    }
+
+    public String getCondition() {
+        return mCondition;
+    }
+
+    public void setCondition(String condition) {
+        mCondition = condition;
+    }
+
+    public String getConditionTarget() {
+        return mConditionTarget;
+    }
+
+    public void setConditionTarget(String conditionTarget) {
+        mConditionTarget = conditionTarget;
     }
 }

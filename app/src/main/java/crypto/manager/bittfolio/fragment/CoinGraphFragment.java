@@ -73,6 +73,7 @@ public class CoinGraphFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnCoinGraphFragmentInteractionListener");
         }
+        mListener.startCoinGraphDataService();
     }
 
     @Override
@@ -228,6 +229,8 @@ public class CoinGraphFragment extends Fragment {
 
     public interface OnCoinGraphFragmentInteractionListener {
         void updateGraphAtInterval(int i);
+
+        void startCoinGraphDataService();
     }
 
 

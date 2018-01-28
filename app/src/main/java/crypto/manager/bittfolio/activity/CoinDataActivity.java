@@ -161,9 +161,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        updateCoinGraph(2); //Have to call this method in onCreate since the view pager is
-        // not triggered until user interacts
-        updateBtcUsdtTicker();
     }
 
     @Override
@@ -728,6 +725,13 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public void updateGraphAtInterval(int i) {
         if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
         updateCoinGraph(i);
+    }
+
+    @Override
+    public void startCoinGraphDataService() {
+        endAllHandlers();
+        updateCoinGraph(2); //Have to call this method in onCreate since the view pager is
+        updateBtcUsdtTicker();
     }
 
     @Override
