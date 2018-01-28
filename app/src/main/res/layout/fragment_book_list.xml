@@ -5,7 +5,7 @@
     android:name="crypto.manager.bittfolio.PortfolioFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="crypto.manager.bittfolio.fragment.PortfolioFragment">
+    tools:mContext="crypto.manager.bittfolio.fragment.PortfolioFragment">
 
     <RelativeLayout
         android:id="@+id/layout_order_book_header"

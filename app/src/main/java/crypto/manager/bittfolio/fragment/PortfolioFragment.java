@@ -120,7 +120,6 @@ public class PortfolioFragment extends Fragment {
         recyclerView.addItemDecoration(dividerItemDecoration);
         mRecyclerViewAdapter = new CoinRecyclerViewAdapter(mCoinDataList, mListener);
         recyclerView.setAdapter(mRecyclerViewAdapter);
-
         return view;
     }
 
@@ -193,6 +192,12 @@ public class PortfolioFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnPortfolioListFragmentInteractionListener");
         }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         mListener.startPortfolioDataService();
     }
 

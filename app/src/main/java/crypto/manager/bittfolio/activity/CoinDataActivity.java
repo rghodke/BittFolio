@@ -57,7 +57,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener, OrderHistoryFragment.OnOrderHistoryListFragmentInteractionListener {
+public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener, OrderHistoryFragment.OnOrderHistoryListFragmentInteractionListener, OrderFragment.OrderFragmentInteractionListener, OrderBookFragment.OrderBookFragmentInteractionListener, TransferFragment.TransferFragmentInteractionListener {
 
     private static final String API_KEY = "crypto.manager.bittfolio.API_KEY";
     private static final String API_SECRET = "crypto.manager.bittfolio.API_SECRET";
@@ -126,37 +126,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        //Start the appropriate handler for the appropriate fragment
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                endAllHandlers();
-                if (position == 0) {
-                    updateCoinGraph(2); //Default is 1 day
-                    updateBtcUsdtTicker();
-                } else if (position == 1) {
-                    updatePriceTicker();
-                    updateBtcUsdtTicker();
-                } else if (position == 2) {
-                    updateOrderHistory();
-                } else if (position == 3) {
-                    updateOrderBook();
-                } else if (position == 4) {
-                    updateDepositAddress();
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
         //Set up the different tabs
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -218,7 +187,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         //Every second get the newest info about the coin you want
         mBtcUsdtHandler = new Handler();
         final int delay = 1000; //milliseconds
-
         mBtcUsdtHandler.postDelayed(new Runnable() {
             public void run() {
                 //do something
@@ -588,11 +556,17 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     }
 
     private void endAllHandlers() {
-        if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
-        if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
-        if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
-        if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
-        if (mBtcUsdtHandler != null) mBtcUsdtHandler.removeCallbacksAndMessages(null);
+        Fragment curFrag = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + mViewPager.getCurrentItem());
+        if (mCoinGraph != null && (!((curFrag instanceof CoinGraphFragment) || (curFrag instanceof OrderFragment))))
+            mCoinGraph.removeCallbacksAndMessages(null);
+        if (mOrderBookHandler != null && !(curFrag instanceof OrderBookFragment))
+            mOrderBookHandler.removeCallbacksAndMessages(null);
+        if (mOrderHistoryHandler != null && !(curFrag instanceof OrderHistoryFragment))
+            mOrderHistoryHandler.removeCallbacksAndMessages(null);
+        if (mPriceHandler != null && !(curFrag instanceof OrderFragment))
+            mPriceHandler.removeCallbacksAndMessages(null);
+        if (mBtcUsdtHandler != null && (!((curFrag instanceof CoinGraphFragment) || (curFrag instanceof OrderFragment))))
+            mBtcUsdtHandler.removeCallbacksAndMessages(null);
     }
 
     public void scanQRCode(View view) {
@@ -779,6 +753,31 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
             connectBittrexPrivate(endpoint, urlParams, cancelOrderCallback);
         }
 
+    }
+
+    @Override
+    public void startOrderBookService() {
+        endAllHandlers();
+        updateOrderBook();
+    }
+
+    @Override
+    public void startOrderHistoryService() {
+        endAllHandlers();
+        updateOrderHistory();
+    }
+
+    @Override
+    public void startOrderFragmentService() {
+        endAllHandlers();
+        updatePriceTicker();
+        updateBtcUsdtTicker();
+    }
+
+    @Override
+    public void startTransferFragmentService() {
+        endAllHandlers();
+        updateDepositAddress();
     }
 
     /**

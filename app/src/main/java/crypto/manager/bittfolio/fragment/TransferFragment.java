@@ -43,6 +43,7 @@ public class TransferFragment extends Fragment {
     private EditText mWalletId;
     private Button mSendButton;
     private EditText mQuantityEditText;
+    private TransferFragmentInteractionListener mListener;
 
     public TransferFragment() {
         // Required empty public constructor
@@ -112,6 +113,19 @@ public class TransferFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if (context instanceof TransferFragmentInteractionListener) {
+            mListener = (TransferFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnPortfolioListFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mListener.startTransferFragmentService();
+        System.out.println("tramsfer frag ON RESUME");
     }
 
     @Override
@@ -168,5 +182,9 @@ public class TransferFragment extends Fragment {
 
     public void updateWalletID(String contents) {
         mWalletId.setText(contents);
+    }
+
+    public interface TransferFragmentInteractionListener {
+        void startTransferFragmentService();
     }
 }

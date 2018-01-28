@@ -23,7 +23,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/text_view_dialog_header"
         app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/fragment_order_book_entry" />
+        tools:listitem="@layout/fragment_order_detail_entry" />
 
 
 </RelativeLayout>

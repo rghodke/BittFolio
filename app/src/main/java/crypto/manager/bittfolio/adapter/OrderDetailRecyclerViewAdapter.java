@@ -1,5 +1,6 @@
 package crypto.manager.bittfolio.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +18,13 @@ import crypto.manager.bittfolio.model.OrderHistoryEntry;
 public class OrderDetailRecyclerViewAdapter extends RecyclerView.Adapter<OrderDetailRecyclerViewAdapter.ViewHolder> {
 
     private OrderHistoryEntry mOrderHistoryEntry;
+    private Context mContext;
+    private String[] mCategories;
 
-    public OrderDetailRecyclerViewAdapter(OrderHistoryEntry entry) {
+    public OrderDetailRecyclerViewAdapter(OrderHistoryEntry entry, Context context) {
         this.mOrderHistoryEntry = entry;
-    }
-
-    public void updateData(OrderHistoryEntry entry) {
-        this.mOrderHistoryEntry = entry;
-        notifyDataSetChanged();
+        this.mContext = context;
+        mCategories = mContext.getResources().getStringArray(R.array.order_detail_array);
     }
 
     @Override
@@ -36,64 +36,39 @@ public class OrderDetailRecyclerViewAdapter extends RecyclerView.Adapter<OrderDe
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.mItem = mOrderHistoryEntry;
-        holder.mOrderId.setText(mOrderHistoryEntry.getUuid());
-        holder.mOrderType.setText(mOrderHistoryEntry.getType());
-        holder.mQuantity.setText(mOrderHistoryEntry.getQuantity());
-        holder.mQuantityRemaining.setText(mOrderHistoryEntry.getQuantityRemaining());
-        holder.mLimit.setText(mOrderHistoryEntry.getLimit());
-        holder.mCommissionPaid.setText(mOrderHistoryEntry.getCommissionPaid());
-        holder.mConditionTarget.setText(mOrderHistoryEntry.getConditionTarget());
-        holder.mCondition.setText(mOrderHistoryEntry.getCondition());
-        holder.mIsConditional.setText(mOrderHistoryEntry.getIsConditional());
-        holder.mImmediateOrCancel.setText(mOrderHistoryEntry.getImmediateOrCancel());
-        holder.mDateClosed.setText(mOrderHistoryEntry.getCloseDate());
-        holder.mDateOpened.setText(mOrderHistoryEntry.getOpenDate());
-        holder.mPricePerUnit.setText(mOrderHistoryEntry.getPricePerUnit());
-        holder.mPrice.setText(mOrderHistoryEntry.getPrice());
+        holder.mCategory.setText(mCategories[position]);
+        if (position == 0) holder.mCategoryData.setText(mOrderHistoryEntry.getUuid());
+        if (position == 1) holder.mCategoryData.setText(mOrderHistoryEntry.getType());
+        if (position == 2) holder.mCategoryData.setText(mOrderHistoryEntry.getQuantity());
+        if (position == 3) holder.mCategoryData.setText(mOrderHistoryEntry.getQuantityRemaining());
+        if (position == 4) holder.mCategoryData.setText(mOrderHistoryEntry.getLimit());
+        if (position == 5) holder.mCategoryData.setText(mOrderHistoryEntry.getCommissionPaid());
+        if (position == 6) holder.mCategoryData.setText(mOrderHistoryEntry.getPrice());
+        if (position == 7) holder.mCategoryData.setText(mOrderHistoryEntry.getPricePerUnit());
+        if (position == 8) holder.mCategoryData.setText(mOrderHistoryEntry.getOpenDate());
+        if (position == 9) holder.mCategoryData.setText(mOrderHistoryEntry.getCloseDate());
+        if (position == 10) holder.mCategoryData.setText(mOrderHistoryEntry.getImmediateOrCancel());
+        if (position == 11) holder.mCategoryData.setText(mOrderHistoryEntry.getIsConditional());
+        if (position == 12) holder.mCategoryData.setText(mOrderHistoryEntry.getCondition());
+        if (position == 13) holder.mCategoryData.setText(mOrderHistoryEntry.getConditionTarget());
     }
 
 
     @Override
     public int getItemCount() {
-        return 1;
+        return 14;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        private final TextView mOrderId;
-        private final TextView mOrderType;
-        private final TextView mQuantity;
-        private final TextView mQuantityRemaining;
-        private final TextView mLimit;
-        private final TextView mCommissionPaid;
-        private final TextView mConditionTarget;
-        private final TextView mCondition;
-        private final TextView mIsConditional;
-        private final TextView mImmediateOrCancel;
-        private final TextView mDateClosed;
-        private final TextView mDateOpened;
-        private final TextView mPricePerUnit;
-        private final TextView mPrice;
-        public OrderHistoryEntry mItem;
+        private final TextView mCategoryData;
+        private final TextView mCategory;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mOrderId = (TextView) view.findViewById(R.id.text_view_order_id);
-            mOrderType = (TextView) view.findViewById(R.id.text_view_order_type);
-            mQuantity = (TextView) view.findViewById(R.id.text_view_quantity);
-            mQuantityRemaining = (TextView) view.findViewById(R.id.text_view_quantity_remaining);
-            mLimit = (TextView) view.findViewById(R.id.text_view_limit);
-            mCommissionPaid = (TextView) view.findViewById(R.id.text_view_commission_paid);
-            mPrice = (TextView) view.findViewById(R.id.text_view_price);
-            mPricePerUnit = (TextView) view.findViewById(R.id.text_view_price_per_unit);
-            mDateOpened = (TextView) view.findViewById(R.id.text_view_date_opened);
-            mDateClosed = (TextView) view.findViewById(R.id.text_view_date_closed);
-            mImmediateOrCancel = (TextView) view.findViewById(R.id.text_view_immediate_or_cancel);
-            mIsConditional = (TextView) view.findViewById(R.id.text_view_is_conditional);
-            mCondition = (TextView) view.findViewById(R.id.text_view_condition);
-            mConditionTarget = (TextView) view.findViewById(R.id.text_view_condition_target);
+            mCategory = (TextView) view.findViewById(R.id.label_category);
+            mCategoryData = (TextView) view.findViewById(R.id.text_view_category);
         }
     }
 }

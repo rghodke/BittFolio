@@ -124,14 +124,14 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         String currentFragDisplayed = "";
-        if (mCoinSearchFragment != null) {
-            if (mCoinSearchFragment.isVisible()) {
-                currentFragDisplayed = TAG_COIN_SEARCH_FRAGMENT;
-            }
-        } else if (mOverallOrderHistoryFragment != null) {
-            if (mOverallOrderHistoryFragment.isVisible()) {
-                currentFragDisplayed = TAG_OVERALL_ORDER_HISTORY_FRAGMENT;
-            }
+
+        Fragment curFrag = getSupportFragmentManager().findFragmentById(R.id.fragment_holder);
+        if (curFrag instanceof PortfolioFragment) {
+            currentFragDisplayed = TAG_PORTFOLIO_FRAGMENT;
+        } else if (curFrag instanceof OverallOrderHistoryFragment) {
+            currentFragDisplayed = TAG_OVERALL_ORDER_HISTORY_FRAGMENT;
+        } else if (curFrag instanceof CoinSearchFragment) {
+            currentFragDisplayed = TAG_COIN_SEARCH_FRAGMENT;
         } else {
             currentFragDisplayed = TAG_PORTFOLIO_FRAGMENT;
         }

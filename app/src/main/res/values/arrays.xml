@@ -10,4 +10,22 @@
         <item>3M</item>
         <item>6M</item>
     </string-array>
+
+    <string-array name="order_detail_array">
+        <item>Order Id</item>
+        <item>Order Type</item>
+        <item>Quantity</item>
+        <item>Quantity Remaining</item>
+        <item>Limit</item>
+        <item>Commission Paid</item>
+        <item>Price</item>
+        <item>Price Per Unit</item>
+        <item>Date Opened</item>
+        <item>Date Closed</item>
+        <item>Immediate Or Cancel</item>
+        <item>Is Conditional</item>
+        <item>Condition</item>
+        <item>Condition Target</item>
+    </string-array>
+
 </resources>

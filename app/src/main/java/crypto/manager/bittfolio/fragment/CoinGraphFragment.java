@@ -73,7 +73,14 @@ public class CoinGraphFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnCoinGraphFragmentInteractionListener");
         }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
         mListener.startCoinGraphDataService();
+        System.out.println("COINGRAPHFRAGMENT ON RESUME");
     }
 
     @Override

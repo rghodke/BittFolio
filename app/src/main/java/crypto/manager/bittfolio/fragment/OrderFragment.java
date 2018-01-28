@@ -33,6 +33,7 @@ public class OrderFragment extends Fragment {
     private EditText mBuyQuantityEditText, mSellQuantityEditText, mBuyPriceEditText, mSellPriceEditText;
     private TextView mBidPrice, mAskPrice, mLastPrice;
     private boolean mIsDollars = false;
+    private OrderFragmentInteractionListener mListener;
 
     public OrderFragment() {
         // Required empty public constructor
@@ -140,6 +141,19 @@ public class OrderFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if (context instanceof OrderFragmentInteractionListener) {
+            mListener = (OrderFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OrderFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mListener.startOrderFragmentService();
+        System.out.println("order fragment ON RESUME");
     }
 
     @Override
@@ -192,5 +206,9 @@ public class OrderFragment extends Fragment {
             e.printStackTrace();
         }
 
+    }
+
+    public interface OrderFragmentInteractionListener {
+        void startOrderFragmentService();
     }
 }

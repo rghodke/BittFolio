@@ -151,6 +151,13 @@ public class OrderHistoryFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mListener.startOrderHistoryService();
+        System.out.println("order history ON RESUME");
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
     }
@@ -186,7 +193,7 @@ public class OrderHistoryFragment extends Fragment {
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
                 String exchange = orderHistoryEntry.getString("Exchange");
-                mOpenOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("Commission"), orderHistoryEntry.getString("TimeStamp"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
+                mOpenOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("CommissionPaid"), orderHistoryEntry.getString("Opened"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -202,5 +209,7 @@ public class OrderHistoryFragment extends Fragment {
 
     public interface OnOrderHistoryListFragmentInteractionListener {
         void onOrderCancelled(OrderHistoryEntry item);
+
+        void startOrderHistoryService();
     }
 }
