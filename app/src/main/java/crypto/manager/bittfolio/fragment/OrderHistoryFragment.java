@@ -46,7 +46,7 @@ public class OrderHistoryFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
     private OnOrderHistoryListFragmentInteractionListener mListener;
-//    private OnOrderHistoryListFragmentInteractionListener mListener;
+
 
     public OrderHistoryFragment() {
         // Required empty public constructor
@@ -94,11 +94,13 @@ public class OrderHistoryFragment extends Fragment {
         menu.clear();
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_order_history_list, container, false);
+
 
         mClosedOrderHistoryEntries = new ArrayList<>();
         mOpenOrderHistoryEntries = new ArrayList<>();
@@ -111,6 +113,7 @@ public class OrderHistoryFragment extends Fragment {
         mRecyclerViewAdapter = new OrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
         registerForContextMenu(mRecyclerView);
+
         return view;
 
     }
@@ -153,13 +156,12 @@ public class OrderHistoryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mListener.startOrderHistoryService();
-        System.out.println("order history ON RESUME");
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
     }
 
 
@@ -209,7 +211,5 @@ public class OrderHistoryFragment extends Fragment {
 
     public interface OnOrderHistoryListFragmentInteractionListener {
         void onOrderCancelled(OrderHistoryEntry item);
-
-        void startOrderHistoryService();
     }
 }

@@ -42,6 +42,7 @@ public class OrderBookFragment extends Fragment {
     private RecyclerView mRecyclerViewBuyList, mRecyclerViewSellList;
     private OrderBookFragmentInteractionListener mListener;
 
+
     public OrderBookFragment() {
         // Required empty public constructor
     }
@@ -101,10 +102,10 @@ public class OrderBookFragment extends Fragment {
         mRecyclerViewSellAdapter = new OrderBookRecyclerViewAdapter(mOrderBookSellEntries);
         mRecyclerViewSellList.setAdapter(mRecyclerViewSellAdapter);
 
+
         return view;
 
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -120,13 +121,12 @@ public class OrderBookFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mListener.startOrderBookService();
-        System.out.println("order book ON RESUME");
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
     }
 
 
@@ -159,6 +159,5 @@ public class OrderBookFragment extends Fragment {
     }
 
     public interface OrderBookFragmentInteractionListener {
-        void startOrderBookService();
     }
 }

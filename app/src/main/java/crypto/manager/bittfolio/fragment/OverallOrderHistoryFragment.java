@@ -111,6 +111,7 @@ public class OverallOrderHistoryFragment extends Fragment {
         mRecyclerViewAdapter = new OverallOrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
         registerForContextMenu(mRecyclerView);
+        mListener.startOverallOrderHistoryDataService();
         return view;
 
     }
@@ -154,12 +155,12 @@ public class OverallOrderHistoryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mListener.startOverallOrderHistoryDataService();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
     }
 
 

@@ -131,9 +131,6 @@ public class OrderFragment extends Fragment {
         mLastPrice = view.findViewById(R.id.text_view_current_last_price);
         mLastPrice.setOnClickListener(updatePriceOnClick);
 
-        // Set the adapter
-        Context context = view.getContext();
-
         return view;
 
     }
@@ -152,13 +149,12 @@ public class OrderFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mListener.startOrderFragmentService();
-        System.out.println("order fragment ON RESUME");
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
     }
 
     public void updatePrice(String currencyDetails) {
@@ -209,6 +205,5 @@ public class OrderFragment extends Fragment {
     }
 
     public interface OrderFragmentInteractionListener {
-        void startOrderFragmentService();
     }
 }

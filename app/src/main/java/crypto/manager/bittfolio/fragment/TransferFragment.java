@@ -45,6 +45,7 @@ public class TransferFragment extends Fragment {
     private EditText mQuantityEditText;
     private TransferFragmentInteractionListener mListener;
 
+
     public TransferFragment() {
         // Required empty public constructor
     }
@@ -81,6 +82,7 @@ public class TransferFragment extends Fragment {
         menu.clear();
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -105,6 +107,7 @@ public class TransferFragment extends Fragment {
             }
         });
 
+
         return view;
 
     }
@@ -124,12 +127,11 @@ public class TransferFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mListener.startTransferFragmentService();
-        System.out.println("tramsfer frag ON RESUME");
     }
 
     @Override
     public void onDetach() {
+        mListener = null;
         super.onDetach();
     }
 
@@ -155,6 +157,7 @@ public class TransferFragment extends Fragment {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+
     }
 
     Bitmap encodeAsBitmap(String str) throws WriterException {
@@ -185,6 +188,5 @@ public class TransferFragment extends Fragment {
     }
 
     public interface TransferFragmentInteractionListener {
-        void startTransferFragmentService();
     }
 }

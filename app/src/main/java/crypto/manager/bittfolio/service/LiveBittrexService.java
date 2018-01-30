@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.Random;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -55,12 +54,9 @@ public class LiveBittrexService extends Service {
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
     // Random number generator
-    private final Random mGenerator = new Random();
-    private final Context context = this;
+    private Context context;
     private String mApiKey, mApiSecret, mCurrency;
     private OkHttpClient client;
-    private Object latestPrice;
-    private Object minuteDataForOneHour;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -68,6 +64,7 @@ public class LiveBittrexService extends Service {
         mApiKey = intent.getExtras().getString(API_KEY);
         mApiSecret = intent.getExtras().getString(API_SECRET);
         mCurrency = intent.getExtras().getString(CURRENCY);
+        context = this;
         return mBinder;
     }
 

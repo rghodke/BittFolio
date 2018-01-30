@@ -88,6 +88,9 @@
     <string name="label_is_conditional">Is Conditional</string>
     <string name="label_condition">Condition</string>
     <string name="label_condition_target">Condition Target</string>
+    <string name="label_loading">Loading</string>
+    <string name="label_loading_graph">Loading Graph</string>
+    <string name="label_please_wait">Please wait</string>
 
 
 </resources>

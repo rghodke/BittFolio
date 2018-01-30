@@ -44,6 +44,7 @@ public class CoinGraphFragment extends Fragment {
     private OnCoinGraphFragmentInteractionListener mListener;
     private boolean mIsDollars;
 
+
     public CoinGraphFragment() {
         // Required empty public constructor
     }
@@ -80,7 +81,6 @@ public class CoinGraphFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mListener.startCoinGraphDataService();
-        System.out.println("COINGRAPHFRAGMENT ON RESUME");
     }
 
     @Override
@@ -133,6 +133,7 @@ public class CoinGraphFragment extends Fragment {
         return view;
     }
 
+
     private void updateGraphInterval(int i) {
         XAxis xAxis = mChart.getXAxis();
         DateAxisFormatter formatter = (DateAxisFormatter) xAxis.getValueFormatter();
@@ -175,6 +176,8 @@ public class CoinGraphFragment extends Fragment {
             mNewGraph = false;
         }
         if (!mNewGraph) mChart.notifyDataSetChanged();
+
+
     }
 
     public void updateStats(String coinData) {
