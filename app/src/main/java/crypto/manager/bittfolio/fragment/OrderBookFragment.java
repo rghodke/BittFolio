@@ -79,6 +79,7 @@ public class OrderBookFragment extends Fragment {
         menu.clear();
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -156,8 +157,11 @@ public class OrderBookFragment extends Fragment {
     private void refreshOrderBookData() {
         mRecyclerViewBuyAdapter.updateData(mOrderBookBuyEntries);
         mRecyclerViewSellAdapter.updateData(mOrderBookSellEntries);
+        mListener.dismissProgressDialog();
     }
 
     public interface OrderBookFragmentInteractionListener {
+        void dismissProgressDialog();
+
     }
 }

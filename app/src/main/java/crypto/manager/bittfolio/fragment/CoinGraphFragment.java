@@ -80,7 +80,12 @@ public class CoinGraphFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //Both these statements are needed for this fragment specifically for when user first
+        // navigates to CoinDataActivity
+        //startCoinDataService() has a null check to ensure handler isn't made twice.
+        //showProgressDialog() also has a check in place
         mListener.startCoinGraphDataService();
+        mListener.showProgressDialog();
     }
 
     @Override
@@ -176,7 +181,7 @@ public class CoinGraphFragment extends Fragment {
             mNewGraph = false;
         }
         if (!mNewGraph) mChart.notifyDataSetChanged();
-
+        mListener.dismissProgressDialog();
 
     }
 
@@ -240,7 +245,11 @@ public class CoinGraphFragment extends Fragment {
     public interface OnCoinGraphFragmentInteractionListener {
         void updateGraphAtInterval(int i);
 
+        void dismissProgressDialog();
+
         void startCoinGraphDataService();
+
+        void showProgressDialog();
     }
 
 

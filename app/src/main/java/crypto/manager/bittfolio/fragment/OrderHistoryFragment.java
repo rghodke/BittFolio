@@ -101,7 +101,6 @@ public class OrderHistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_order_history_list, container, false);
 
-
         mClosedOrderHistoryEntries = new ArrayList<>();
         mOpenOrderHistoryEntries = new ArrayList<>();
 
@@ -207,9 +206,13 @@ public class OrderHistoryFragment extends Fragment {
     private void refreshOrderHistoryData() {
         mRecyclerViewAdapter.updateClosedOrderHistoryData(mClosedOrderHistoryEntries);
         mRecyclerViewAdapter.updateOpenOrderHistoryData(mOpenOrderHistoryEntries);
+        mListener.dismissProgressDialog();
     }
 
     public interface OnOrderHistoryListFragmentInteractionListener {
         void onOrderCancelled(OrderHistoryEntry item);
+
+        void dismissProgressDialog();
+
     }
 }

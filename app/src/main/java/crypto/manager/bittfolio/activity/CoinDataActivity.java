@@ -1,5 +1,6 @@
 package crypto.manager.bittfolio.activity;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -107,6 +108,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private Handler mCoinGraph;
     private Handler mBtcUsdtHandler;
     private OkHttpClient mClient;
+    private ProgressDialog mPDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,17 +137,16 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
             @Override
             public void onPageSelected(int position) {
+                showProgressDialog();
                 endAllHandlers();
                 if (position == 0) {
                     updateCoinGraph(2); //Default is 1 day
-                    updateBtcUsdtTicker();
                 } else if (position == 1) {
-                    updatePriceTicker();
-                    updateBtcUsdtTicker();
-                } else if (position == 2) {
-                    updateOrderHistory();
-                } else if (position == 3) {
                     updateOrderBook();
+                } else if (position == 2) {
+                    updateOrderInfo();
+                } else if (position == 3) {
+                    updateOrderHistory();
                 } else if (position == 4) {
                     updateDepositAddress();
                 }
@@ -163,11 +165,41 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
     }
 
+
+    private void updateOrderInfo() {
+        //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
+        mPriceHandler = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mPriceHandler.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                mService.getLatestPrice();
+                mService.getUSDTBTCPrice();
+                mPriceHandler.postDelayed(this, delay);
+
+            }
+        }, delay);
+    }
+
+    public void showProgressDialog() {
+        if (mPDialog == null || !mPDialog.isShowing())
+            mPDialog = ProgressDialog.show(CoinDataActivity.this, getString(R.string.label_loading), getString(R.string.label_loading));
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        if (mPDialog != null && mPDialog.isShowing()) {
+            mPDialog.dismiss();
+        }
+    }
+
+
     @Override
     public void startCoinGraphDataService() {
-        endAllHandlers();
         updateCoinGraph(2); //Default is 1 day
-        updateBtcUsdtTicker();
     }
 
     @Override
@@ -179,12 +211,15 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
     private void updateCoinGraph(final int i) {
         //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
         mCoinGraph = new Handler();
         final int delay = 1000; //milliseconds
 
         mCoinGraph.postDelayed(new Runnable() {
             public void run() {
                 mService.getMarketDataForCurrency();
+                mService.getUSDTBTCPrice();
                 //do something
                 switch (i) {
                     case 0:
@@ -216,35 +251,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                         break;
                 }
                 mCoinGraph.postDelayed(this, delay);
-
-            }
-        }, delay);
-    }
-
-    private void updateBtcUsdtTicker() {
-        //Every second get the newest info about the coin you want
-        mBtcUsdtHandler = new Handler();
-        final int delay = 1000; //milliseconds
-        mBtcUsdtHandler.postDelayed(new Runnable() {
-            public void run() {
-                //do something
-                mService.getUSDTBTCPrice();
-                mBtcUsdtHandler.postDelayed(this, delay);
-
-            }
-        }, delay);
-    }
-
-    private void updatePriceTicker() {
-        //Every second get the newest info about the coin you want
-        mPriceHandler = new Handler();
-        final int delay = 1000; //milliseconds
-
-        mPriceHandler.postDelayed(new Runnable() {
-            public void run() {
-                //do something
-                mService.getLatestPrice();
-                mPriceHandler.postDelayed(this, delay);
 
             }
         }, delay);
@@ -432,6 +438,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     @Override
     protected void onStop() {
         super.onStop();
+        mPDialog.dismiss();
     }
 
     /**
@@ -539,6 +546,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
      */
     public void updateOrderHistory() {
         //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
         mOrderHistoryHandler = new Handler();
         final int delay = 1000; //milliseconds
 
@@ -555,6 +564,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
     public void updateOrderBook() {
         //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
         mOrderBookHandler = new Handler();
         final int delay = 1000; //milliseconds
 
@@ -595,9 +606,9 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
     private void endAllHandlers() {
         if (mCoinGraph != null) mCoinGraph.removeCallbacksAndMessages(null);
-        if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
         if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
         if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
+        if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
         if (mBtcUsdtHandler != null) mBtcUsdtHandler.removeCallbacksAndMessages(null);
     }
 
@@ -823,7 +834,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
-        private String title[] = {"Price History", "Orders", "Order History", "Book", "Transfer"};
+        private String title[] = {"Price History", "Book", "Orders", "Order History", "Transfer"};
 
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -840,20 +851,20 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                 }
                 return mCoinGraphFragment;
             } else if (position == 1) {
-                if (mOrderFragment == null) {
-                    mOrderFragment = OrderFragment.newInstance();
-                }
-                return mOrderFragment;
-            } else if (position == 2) {
-                if (mOrderHistoryFragment == null) {
-                    mOrderHistoryFragment = OrderHistoryFragment.newInstance();
-                }
-                return mOrderHistoryFragment;
-            } else if (position == 3) {
                 if (mOrderBookFragment == null) {
                     mOrderBookFragment = OrderBookFragment.newInstance();
                 }
                 return mOrderBookFragment;
+            } else if (position == 2) {
+                if (mOrderFragment == null) {
+                    mOrderFragment = OrderFragment.newInstance();
+                }
+                return mOrderFragment;
+            } else if (position == 3) {
+                if (mOrderHistoryFragment == null) {
+                    mOrderHistoryFragment = OrderHistoryFragment.newInstance();
+                }
+                return mOrderHistoryFragment;
             } else if (position == 4) {
                 if (mTransferFragment == null) {
                     mTransferFragment = TransferFragment.newInstance();
@@ -866,7 +877,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 5 total pages.
             return title.length;
         }
 

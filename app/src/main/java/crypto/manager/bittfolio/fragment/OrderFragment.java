@@ -63,7 +63,6 @@ public class OrderFragment extends Fragment {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -186,6 +185,7 @@ public class OrderFragment extends Fragment {
             e.printStackTrace();
         }
 
+        mListener.dismissProgressDialog();
 
     }
 
@@ -205,5 +205,6 @@ public class OrderFragment extends Fragment {
     }
 
     public interface OrderFragmentInteractionListener {
+        void dismissProgressDialog();
     }
 }

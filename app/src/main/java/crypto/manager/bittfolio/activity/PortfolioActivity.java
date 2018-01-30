@@ -315,6 +315,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
      */
     public void updateCoinPrice() {
         //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mCoinPriceHandler != null) mCoinPriceHandler.removeCallbacksAndMessages(null);
         mCoinPriceHandler = new Handler();
         final int delay = 1000; //milliseconds
 

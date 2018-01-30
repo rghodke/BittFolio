@@ -157,7 +157,7 @@ public class TransferFragment extends Fragment {
         } catch (WriterException e) {
             e.printStackTrace();
         }
-
+        mListener.dismissProgressDialog();
     }
 
     Bitmap encodeAsBitmap(String str) throws WriterException {
@@ -188,5 +188,6 @@ public class TransferFragment extends Fragment {
     }
 
     public interface TransferFragmentInteractionListener {
+        void dismissProgressDialog();
     }
 }
