@@ -69,6 +69,10 @@ public class CoinData implements Parcelable {
         return mHolding;
     }
 
+    public void setHolding(double holding) {
+        this.mHolding = holding;
+    }
+
     public double getBalance() {
         return mBalance;
     }

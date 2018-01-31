@@ -63,6 +63,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private static final String LIVE_COIN_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_COIN_INTENT_EXTRA";
     private static final String LIVE_COIN_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_COIN_INTENT_ACTION";
     private static final String CURRENT_FRAGMENT_INTENT_EXTRA = "crypto.manager.bittfolio.CURRENT_FRAGMENT_INTENT_EXTRA";
+    private static final String LIVE_CURRENT_HOLDINGS_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_EXTRA";
+    private static final String LIVE_CURRENT_HOLDINGS_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_ACTION";
     private static PortfolioFragment mPortfolioFragment;
     private static CoinSearchFragment mCoinSearchFragment;
     private static OverallOrderHistoryFragment mOverallOrderHistoryFragment;
@@ -76,6 +78,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private OkHttpClient mClient;
     private Handler mOverallOrderHistoryHandler;
     private Handler mCoinPriceHandler;
+    private Handler mCoinHoldingHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,12 +199,31 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         stopAllHandlers();
         //Update the price on a second basis
         updateCoinPrice();
+        updateCoinHoldings();
+    }
+
+    private void updateCoinHoldings() {
+        //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mCoinHoldingHandler != null) mCoinHoldingHandler.removeCallbacksAndMessages(null);
+        mCoinHoldingHandler = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mCoinHoldingHandler.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                if (mService != null) mService.getCurrentHoldings();
+                mCoinHoldingHandler.postDelayed(this, delay);
+
+            }
+        }, delay);
     }
 
     private void stopAllHandlers() {
         if (mCoinPriceHandler != null) mCoinPriceHandler.removeCallbacksAndMessages(null);
         if (mOverallOrderHistoryHandler != null)
             mOverallOrderHistoryHandler.removeCallbacksAndMessages(null);
+        if (mCoinHoldingHandler != null) mCoinHoldingHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -246,7 +268,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
                 Fragment curFrag = getSupportFragmentManager().findFragmentById(R.id.fragment_holder);
                 if (curFrag instanceof PortfolioFragment) {
                     mPortfolioFragment = (PortfolioFragment) curFrag;
-                    mPortfolioFragment.updateCoinData(intent.getStringExtra(LIVE_COIN_INTENT_EXTRA));
+                    mPortfolioFragment.updateCoinInfo(intent.getStringExtra(LIVE_COIN_INTENT_EXTRA));
+                    mPortfolioFragment.updateCoinHolding(intent.getStringExtra(LIVE_CURRENT_HOLDINGS_INTENT_EXTRA));
                     return;
                 } else if (curFrag instanceof OverallOrderHistoryFragment) {
                     mOverallOrderHistoryFragment = (OverallOrderHistoryFragment) curFrag;
@@ -266,6 +289,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         bittrexServiceFilter.addAction(LIVE_COIN_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_CURRENT_HOLDINGS_INTENT_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
 
     }

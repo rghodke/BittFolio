@@ -211,7 +211,7 @@ public class PortfolioFragment extends Fragment {
      *
      * @param coinDataString
      */
-    public void updateCoinData(String coinDataString) {
+    public void updateCoinInfo(String coinDataString) {
         if (coinDataString != null && !coinDataString.isEmpty()) {
             Map<String, PriceData> currencyValue = new HashMap<>();
             try {
@@ -219,6 +219,9 @@ public class PortfolioFragment extends Fragment {
                 JSONArray currenciesData = jsonObject.getJSONArray("result");
                 for (int i = 0; i < currenciesData.length(); i++) {
                     JSONObject currencyData = currenciesData.getJSONObject(i);
+                    //If any coin doesn't have data, go to the next one. Don't break out of the loop
+                    //Failsafe
+                    if (currencyData.getString("Last") == "null") continue;
                     currencyValue.put(currencyData.getString("MarketName"), new PriceData(currencyData.getDouble("Last"), currencyData.getDouble("PrevDay")));
                 }
             } catch (JSONException e) {
@@ -270,21 +273,27 @@ public class PortfolioFragment extends Fragment {
 
             if (mIsDollars) {
                 String USDBTC = "USDT-BTC";
-                double coinValue = currencyValue.get(USDBTC).getLast();
-                for (CoinData coinData : mCoinDataList) {
-                    //btc is always in dollars
-                    if (coinData.getCurrency().equals("BTC")) {
-                        continue;
+                double coinValue = 1.0;
+                //null check
+                if (currencyValue.get(USDBTC) == null) mIsDollars = !mIsDollars;
+                else if (currencyValue.get(USDBTC) != null) {
+                    coinValue = currencyValue.get(USDBTC).getLast();
+                    for (CoinData coinData : mCoinDataList) {
+                        //btc is always in dollars
+                        if (coinData.getCurrency().equals("BTC")) {
+                            continue;
+                        }
+                        if (coinData.getCurrency().equals("USDT")) {
+                            continue;
+                        }
+                        coinData.setBalance(coinData.getBalance() * coinValue);
+                        coinData.setPrice(coinData.getPrice() * coinValue);
+                        coinData.setPrevDay(coinData.getPrevDay() * coinValue);
                     }
-                    if (coinData.getCurrency().equals("USDT")) {
-                        continue;
-                    }
-                    coinData.setBalance(coinData.getBalance() * coinValue);
-                    coinData.setPrice(coinData.getPrice() * coinValue);
-                    coinData.setPrevDay(coinData.getPrevDay() * coinValue);
+                    mTotalBalance *= coinValue;
+                    mPrevBalance *= currencyValue.get(USDBTC).getPrevDay();
+
                 }
-                mTotalBalance *= coinValue;
-                mPrevBalance *= currencyValue.get(USDBTC).getPrevDay();
             }
 
             //Update the list with the second to second update on balances
@@ -374,6 +383,29 @@ public class PortfolioFragment extends Fragment {
 
     public void showHideHoldings(boolean isHidden) {
         mRecyclerViewAdapter.changeHoldingVisibility(isHidden);
+    }
+
+    public void updateCoinHolding(String stringExtra) {
+        if (stringExtra != null) {
+            try {
+                JSONObject responseJsonObject = new JSONObject(stringExtra);
+                JSONArray resultArray = responseJsonObject.getJSONArray("result");
+                Map<String, Double> currencyHoldingMap = new HashMap<>();
+                for (int i = 0; i < resultArray.length(); i++) {
+                    JSONObject currencyInfo = resultArray.getJSONObject(i);
+                    currencyHoldingMap.put(currencyInfo.getString("Currency"), currencyInfo.getDouble("Available"));
+                }
+
+                for (CoinData cd : mCoinDataList) {
+                    cd.setHolding(currencyHoldingMap.get(cd.getCurrency()));
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mRecyclerViewAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

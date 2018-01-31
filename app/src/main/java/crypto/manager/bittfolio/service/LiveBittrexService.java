@@ -50,6 +50,8 @@ public class LiveBittrexService extends Service {
     private static final String LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_EXTRA";
     private static final String LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION";
     private static final String LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_CURRENT_HOLDINGS_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_EXTRA";
+    private static final String LIVE_CURRENT_HOLDINGS_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_ACTION";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
@@ -157,6 +159,37 @@ public class LiveBittrexService extends Service {
 
 
         connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+    }
+
+    public void getCurrentHoldings() {
+        String endpoint = "account/getbalances";
+        String urlParams = "";
+        Callback currentHoldingCallback = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_CURRENT_HOLDINGS_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_CURRENT_HOLDINGS_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        connectBittrexPrivate(endpoint, urlParams, currentHoldingCallback);
     }
 
     public void getOverallClosedOrderHistory() {

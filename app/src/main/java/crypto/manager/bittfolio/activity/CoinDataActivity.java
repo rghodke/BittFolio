@@ -106,7 +106,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private Handler mPriceHandler;
     private CoinGraphFragment mCoinGraphFragment;
     private Handler mCoinGraph;
-    private Handler mBtcUsdtHandler;
     private OkHttpClient mClient;
     private ProgressDialog mPDialog;
 
@@ -609,7 +608,6 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         if (mOrderHistoryHandler != null) mOrderHistoryHandler.removeCallbacksAndMessages(null);
         if (mPriceHandler != null) mPriceHandler.removeCallbacksAndMessages(null);
         if (mOrderBookHandler != null) mOrderBookHandler.removeCallbacksAndMessages(null);
-        if (mBtcUsdtHandler != null) mBtcUsdtHandler.removeCallbacksAndMessages(null);
     }
 
     public void scanQRCode(View view) {
