@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import crypto.manager.bittfolio.R;
@@ -80,6 +82,12 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
         mOrderHistoryEntries.clear();
         mOrderHistoryEntries.addAll(mOpenOrderHistoryEntries);
         mOrderHistoryEntries.addAll(mClosedOrderHistoryEntries);
+        Collections.sort(mOrderHistoryEntries, new Comparator<OrderHistoryEntry>() {
+            @Override
+            public int compare(OrderHistoryEntry orderHistoryEntry, OrderHistoryEntry t1) {
+                return t1.getOpenDate().compareTo(orderHistoryEntry.getOpenDate());
+            }
+        });
         notifyDataSetChanged();
     }
 
@@ -88,6 +96,12 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
         mOrderHistoryEntries.clear();
         mOrderHistoryEntries.addAll(mOpenOrderHistoryEntries);
         mOrderHistoryEntries.addAll(mClosedOrderHistoryEntries);
+        Collections.sort(mOrderHistoryEntries, new Comparator<OrderHistoryEntry>() {
+            @Override
+            public int compare(OrderHistoryEntry orderHistoryEntry, OrderHistoryEntry t1) {
+                return t1.getOpenDate().compareTo(orderHistoryEntry.getOpenDate());
+            }
+        });
         notifyDataSetChanged();
     }
 
