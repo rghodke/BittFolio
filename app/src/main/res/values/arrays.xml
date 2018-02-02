@@ -28,4 +28,19 @@
         <item>Condition Target</item>
     </string-array>
 
+    <string-array name="transfer_detail_array">
+        <item>Type</item>
+        <item>Payment Uuid</item>
+        <item>Currency</item>
+        <item>Amount</item>
+        <item>Address</item>
+        <item>Opened</item>
+        <item>Authorized</item>
+        <item>PendingPayment</item>
+        <item>TxCost</item>
+        <item>TxId</item>
+        <item>Cancelled</item>
+        <item>InvalidAddress</item>
+    </string-array>
+
 </resources>

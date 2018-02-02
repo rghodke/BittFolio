@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -23,13 +24,14 @@ import crypto.manager.bittfolio.model.OrderHistoryEntry;
  */
 public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderHistoryRecyclerViewAdapter.ViewHolder> {
 
-    private final List<OrderHistoryEntry> mOrderHistoryEntries;
+    private List<OrderHistoryEntry> mOrderHistoryEntries;
     private List<OrderHistoryEntry> mClosedOrderHistoryEntries;
     private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
     private int mPosition;
 
     public OrderHistoryRecyclerViewAdapter(List<OrderHistoryEntry> closedOrder, List<OrderHistoryEntry> openOrder) {
-        mOrderHistoryEntries = closedOrder;
+        mOrderHistoryEntries = new ArrayList<>();
+        mClosedOrderHistoryEntries = closedOrder;
         mOpenOrderHistoryEntries = openOrder;
     }
 
@@ -148,13 +150,13 @@ public class OrderHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OrderH
         public void onCreateContextMenu(ContextMenu menu, View v,
                                         ContextMenu.ContextMenuInfo menuInfo) {
 
-            menu.setHeaderTitle("Select Order Action");
+            menu.setHeaderTitle(R.string.menu_header_select_order_action);
             if (isOpen) {
                 menu.add(Menu.NONE, R.id.context_open_order_menu_close_order,
-                        Menu.NONE, "Close Order");
+                        Menu.NONE, R.string.menu_label_close_order);
             }
             menu.add(Menu.NONE, R.id.context_open_order_menu_more_details,
-                    Menu.NONE, "More Details");
+                    Menu.NONE, R.string.menu_label_more_details);
 
         }
     }

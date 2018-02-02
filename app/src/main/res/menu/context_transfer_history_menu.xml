@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/context_open_transfer_menu_close_order"
+        android:title="@string/item_cancel_transfer" />
+    <item
+        android:id="@+id/context_open_transfer_menu_more_details"
+        android:title="@string/item_more_details" />
+</menu>

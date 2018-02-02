@@ -52,6 +52,10 @@ public class LiveBittrexService extends Service {
     private static final String LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION";
     private static final String LIVE_CURRENT_HOLDINGS_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_EXTRA";
     private static final String LIVE_CURRENT_HOLDINGS_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_ACTION";
+    private static final String LIVE_WITHDRAW_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_WITHDRAW_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
@@ -225,7 +229,6 @@ public class LiveBittrexService extends Service {
         connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
     }
 
-
     public void getOverallOpenOrderHistory() {
         String endpoint = "market/getopenorders";
         Callback overallOpenOrderHistory = new Callback() {
@@ -291,7 +294,6 @@ public class LiveBittrexService extends Service {
         connectBittrexPrivate(endpoint, urlParams, openOrderHistory);
     }
 
-
     public void getOrderBook() {
         connectBittrexPublicApi("getorderbook?market=BTC-" + mCurrency + "&type=both", LIVE_ORDER_BOOK_INTENT_EXTRA, LIVE_ORDER_BOOK_INTENT_ACTION);
     }
@@ -327,7 +329,6 @@ public class LiveBittrexService extends Service {
     public void getWeeklyDataForPast6Month() {
         connectCryptoComparePublicApi("histoday?fsym=" + mCurrency + "&tsym=BTC&limit=26&aggregate=7&e=Bittrex", LIVE_PRICE_HISTORY_INTENT_EXTRA, LIVE_PRICE_HISTORY_INTENT_ACTION);
     }
-
 
     public void getMarketDataForCurrency() {
         connectBittrexPublicApi("getmarketsummary?market=BTC-" + mCurrency, LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_EXTRA, LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION);
@@ -365,6 +366,80 @@ public class LiveBittrexService extends Service {
         });
 
     }
+
+    public void getDepositTransferHistory() {
+        String endpoint = "account/getdeposithistory";
+        String urlParams = "currency=" + mCurrency;
+        Callback closedOrderHistory = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+    }
+
+    public void getWithdrawTransferHistory() {
+        String endpoint = "account/getwithdrawalhistory";
+        String urlParams = "currency=" + mCurrency;
+        Callback closedOrderHistory = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_WITHDRAW_ORDER_HISTORY_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+    }
+
+    public void getLatestPrice() {
+        connectBittrexPublicApi("getticker?market=BTC-" + mCurrency, LATEST_PRICE_INTENT_EXTRA, LATEST_PRICE_INTENT_ACTION);
+    }
+
+    public void getUSDTBTCPrice() {
+        connectBittrexPublicApi("getticker?market=USDT-BTC", LATEST_BTC_USDT_PRICE_INTENT_EXTRA, LATEST_BTC_USDT_PRICE_INTENT_ACTION);
+    }
+
+    ;
 
     private void connectBittrexPublicApi(String publicParameter, final String intentExtra, final String intentAction) {
         Request request = new Request.Builder()
@@ -412,16 +487,6 @@ public class LiveBittrexService extends Service {
         client.newCall(request).enqueue(callback);
 
     }
-
-
-    public void getLatestPrice() {
-        connectBittrexPublicApi("getticker?market=BTC-" + mCurrency, LATEST_PRICE_INTENT_EXTRA, LATEST_PRICE_INTENT_ACTION);
-    }
-
-    public void getUSDTBTCPrice() {
-        connectBittrexPublicApi("getticker?market=USDT-BTC", LATEST_BTC_USDT_PRICE_INTENT_EXTRA, LATEST_BTC_USDT_PRICE_INTENT_ACTION);
-    }
-
 
     /**
      * Class used for the client Binder.  Because we know this service always

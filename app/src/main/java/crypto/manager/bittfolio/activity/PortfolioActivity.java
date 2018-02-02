@@ -427,7 +427,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
                                     String resultJsonString = response.body().string();
                                     JSONObject jsonObject = new JSONObject(resultJsonString);
                                     if (jsonObject.getString("success").equals("true")) {
-                                        Toast.makeText(PortfolioActivity.this, getString(R.string.message_order_canceled), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(PortfolioActivity.this, getString(R.string.message_order_cancelled), Toast.LENGTH_SHORT).show();
                                     } else if (jsonObject.getString("success").equals("false")) {
                                         String messageStr = jsonObject.getString("message");
                                         Toast.makeText(PortfolioActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();

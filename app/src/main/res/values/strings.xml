@@ -72,7 +72,7 @@
     <string name="error_transaction_failed">Transaction Failed</string>
     <string name="error_transaction_failed_with_message">Transaction Failed with Message </string>
     <string name="message_transaction_successful_with_uuid">Transaction Successful with UUID </string>
-    <string name="message_order_canceled">The order was canceled</string>
+    <string name="message_order_cancelled">The order was cancelled</string>
 
     <!--Order History Labels-->
     <string name="label_order_history">Order History</string>
@@ -91,6 +91,15 @@
     <string name="label_loading">Loading</string>
     <string name="label_loading_graph">Loading Graph</string>
     <string name="label_please_wait">Please wait</string>
+    <string name="menu_label_close_order">Close Order</string>
+    <string name="menu_label_more_details">More Details</string>
+    <string name="menu_header_select_order_action">Select Order Action</string>
+    <string name="item_cancel_transfer">Cancel Transfer</string>
+    <string name="menu_label_cancel_transfer">Cancel Transfer</string>
+    <string name="menu_header_select_transfer_action">Select Transfer Action</string>
+    <string name="error_cancelling_transfer_message">Cancelling Transfer isn\'t supported yet</string>
+    <string name="label_order_details">Order Details</string>
+    <string name="label_transfer_details">Transfer Details</string>
 
 
 </resources>

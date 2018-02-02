@@ -49,8 +49,10 @@ import crypto.manager.bittfolio.fragment.OrderBookFragment;
 import crypto.manager.bittfolio.fragment.OrderFragment;
 import crypto.manager.bittfolio.fragment.OrderHistoryFragment;
 import crypto.manager.bittfolio.fragment.TransferFragment;
+import crypto.manager.bittfolio.fragment.TransferHistoryFragment;
 import crypto.manager.bittfolio.model.CoinData;
 import crypto.manager.bittfolio.model.OrderHistoryEntry;
+import crypto.manager.bittfolio.model.TransferHistoryEntry;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -58,7 +60,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener, OrderHistoryFragment.OnOrderHistoryListFragmentInteractionListener, OrderFragment.OrderFragmentInteractionListener, OrderBookFragment.OrderBookFragmentInteractionListener, TransferFragment.TransferFragmentInteractionListener {
+public class CoinDataActivity extends AppCompatActivity implements CoinGraphFragment.OnCoinGraphFragmentInteractionListener, OrderHistoryFragment.OnOrderHistoryListFragmentInteractionListener, OrderFragment.OrderFragmentInteractionListener, OrderBookFragment.OrderBookFragmentInteractionListener, TransferFragment.TransferFragmentInteractionListener, TransferHistoryFragment.OnTransferHistoryListFragmentInteractionListener {
 
     private static final String API_KEY = "crypto.manager.bittfolio.API_KEY";
     private static final String API_SECRET = "crypto.manager.bittfolio.API_SECRET";
@@ -78,6 +80,11 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private static final String LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_MARKET_DATA_SINGLE_CURRENCY_INTENT_ACTION";
     private static final String LATEST_BTC_USDT_PRICE_INTENT_EXTRA = "crypto.manager.bittfolio.LATEST_BTC_USDT_PRICE_INTENT_EXTRA";
     private static final String LATEST_BTC_USDT_PRICE_INTENT_ACTION = "crypto.manager.bittfolio.LATEST_BTC_USDT_PRICE_INTENT_ACTION";
+    private static final String LIVE_WITHDRAW_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_WITHDRAW_ORDER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION";
+    ;
+    private static final String LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA";
     private CoinData mCoinData;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -103,11 +110,13 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     private Handler mOrderBookHandler;
     private Handler mOrderHistoryHandler;
     private TransferFragment mTransferFragment;
+    private TransferHistoryFragment mTransferHistoryFragment;
     private Handler mPriceHandler;
     private CoinGraphFragment mCoinGraphFragment;
     private Handler mCoinGraph;
     private OkHttpClient mClient;
     private ProgressDialog mPDialog;
+    private Handler mTransferHistoryHandler;
 
 
     @Override
@@ -148,6 +157,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                     updateOrderHistory();
                 } else if (position == 4) {
                     updateDepositAddress();
+                } else if (position == 5) {
+                    updateTransferHistory();
                 }
             }
 
@@ -162,6 +173,25 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
+    }
+
+    private void updateTransferHistory() {
+        //Every second get the newest info about the coin you want
+        //Reset handler if already running
+        if (mTransferHistoryHandler != null)
+            mTransferHistoryHandler.removeCallbacksAndMessages(null);
+        mTransferHistoryHandler = new Handler();
+        final int delay = 1000; //milliseconds
+
+        mTransferHistoryHandler.postDelayed(new Runnable() {
+            public void run() {
+                //do something
+                mService.getWithdrawTransferHistory();
+                mService.getDepositTransferHistory();
+                mTransferHistoryHandler.postDelayed(this, delay);
+
+            }
+        }, delay);
     }
 
 
@@ -186,6 +216,11 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public void showProgressDialog() {
         if (mPDialog == null || !mPDialog.isShowing())
             mPDialog = ProgressDialog.show(CoinDataActivity.this, getString(R.string.label_loading), getString(R.string.label_loading));
+    }
+
+    @Override
+    public void onTransferCancelled(TransferHistoryEntry item) {
+        Toast.makeText(this, getString(R.string.error_cancelling_transfer_message), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -524,6 +559,18 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                             mCoinGraphFragment.updateBTCUSDTPrice(btcUSDT);
                         }
                     }
+                    if (curFrag instanceof TransferHistoryFragment) {
+                        mTransferHistoryFragment = (TransferHistoryFragment) curFrag;
+                        String withdrawOrderHistory = intent.getStringExtra(LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA);
+                        if (withdrawOrderHistory != null && !withdrawOrderHistory.isEmpty()) {
+                            mTransferHistoryFragment.updateWithdrawTransferHistory(withdrawOrderHistory);
+                        }
+                        String depositOrderHistory = intent.getStringExtra(LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA);
+                        if (depositOrderHistory != null && !depositOrderHistory.isEmpty()) {
+                            mTransferHistoryFragment.updateDepositOrderHistory(depositOrderHistory);
+                        }
+                        return;
+                    }
                 }
 //                }
             }
@@ -532,6 +579,8 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
         //The possible data intent actions
         bittrexServiceFilter.addAction(LIVE_CLOSED_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_OPEN_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_WITHDRAW_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_ORDER_BOOK_INTENT_ACTION);
         bittrexServiceFilter.addAction(LATEST_PRICE_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_PRICE_HISTORY_INTENT_ACTION);
@@ -766,7 +815,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                                     String resultJsonString = response.body().string();
                                     JSONObject jsonObject = new JSONObject(resultJsonString);
                                     if (jsonObject.getString("success").equals("true")) {
-                                        Toast.makeText(CoinDataActivity.this, getString(R.string.message_order_canceled), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(CoinDataActivity.this, getString(R.string.message_order_cancelled), Toast.LENGTH_SHORT).show();
                                     } else if (jsonObject.getString("success").equals("false")) {
                                         String messageStr = jsonObject.getString("message");
                                         Toast.makeText(CoinDataActivity.this, getString(R.string.error_transaction_failed_with_message) + messageStr, Toast.LENGTH_SHORT).show();
@@ -832,7 +881,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
-        private String title[] = {"Price History", "Book", "Orders", "Order History", "Transfer"};
+        private String title[] = {"Price History", "Book", "Orders", "Order History", "Transfer", "Transfer History"};
 
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -868,6 +917,11 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                     mTransferFragment = TransferFragment.newInstance();
                 }
                 return mTransferFragment;
+            } else if (position == 5) {
+                if (mTransferHistoryFragment == null) {
+                    mTransferHistoryFragment = TransferHistoryFragment.newInstance();
+                }
+                return mTransferHistoryFragment;
             } else {
                 return PlaceholderFragment.newInstance(position + 1);
             }
