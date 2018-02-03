@@ -111,7 +111,7 @@ public class PortfolioFragment extends Fragment {
         m24HourChange = (TextView) view.findViewById(R.id.text_view_24_hour_change);
 
         // Set the adapter
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list_overall_order);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),

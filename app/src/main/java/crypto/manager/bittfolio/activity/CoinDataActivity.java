@@ -567,7 +567,7 @@ public class CoinDataActivity extends AppCompatActivity implements CoinGraphFrag
                         }
                         String depositOrderHistory = intent.getStringExtra(LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA);
                         if (depositOrderHistory != null && !depositOrderHistory.isEmpty()) {
-                            mTransferHistoryFragment.updateDepositOrderHistory(depositOrderHistory);
+                            mTransferHistoryFragment.updateDepositTransferHistory(depositOrderHistory);
                         }
                         return;
                     }

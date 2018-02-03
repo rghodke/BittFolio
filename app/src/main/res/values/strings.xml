@@ -100,6 +100,8 @@
     <string name="error_cancelling_transfer_message">Cancelling Transfer isn\'t supported yet</string>
     <string name="label_order_details">Order Details</string>
     <string name="label_transfer_details">Transfer Details</string>
+    <string name="label_market">Market</string>
+    <string name="label_currency">Currency</string>
 
 
 </resources>

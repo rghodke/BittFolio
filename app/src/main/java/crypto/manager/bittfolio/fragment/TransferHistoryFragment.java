@@ -102,7 +102,7 @@ public class TransferHistoryFragment extends Fragment {
         mDepositHistoryEntries = new ArrayList<>();
         mWithdrawHistoryEntries = new ArrayList<>();
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.list_overall_order);
 
         // Set the adapter
         Context context = view.getContext();
@@ -126,9 +126,9 @@ public class TransferHistoryFragment extends Fragment {
             return super.onContextItemSelected(item);
         }
         switch (item.getItemId()) {
-            case R.id.context_open_order_menu_close_order:
+            case R.id.context_open_transfer_menu_close_order:
                 return true;
-            case R.id.context_open_order_menu_more_details:
+            case R.id.context_open_transfer_menu_more_details:
                 TransferDetailDialog orderDetailDialog = new TransferDetailDialog(getActivity(), mRecyclerViewAdapter.getTransferHistoryEntryAtPosition(position));
                 orderDetailDialog.show();
                 doKeepDialog(orderDetailDialog);
@@ -176,7 +176,7 @@ public class TransferHistoryFragment extends Fragment {
         refreshTransferHistoryData();
     }
 
-    public void updateDepositOrderHistory(String stringExtra) {
+    public void updateDepositTransferHistory(String stringExtra) {
         mDepositHistoryEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);

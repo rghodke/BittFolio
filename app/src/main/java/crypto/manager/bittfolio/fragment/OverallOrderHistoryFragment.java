@@ -24,7 +24,9 @@ import java.util.List;
 
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.adapter.OverallOrderHistoryRecyclerViewAdapter;
+import crypto.manager.bittfolio.adapter.OverallTransferHistoryRecyclerViewAdapter;
 import crypto.manager.bittfolio.model.OrderHistoryEntry;
+import crypto.manager.bittfolio.model.TransferHistoryEntry;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,16 +38,20 @@ import crypto.manager.bittfolio.model.OrderHistoryEntry;
  */
 public class OverallOrderHistoryFragment extends Fragment {
     private static final String ARG_OVERALL_ORDER_HISTORY_JSON_STRING = "OVERALL_ORDER_HISTORY_JSON";
-    private OverallOrderHistoryRecyclerViewAdapter mRecyclerViewAdapter;
+    private OverallOrderHistoryRecyclerViewAdapter mOrderRecyclerViewAdapter;
+    private OverallTransferHistoryRecyclerViewAdapter mTransferRecyclerViewAdapter;
 
 
     // TODO: Rename and change types of parameters
     private String mOrderHistoryJSON;
     private String mParam2;
-    private List<OrderHistoryEntry> mClosedOrderHistoryEntries;
-    private RecyclerView mRecyclerView;
-    private List<OrderHistoryEntry> mOpenOrderHistoryEntries;
+    private List<OrderHistoryEntry> mOverallClosedOrderHistoryEntries;
+    private RecyclerView mOverallOrderRecyclerView;
+    private List<OrderHistoryEntry> mOverallOpenOrderHistoryEntries;
     private OnOverallOrderHistoryListFragmentInteractionListener mListener;
+    private ArrayList<TransferHistoryEntry> mOverallWithdrawalHistoryEntries;
+    private ArrayList<TransferHistoryEntry> mOverallDepositHistoryEntries;
+    private RecyclerView mOverallTransferRecyclerView;
 //    private OnOrderHistoryListFragmentInteractionListener mListener;
 
     public OverallOrderHistoryFragment() {
@@ -100,19 +106,32 @@ public class OverallOrderHistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_overall_order_history_list, container, false);
 
-        mClosedOrderHistoryEntries = new ArrayList<>();
-        mOpenOrderHistoryEntries = new ArrayList<>();
+        mOverallClosedOrderHistoryEntries = new ArrayList<>();
+        mOverallOpenOrderHistoryEntries = new ArrayList<>();
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
+        mOverallWithdrawalHistoryEntries = new ArrayList<>();
+        mOverallDepositHistoryEntries = new ArrayList<>();
 
-        // Set the adapter
+        mOverallOrderRecyclerView = (RecyclerView) view.findViewById(R.id.list_overall_order);
+        mOverallTransferRecyclerView = (RecyclerView) view.findViewById(R.id.list_overall_transfer);
+
         Context context = view.getContext();
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mRecyclerViewAdapter = new OverallOrderHistoryRecyclerViewAdapter(mClosedOrderHistoryEntries, mOpenOrderHistoryEntries);
-        mRecyclerView.setAdapter(mRecyclerViewAdapter);
-        registerForContextMenu(mRecyclerView);
-        mListener.startOverallOrderHistoryDataService();
+
+        // Set the order adapter
+        mOverallOrderRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mOrderRecyclerViewAdapter = new OverallOrderHistoryRecyclerViewAdapter(mOverallClosedOrderHistoryEntries, mOverallOpenOrderHistoryEntries);
+        mOverallOrderRecyclerView.setAdapter(mOrderRecyclerViewAdapter);
+        registerForContextMenu(mOverallOrderRecyclerView);
+        mListener.startOverallHistoryDataService();
+
+        // Set the transfer adapter
+        mOverallTransferRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mTransferRecyclerViewAdapter = new OverallTransferHistoryRecyclerViewAdapter(mOverallWithdrawalHistoryEntries, mOverallDepositHistoryEntries);
+        mOverallTransferRecyclerView.setAdapter(mTransferRecyclerViewAdapter);
+
+
         return view;
+
 
     }
 
@@ -121,19 +140,26 @@ public class OverallOrderHistoryFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int position = -1;
         try {
-            position = mRecyclerViewAdapter.getPosition();
+            position = mOrderRecyclerViewAdapter.getPosition();
         } catch (Exception e) {
             e.printStackTrace();
             return super.onContextItemSelected(item);
         }
         switch (item.getItemId()) {
             case R.id.context_open_order_menu_close_order:
-                mListener.onOrderCancelled(mRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
+                mListener.onOrderCancelled(mOrderRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
                 return true;
             case R.id.context_open_order_menu_more_details:
-                OrderDetailDialog orderDetailDialog = new OrderDetailDialog(getActivity(), mRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
+                OrderDetailDialog orderDetailDialog = new OrderDetailDialog(getActivity(), mOrderRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
                 orderDetailDialog.show();
                 doKeepDialog(orderDetailDialog);
+                return true;
+            case R.id.context_open_transfer_menu_close_order:
+                return true;
+            case R.id.context_open_transfer_menu_more_details:
+                TransferDetailDialog transferDetailDialog = new TransferDetailDialog(getActivity(), mTransferRecyclerViewAdapter.getTransferHistoryEntryAtPosition(position));
+                transferDetailDialog.show();
+                doKeepDialog(transferDetailDialog);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -165,7 +191,10 @@ public class OverallOrderHistoryFragment extends Fragment {
 
 
     public void updateClosedOrderHistory(String stringExtra) {
-        mClosedOrderHistoryEntries = new ArrayList<>();
+        if (stringExtra == null || stringExtra.isEmpty()) {
+            return;
+        }
+        mOverallClosedOrderHistoryEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);
             JSONArray orderHistoryJSON = jsonObject.getJSONArray("result");
@@ -175,7 +204,7 @@ public class OverallOrderHistoryFragment extends Fragment {
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
                 String exchange = orderHistoryEntry.getString("Exchange");
-                mClosedOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("Commission"), orderHistoryEntry.getString("TimeStamp"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
+                mOverallClosedOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "CLOSED", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("Commission"), orderHistoryEntry.getString("TimeStamp"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -184,7 +213,10 @@ public class OverallOrderHistoryFragment extends Fragment {
     }
 
     public void updateOpenOrderHistory(String stringExtra) {
-        mOpenOrderHistoryEntries = new ArrayList<>();
+        if (stringExtra == null || stringExtra.isEmpty()) {
+            return;
+        }
+        mOverallOpenOrderHistoryEntries = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(stringExtra);
             JSONArray orderHistoryJSON = jsonObject.getJSONArray("result");
@@ -194,7 +226,7 @@ public class OverallOrderHistoryFragment extends Fragment {
                 if (orderType.equals("LIMIT_SELL")) orderType = "Sell";
                 if (orderType.equals("LIMIT_BUY")) orderType = "Buy";
                 String exchange = orderHistoryEntry.getString("Exchange");
-                mOpenOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("CommissionPaid"), orderHistoryEntry.getString("Opened"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
+                mOverallOpenOrderHistoryEntries.add(new OrderHistoryEntry(exchange, "OPEN", orderType, orderHistoryEntry.getString("Quantity"), orderHistoryEntry.getString("QuantityRemaining"), orderHistoryEntry.getString("Price"), orderHistoryEntry.getString("OrderUuid"), orderHistoryEntry.getString("PricePerUnit"), orderHistoryEntry.getString("Limit"), orderHistoryEntry.getString("CommissionPaid"), orderHistoryEntry.getString("Opened"), orderHistoryEntry.getString("Closed"), orderHistoryEntry.getString("ImmediateOrCancel"), orderHistoryEntry.getString("IsConditional"), orderHistoryEntry.getString("Condition"), orderHistoryEntry.getString("ConditionTarget")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -203,13 +235,55 @@ public class OverallOrderHistoryFragment extends Fragment {
     }
 
 
+    public void updateWithdrawTransferHistory(String stringExtra) {
+        if (stringExtra == null || stringExtra.isEmpty()) {
+            return;
+        }
+        mOverallWithdrawalHistoryEntries = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(stringExtra);
+            JSONArray withdrawTransferHistoryJSON = jsonObject.getJSONArray("result");
+            for (int i = 0; i < withdrawTransferHistoryJSON.length(); i++) {
+                JSONObject withdrawTransferHistoryEntry = withdrawTransferHistoryJSON.getJSONObject(i);
+                mOverallWithdrawalHistoryEntries.add(new TransferHistoryEntry(withdrawTransferHistoryEntry.getString("Currency"), "WITHDRAWAL", withdrawTransferHistoryEntry.getString("Amount"), withdrawTransferHistoryEntry.getString("PaymentUuid"), withdrawTransferHistoryEntry.getString("Opened"), withdrawTransferHistoryEntry.getString("Address"), withdrawTransferHistoryEntry.getBoolean("Authorized"), withdrawTransferHistoryEntry.getBoolean("PendingPayment"), withdrawTransferHistoryEntry.getString("TxCost"), withdrawTransferHistoryEntry.getString("TxId"), withdrawTransferHistoryEntry.getBoolean("Canceled"), withdrawTransferHistoryEntry.getBoolean("InvalidAddress")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        refreshTransferHistoryData();
+    }
+
+    public void updateDepositTransferHistory(String stringExtra) {
+        if (stringExtra == null || stringExtra.isEmpty()) {
+            return;
+        }
+        mOverallDepositHistoryEntries = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(stringExtra);
+            JSONArray depositTransferHistoryJSON = jsonObject.getJSONArray("result");
+            for (int i = 0; i < depositTransferHistoryJSON.length(); i++) {
+                JSONObject depositTransferHistoryEntry = depositTransferHistoryJSON.getJSONObject(i);
+                if (!depositTransferHistoryEntry.has("PaymentUuid")) continue;
+                mOverallDepositHistoryEntries.add(new TransferHistoryEntry(depositTransferHistoryEntry.getString("Currency"), "WITHDRAWAL", depositTransferHistoryEntry.getString("Amount"), depositTransferHistoryEntry.getString("PaymentUuid"), depositTransferHistoryEntry.getString("Opened"), depositTransferHistoryEntry.getString("Address"), depositTransferHistoryEntry.getBoolean("Authorized"), depositTransferHistoryEntry.getBoolean("PendingPayment"), depositTransferHistoryEntry.getString("TxCost"), depositTransferHistoryEntry.getString("TxId"), depositTransferHistoryEntry.getBoolean("Canceled"), depositTransferHistoryEntry.getBoolean("InvalidAddress")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        refreshTransferHistoryData();
+    }
+
     private void refreshOrderHistoryData() {
-        mRecyclerViewAdapter.updateClosedOrderHistoryData(mClosedOrderHistoryEntries);
-        mRecyclerViewAdapter.updateOpenOrderHistoryData(mOpenOrderHistoryEntries);
+        mOrderRecyclerViewAdapter.updateClosedOrderHistoryData(mOverallClosedOrderHistoryEntries);
+        mOrderRecyclerViewAdapter.updateOpenOrderHistoryData(mOverallOpenOrderHistoryEntries);
+    }
+
+    private void refreshTransferHistoryData() {
+        mTransferRecyclerViewAdapter.updateWithdrawTransferHistoryData(mOverallWithdrawalHistoryEntries);
+        mTransferRecyclerViewAdapter.updateDepositTransferHistoryData(mOverallDepositHistoryEntries);
     }
 
     public interface OnOverallOrderHistoryListFragmentInteractionListener {
-        void startOverallOrderHistoryDataService();
+        void startOverallHistoryDataService();
 
         void onOrderCancelled(OrderHistoryEntry item);
     }

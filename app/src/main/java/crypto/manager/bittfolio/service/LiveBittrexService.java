@@ -56,6 +56,10 @@ public class LiveBittrexService extends Service {
     private static final String LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_DEPOSIT_ORDER_HISTORY_INTENT_ACTION";
     private static final String LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_WITHDRAW_ORDER_HISTORY_INTENT_EXTRA";
     private static final String LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_DEPOSIT_ORDER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION";
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     // Binder given to clients
@@ -136,7 +140,7 @@ public class LiveBittrexService extends Service {
 
         String endpoint = "account/getorderhistory";
         String urlParams = "market=" + "BTC-" + mCurrency;
-        Callback closedOrderHistory = new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -162,7 +166,7 @@ public class LiveBittrexService extends Service {
         };
 
 
-        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+        connectBittrexPrivate(endpoint, urlParams, callback);
     }
 
     public void getCurrentHoldings() {
@@ -200,7 +204,7 @@ public class LiveBittrexService extends Service {
 
         String endpoint = "account/getorderhistory";
         String urlParams = "";
-        Callback closedOrderHistory = new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -226,7 +230,7 @@ public class LiveBittrexService extends Service {
         };
 
 
-        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+        connectBittrexPrivate(endpoint, urlParams, callback);
     }
 
     public void getOverallOpenOrderHistory() {
@@ -367,10 +371,12 @@ public class LiveBittrexService extends Service {
 
     }
 
+    ;
+
     public void getDepositTransferHistory() {
         String endpoint = "account/getdeposithistory";
         String urlParams = "currency=" + mCurrency;
-        Callback closedOrderHistory = new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -396,13 +402,13 @@ public class LiveBittrexService extends Service {
         };
 
 
-        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+        connectBittrexPrivate(endpoint, urlParams, callback);
     }
 
     public void getWithdrawTransferHistory() {
         String endpoint = "account/getwithdrawalhistory";
         String urlParams = "currency=" + mCurrency;
-        Callback closedOrderHistory = new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -428,7 +434,71 @@ public class LiveBittrexService extends Service {
         };
 
 
-        connectBittrexPrivate(endpoint, urlParams, closedOrderHistory);
+        connectBittrexPrivate(endpoint, urlParams, callback);
+    }
+
+    public void getOverallWithdrawalTransferHistory() {
+        String endpoint = "account/getwithdrawalhistory";
+        String urlParams = "";
+        Callback callback = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        connectBittrexPrivate(endpoint, urlParams, callback);
+    }
+
+    public void getOverallDepositTransferHistory() {
+        String endpoint = "account/getdeposithistory";
+        String urlParams = "";
+        Callback callback = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseString = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        if (jsonObject.getString("success").equals("true")) {
+                            Intent intent = new Intent();
+                            intent.putExtra(LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA, responseString);
+                            intent.setAction(LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        connectBittrexPrivate(endpoint, urlParams, callback);
     }
 
     public void getLatestPrice() {
@@ -438,8 +508,6 @@ public class LiveBittrexService extends Service {
     public void getUSDTBTCPrice() {
         connectBittrexPublicApi("getticker?market=USDT-BTC", LATEST_BTC_USDT_PRICE_INTENT_EXTRA, LATEST_BTC_USDT_PRICE_INTENT_ACTION);
     }
-
-    ;
 
     private void connectBittrexPublicApi(String publicParameter, final String intentExtra, final String intentAction) {
         Request request = new Request.Builder()
@@ -487,6 +555,7 @@ public class LiveBittrexService extends Service {
         client.newCall(request).enqueue(callback);
 
     }
+
 
     /**
      * Class used for the client Binder.  Because we know this service always

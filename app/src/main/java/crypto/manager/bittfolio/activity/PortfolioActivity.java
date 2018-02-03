@@ -65,6 +65,10 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private static final String CURRENT_FRAGMENT_INTENT_EXTRA = "crypto.manager.bittfolio.CURRENT_FRAGMENT_INTENT_EXTRA";
     private static final String LIVE_CURRENT_HOLDINGS_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_EXTRA";
     private static final String LIVE_CURRENT_HOLDINGS_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_CURRENT_HOLDINGS_INTENT_ACTION";
+    private static final String LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA";
+    private static final String LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION";
+    private static final String LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION";
     private static PortfolioFragment mPortfolioFragment;
     private static CoinSearchFragment mCoinSearchFragment;
     private static OverallOrderHistoryFragment mOverallOrderHistoryFragment;
@@ -281,6 +285,15 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
                     if (openOpenOrder != null && !openOpenOrder.isEmpty()) {
                         mOverallOrderHistoryFragment.updateOpenOrderHistory(openOpenOrder);
                     }
+                    String withdrawalTransferHistory = intent.getStringExtra(LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_EXTRA);
+                    if (withdrawalTransferHistory != null && !withdrawalTransferHistory.isEmpty()) {
+                        mOverallOrderHistoryFragment.updateWithdrawTransferHistory(withdrawalTransferHistory);
+                    }
+                    String depositTransferHistory = intent.getStringExtra(LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA);
+                    if (depositTransferHistory != null && !depositTransferHistory.isEmpty()) {
+                        mOverallOrderHistoryFragment.updateDepositTransferHistory(depositTransferHistory);
+                    }
+
                     return;
                 }
             }
@@ -289,6 +302,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         bittrexServiceFilter.addAction(LIVE_COIN_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_OVERALL_CLOSED_ORDER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_OVERALL_OPEN_ORDER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION);
+        bittrexServiceFilter.addAction(LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION);
         bittrexServiceFilter.addAction(LIVE_CURRENT_HOLDINGS_INTENT_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadCastNewMessage, bittrexServiceFilter);
 
@@ -296,6 +311,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
 
     private void updateOverallOrderHistory() {
         //Every second get the newest info about the coin you want
+        if (mOverallOrderHistoryHandler != null)
+            mOverallOrderHistoryHandler.removeCallbacksAndMessages(null);
         mOverallOrderHistoryHandler = new Handler();
         final int delay = 1000; //milliseconds
 
@@ -304,6 +321,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
                 //do something
                 if (mService != null) mService.getOverallClosedOrderHistory();
                 if (mService != null) mService.getOverallOpenOrderHistory();
+                if (mService != null) mService.getOverallWithdrawalTransferHistory();
+                if (mService != null) mService.getOverallDepositTransferHistory();
                 mOverallOrderHistoryHandler.postDelayed(this, delay);
 
             }
@@ -398,7 +417,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     }
 
     @Override
-    public void startOverallOrderHistoryDataService() {
+    public void startOverallHistoryDataService() {
         stopAllHandlers();
         //Update overall order history
         updateOverallOrderHistory();

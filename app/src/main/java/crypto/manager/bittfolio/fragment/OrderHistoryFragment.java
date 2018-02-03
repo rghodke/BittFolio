@@ -104,7 +104,7 @@ public class OrderHistoryFragment extends Fragment {
         mClosedOrderHistoryEntries = new ArrayList<>();
         mOpenOrderHistoryEntries = new ArrayList<>();
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.list_overall_order);
 
         // Set the adapter
         Context context = view.getContext();

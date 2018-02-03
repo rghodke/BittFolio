@@ -22,14 +22,14 @@ import crypto.manager.bittfolio.model.TransferHistoryEntry;
  * specified {@link OnPortfolioListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class TransferHistoryRecyclerViewAdapter extends RecyclerView.Adapter<TransferHistoryRecyclerViewAdapter.ViewHolder> {
+public class OverallTransferHistoryRecyclerViewAdapter extends RecyclerView.Adapter<OverallTransferHistoryRecyclerViewAdapter.ViewHolder> {
 
     private final List<TransferHistoryEntry> mTransferHistoryEntries;
     private List<TransferHistoryEntry> mWithdrawTransferHistoryEntries;
     private List<TransferHistoryEntry> mDepositTransferHistoryEntries;
     private int mPosition;
 
-    public TransferHistoryRecyclerViewAdapter(List<TransferHistoryEntry> withdraws, List<TransferHistoryEntry> deposits) {
+    public OverallTransferHistoryRecyclerViewAdapter(List<TransferHistoryEntry> withdraws, List<TransferHistoryEntry> deposits) {
         mTransferHistoryEntries = new ArrayList<>();
         mWithdrawTransferHistoryEntries = withdraws;
         mDepositTransferHistoryEntries = deposits;
@@ -38,7 +38,7 @@ public class TransferHistoryRecyclerViewAdapter extends RecyclerView.Adapter<Tra
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_transfer_history_entry, parent, false);
+                .inflate(R.layout.fragment_overall_transfer_history_entry, parent, false);
         return new ViewHolder(view);
     }
 
@@ -67,6 +67,7 @@ public class TransferHistoryRecyclerViewAdapter extends RecyclerView.Adapter<Tra
             }
         });
         holder.mView.setLongClickable(true);
+        holder.mCurrencyView.setText(mTransferHistoryEntries.get(position).getMarket());
         String status = mTransferHistoryEntries.get(position).isAuth() ? "Authorized" : "Authorizing";
         holder.mStatusView.setText(status);
         holder.mTypeView.setText(mTransferHistoryEntries.get(position).getType());
@@ -121,6 +122,7 @@ public class TransferHistoryRecyclerViewAdapter extends RecyclerView.Adapter<Tra
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         public final View mView;
+        public final TextView mCurrencyView;
         public final TextView mStatusView;
         public final TextView mTypeView;
         public final TextView mQuantityView;
@@ -131,6 +133,7 @@ public class TransferHistoryRecyclerViewAdapter extends RecyclerView.Adapter<Tra
             super(view);
             view.setOnCreateContextMenuListener(this);
             mView = view;
+            mCurrencyView = (TextView) view.findViewById(R.id.text_view_currency);
             mStatusView = (TextView) view.findViewById(R.id.text_view_status);
             mTypeView = (TextView) view.findViewById(R.id.text_view_type);
             mQuantityView = (TextView) view.findViewById(R.id.text_view_quantity);

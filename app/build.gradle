@@ -20,7 +20,7 @@ android {
 
 dependencies {
 
-    //debug only leak
+    //debug only leak check
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
 
 
@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     //camera for in house qr code scanner
-    implementation 'com.google.android.gms:play-services:7.8+'
+//    implementation 'com.google.android.gms:play-services:7.8+'
 
     // https://mvnrepository.com/artifact/com.google.zxing/
     implementation group: 'com.google.zxing', name: 'core', version: '3.3.1'
