@@ -21,8 +21,7 @@ android {
 dependencies {
 
     //debug only leak check
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'

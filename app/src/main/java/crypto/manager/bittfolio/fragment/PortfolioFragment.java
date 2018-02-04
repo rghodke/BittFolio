@@ -63,6 +63,7 @@ public class PortfolioFragment extends Fragment {
     private boolean mIsDollars;
     private TextView m24HourChange;
     private OkHttpClient mClient;
+    private boolean m24HourUnits;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -109,6 +110,13 @@ public class PortfolioFragment extends Fragment {
         mTotalBalanceTextView = (TextView) view.findViewById(R.id.text_view_portfolio_total_balance);
         mHappinessIndicator = (ImageView) view.findViewById(R.id.image_view_happiness_indicator);
         m24HourChange = (TextView) view.findViewById(R.id.text_view_24_hour_change);
+
+        m24HourChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                change24HourUnits();
+            }
+        });
 
         // Set the adapter
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list_overall_order);
@@ -305,11 +313,12 @@ public class PortfolioFragment extends Fragment {
 
     private void refreshPortfolioData(double totalBalance) {
         String currency = mIsDollars ? "$" : "₿";
+        String decimalFormat = mIsDollars ? "#.00" : "#.#######";
         if (mIsDollars) {
-            String val = currency + new DecimalFormat("#.00").format(totalBalance);
+            String val = currency + new DecimalFormat(decimalFormat).format(totalBalance);
             mTotalBalanceTextView.setText(val);
         } else {
-            String val = currency + new DecimalFormat("#.#######").format(totalBalance);
+            String val = currency + new DecimalFormat(decimalFormat).format(totalBalance);
             mTotalBalanceTextView.setText(val);
         }
 
@@ -317,9 +326,21 @@ public class PortfolioFragment extends Fragment {
         mRecyclerViewAdapter.notifyDataSetChanged();
         mRecyclerViewAdapter.setTotalBalance(totalBalance);
 
-        //24 hour % change
-        double percentChange = ((mTotalBalance / mPrevBalance) - 1) * 100;
-        String percentChangeStr = new DecimalFormat("#.00").format(percentChange) + "%";
+        String percentChangeStr;
+        String percentDecimalFormat = m24HourUnits ? "#.00" : "#.#######";
+        if (m24HourUnits) {
+            //24 hour % change
+            double percentChange = ((mTotalBalance / mPrevBalance) - 1) * 100;
+            percentChangeStr = new DecimalFormat(percentDecimalFormat).format(percentChange) + "%";
+        } else {
+            double percentChange = mTotalBalance - mPrevBalance;
+            if (mIsDollars) {
+                percentChangeStr = currency + new DecimalFormat(decimalFormat).format(percentChange);
+            } else {
+                percentChangeStr = currency + new DecimalFormat(percentDecimalFormat).format(percentChange);
+            }
+        }
+
         m24HourChange.setText(percentChangeStr);
 
         //Negative change in portfolio balance
@@ -328,6 +349,10 @@ public class PortfolioFragment extends Fragment {
         } else if (totalBalance >= mPrevBalance) { //Positive change in portfolio
             Picasso.with(getContext()).load(R.drawable.happy_face).fit().into(mHappinessIndicator);
         }
+    }
+
+    public void change24HourUnits() {
+        m24HourUnits = !m24HourUnits;
     }
 
     public void changeUnits() {

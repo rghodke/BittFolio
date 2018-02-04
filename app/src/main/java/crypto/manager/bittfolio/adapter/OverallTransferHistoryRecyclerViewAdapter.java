@@ -116,7 +116,9 @@ public class OverallTransferHistoryRecyclerViewAdapter extends RecyclerView.Adap
     }
 
     public TransferHistoryEntry getTransferHistoryEntryAtPosition(int position) {
-        if (position != -1) return mTransferHistoryEntries.get(position);
+        if (position != -1) {
+            return mTransferHistoryEntries.get(position);
+        }
         return null;
     }
 

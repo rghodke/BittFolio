@@ -140,23 +140,27 @@ public class OverallOrderHistoryFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int position = -1;
         try {
-            position = mOrderRecyclerViewAdapter.getPosition();
+
         } catch (Exception e) {
             e.printStackTrace();
             return super.onContextItemSelected(item);
         }
         switch (item.getItemId()) {
             case R.id.context_open_order_menu_close_order:
+                position = mOrderRecyclerViewAdapter.getPosition();
                 mListener.onOrderCancelled(mOrderRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
                 return true;
             case R.id.context_open_order_menu_more_details:
+                position = mOrderRecyclerViewAdapter.getPosition();
                 OrderDetailDialog orderDetailDialog = new OrderDetailDialog(getActivity(), mOrderRecyclerViewAdapter.getOrderHistoryEntryAtPosition(position));
                 orderDetailDialog.show();
                 doKeepDialog(orderDetailDialog);
                 return true;
             case R.id.context_open_transfer_menu_close_order:
+                position = mTransferRecyclerViewAdapter.getPosition();
                 return true;
             case R.id.context_open_transfer_menu_more_details:
+                position = mTransferRecyclerViewAdapter.getPosition();
                 TransferDetailDialog transferDetailDialog = new TransferDetailDialog(getActivity(), mTransferRecyclerViewAdapter.getTransferHistoryEntryAtPosition(position));
                 transferDetailDialog.show();
                 doKeepDialog(transferDetailDialog);

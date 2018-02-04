@@ -36,11 +36,11 @@
         <item>Address</item>
         <item>Opened</item>
         <item>Authorized</item>
-        <item>PendingPayment</item>
+        <item>Pending Payment</item>
         <item>TxCost</item>
         <item>TxId</item>
         <item>Cancelled</item>
-        <item>InvalidAddress</item>
+        <item>Invalid Address</item>
     </string-array>
 
 </resources>
