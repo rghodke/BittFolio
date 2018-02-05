@@ -32,9 +32,11 @@ import javax.crypto.spec.SecretKeySpec;
 import crypto.manager.bittfolio.Globals;
 import crypto.manager.bittfolio.R;
 import crypto.manager.bittfolio.fragment.CoinSearchFragment;
+import crypto.manager.bittfolio.fragment.NewsFragment;
 import crypto.manager.bittfolio.fragment.OverallOrderHistoryFragment;
 import crypto.manager.bittfolio.fragment.PortfolioFragment;
 import crypto.manager.bittfolio.model.CoinData;
+import crypto.manager.bittfolio.model.NewsItem;
 import crypto.manager.bittfolio.model.OrderHistoryEntry;
 import crypto.manager.bittfolio.service.LiveBittrexService;
 import okhttp3.Call;
@@ -43,7 +45,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class PortfolioActivity extends AppCompatActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener, CoinSearchFragment.onCoinSearchFragmentInteractionListener, OverallOrderHistoryFragment.OnOverallOrderHistoryListFragmentInteractionListener {
+public class PortfolioActivity extends AppCompatActivity implements PortfolioFragment.OnPortfolioListFragmentInteractionListener, CoinSearchFragment.onCoinSearchFragmentInteractionListener, OverallOrderHistoryFragment.OnOverallOrderHistoryListFragmentInteractionListener, NewsFragment.OnNewsListFragmentInteractionListener {
 
     private static final String ARG_COIN_DATA = "crypto.manager.bittfolio.ARG_COIN_DATA";
     private static final String TAG_PORTFOLIO_FRAGMENT = "TAG_PORTFOLIO_FRAGMENT";
@@ -69,6 +71,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private static final String LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA = "crypto.manager.bittfolio.LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_EXTRA";
     private static final String LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_WITHDRAWAL_TRANSFER_HISTORY_INTENT_ACTION";
     private static final String LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION = "crypto.manager.bittfolio.LIVE_OVERALL_DEPOSIT_TRANSFER_HISTORY_INTENT_ACTION";
+    private static final String TAG_NEWS_FRAGMENT = "crypto.manager.bittfolio.TAG_NEWS_FRAGMENT";
     private static PortfolioFragment mPortfolioFragment;
     private static CoinSearchFragment mCoinSearchFragment;
     private static OverallOrderHistoryFragment mOverallOrderHistoryFragment;
@@ -83,6 +86,7 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
     private Handler mOverallOrderHistoryHandler;
     private Handler mCoinPriceHandler;
     private Handler mCoinHoldingHandler;
+    private NewsFragment mNewsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +171,15 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             } else {
                 mOverallOrderHistoryFragment = OverallOrderHistoryFragment.newInstance();
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mOverallOrderHistoryFragment, TAG_OVERALL_ORDER_HISTORY_FRAGMENT).addToBackStack(null).commit();
+            }
+        }
+        if (id == R.id.action_news) {
+            if (mNewsFragment != null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mNewsFragment, TAG_NEWS_FRAGMENT).addToBackStack(null).commit();
+            } else {
+                mNewsFragment = NewsFragment.newInstance();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mNewsFragment, TAG_NEWS_FRAGMENT).addToBackStack(null).commit();
+
             }
         }
         if (id == R.id.action_change_balance_percent) {
@@ -535,5 +548,10 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
         }
 
         return new String(hexChars);
+    }
+
+    @Override
+    public void onNewsListFragmentInteraction(NewsItem item) {
+
     }
 }

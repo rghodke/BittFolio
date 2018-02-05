@@ -102,6 +102,7 @@
     <string name="label_transfer_details">Transfer Details</string>
     <string name="label_market">Market</string>
     <string name="label_currency">Currency</string>
+    <string name="label_news">News</string>
 
 
 </resources>
