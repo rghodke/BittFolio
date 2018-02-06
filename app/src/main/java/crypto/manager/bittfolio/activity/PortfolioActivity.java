@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -108,11 +109,13 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             mPortfolioFragment = (PortfolioFragment) getSupportFragmentManager().findFragmentByTag(TAG_PORTFOLIO_FRAGMENT);
             mCoinSearchFragment = (CoinSearchFragment) getSupportFragmentManager().findFragmentByTag(TAG_COIN_SEARCH_FRAGMENT);
             mOverallOrderHistoryFragment = (OverallOrderHistoryFragment) getSupportFragmentManager().findFragmentByTag(TAG_OVERALL_ORDER_HISTORY_FRAGMENT);
+            mNewsFragment = (NewsFragment) getSupportFragmentManager().findFragmentByTag(TAG_NEWS_FRAGMENT);
             fragmentToDisplay = savedInstanceState.getString(CURRENT_FRAGMENT_INTENT_EXTRA);
         } else {
             mPortfolioFragment = PortfolioFragment.newInstance(coinBalanceString);
             mCoinSearchFragment = CoinSearchFragment.newInstance();
             mOverallOrderHistoryFragment = OverallOrderHistoryFragment.newInstance();
+            mNewsFragment = NewsFragment.newInstance();
             fragmentToDisplay = TAG_PORTFOLIO_FRAGMENT;
         }
 
@@ -120,6 +123,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCoinSearchFragment, TAG_COIN_SEARCH_FRAGMENT).commit();
         } else if (fragmentToDisplay.equals(TAG_OVERALL_ORDER_HISTORY_FRAGMENT)) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mOverallOrderHistoryFragment, TAG_OVERALL_ORDER_HISTORY_FRAGMENT).commit();
+        } else if (fragmentToDisplay.equals(TAG_NEWS_FRAGMENT)) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mNewsFragment, TAG_NEWS_FRAGMENT).commit();
         } else {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mPortfolioFragment, TAG_PORTFOLIO_FRAGMENT).commit();
         }
@@ -143,6 +148,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
             currentFragDisplayed = TAG_OVERALL_ORDER_HISTORY_FRAGMENT;
         } else if (curFrag instanceof CoinSearchFragment) {
             currentFragDisplayed = TAG_COIN_SEARCH_FRAGMENT;
+        } else if (curFrag instanceof NewsFragment) {
+            currentFragDisplayed = TAG_NEWS_FRAGMENT;
         } else {
             currentFragDisplayed = TAG_PORTFOLIO_FRAGMENT;
         }
@@ -552,6 +559,8 @@ public class PortfolioActivity extends AppCompatActivity implements PortfolioFra
 
     @Override
     public void onNewsListFragmentInteraction(NewsItem item) {
-
+        //Open url
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getUrl()));
+        startActivity(browserIntent);
     }
 }

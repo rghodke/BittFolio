@@ -62,7 +62,7 @@ public class NewsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRetainInstance(true);
         if (getArguments() != null) {
         }
     }
@@ -160,8 +160,11 @@ public class NewsFragment extends Fragment {
                                             if (insideItem)
                                                 mTitles.add(xpp.nextText()); //extract the headline
                                         } else if (xpp.getName().equalsIgnoreCase("link")) {
-                                            if (insideItem)
-                                                mUrl.add(xpp.nextText()); //extract the link of article
+                                            for (int i = 0; i < xpp.getAttributeCount(); i++) {
+                                                if (xpp.getAttributeName(i).equals("href")) {
+                                                    mUrl.add(xpp.getAttributeValue(i)); //extract the link of article
+                                                }
+                                            }
                                         } else if (xpp.getName().equalsIgnoreCase("updated")) {
                                             if (insideItem)
                                                 mDate.add(xpp.nextText()); //extract the date of article
@@ -184,7 +187,7 @@ public class NewsFragment extends Fragment {
                                 NewsItem ni = new NewsItem();
                                 ni.setTime(mDate.get(i));
                                 ni.setSource("Reddit /r/cryptocurrency");
-                                ni.setUrl(mUrl.get(i));
+                                ni.setUrl(mUrl.get(2 + i)); //Hardcoded 2 to skip reddit urls
                                 ni.setTitle(mTitles.get(i));
                                 mNewsItems.add(ni);
                             }
