@@ -34,6 +34,9 @@
             android:name=".activity.CoinDataActivity"
             android:label="@string/title_activity_coin_data"
             android:windowSoftInputMode="adjustPan" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="c030f5278a2dc853ce146a7e52c32644304c98d2" />
     </application>
 
 

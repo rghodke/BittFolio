@@ -19,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -183,6 +185,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void persistLoginInPref(String mApiKey, String mApiSecret) {
+        Crashlytics.setUserIdentifier(mApiKey);
         getSharedPreferences(PREFS_LOGIN, MODE_PRIVATE)
                 .edit()
                 .putString(PREF_USERNAME, mApiKey)
